@@ -10,6 +10,8 @@ extends Node3D
 var chat_visible = false
 var inventory_visible = false
 
+var interaction_prompt: Label
+
 func _ready():
 	if DisplayServer.get_name() == "headless":
 		print("Dedicated server starting...")
@@ -29,11 +31,15 @@ func _ready():
 	if multiplayer_chat:
 		multiplayer_chat.message_sent.connect(_on_chat_message_sent)
 
-	if not multiplayer.is_server():
-		return
-
+	# Always connect player_connected and peer_disconnected so clients spawn/cleanup peers correctly
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
+
+	# Setup the screen interaction UI prompt
+	_setup_interaction_ui()
+	
+	# Spawn resource nodes in the world
+	spawn_resources()
 
 func _on_player_connected(peer_id, player_info):
 	_add_player(peer_id, player_info)
@@ -59,21 +65,85 @@ func _add_player(id: int, player_info : Dictionary):
 	players_container.add_child(player, true)
 
 	var nick = Network.players[id]["nick"]
-	player.nickname.text = nick
+	if player.has_method("set_nickname"):
+		player.set_nickname(nick)
+	else:
+		player.nickname.text = nick
 
 	var skin_enum = player_info["skin"]
 	player.set_player_skin(skin_enum)
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
-	return Vector3(spawn_point.x, 0, spawn_point.y)
+	return Vector3(spawn_point.x, 0.5, spawn_point.y) # Spawn slightly above floor
 
 func _remove_player(id):
-	if not multiplayer.is_server() or not players_container.has_node(str(id)):
+	if not players_container.has_node(str(id)):
 		return
 	var player_node = players_container.get_node(str(id))
 	if player_node:
 		player_node.queue_free()
+
+func _setup_interaction_ui():
+	var canvas = CanvasLayer.new()
+	interaction_prompt = Label.new()
+	interaction_prompt.text = ""
+	interaction_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	interaction_prompt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	
+	interaction_prompt.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	interaction_prompt.position.y -= 100
+	
+	interaction_prompt.add_theme_font_size_override("font_size", 24)
+	interaction_prompt.add_theme_color_override("font_outline_color", Color.BLACK)
+	interaction_prompt.add_theme_constant_override("outline_size", 8)
+	
+	canvas.add_child(interaction_prompt)
+	add_child(canvas)
+
+func set_interaction_prompt(prompt_text: String):
+	if interaction_prompt:
+		interaction_prompt.text = prompt_text
+
+func spawn_resources():
+	# Seed the RNG so all clients spawn them in the exact same positions
+	seed(54321)
+	
+	# Spawn 15 trees
+	for i in range(15):
+		var tree = preload("res://scripts/harvestable_node.gd").new()
+		tree.node_type = HarvestableNode.NodeType.TREE
+		tree.item_id = "wood"
+		tree.node_name = "Tree"
+		tree.name = "Tree_" + str(i)
+		
+		var x = randf_range(-40.0, 40.0)
+		var z = randf_range(-40.0, 40.0)
+		if Vector2(x, z).length() < 12.0:
+			var shifted = Vector2(x, z).normalized() * 15.0
+			x = shifted.x
+			z = shifted.y
+			
+		tree.position = Vector3(x, 0.0, z)
+		$Environment.add_child(tree)
+		
+	# Spawn 10 iron ores
+	for i in range(10):
+		var ore = preload("res://scripts/harvestable_node.gd").new()
+		ore.node_type = HarvestableNode.NodeType.IRON_ORE
+		ore.item_id = "iron_ore"
+		ore.node_name = "Iron Ore"
+		ore.name = "IronOre_" + str(i)
+		
+		var x = randf_range(-40.0, 40.0)
+		var z = randf_range(-40.0, 40.0)
+		if Vector2(x, z).length() < 12.0:
+			var shifted = Vector2(x, z).normalized() * 15.0
+			x = shifted.x
+			z = shifted.y
+			
+		ore.position = Vector3(x, 0.0, z)
+		$Environment.add_child(ore)
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

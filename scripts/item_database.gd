@@ -82,6 +82,33 @@ func _create_sample_items():
 	pickaxe.icon = placeholder_icon
 	items[pickaxe.id] = pickaxe
 
+	# Wood resource
+	var wood = Item.new()
+	wood.id = "wood"
+	wood.name = "Wood"
+	wood.description = "A basic crafting material gathered from trees."
+	wood.item_type = Item.ItemType.MISC
+	wood.rarity = Item.ItemRarity.COMMON
+	wood.stackable = true
+	wood.max_stack = 99
+	wood.value = 5
+	wood.icon = placeholder_icon
+	items[wood.id] = wood
+
+	# Iron Ore resource
+	var iron_ore = Item.new()
+	iron_ore.id = "iron_ore"
+	iron_ore.name = "Iron Ore"
+	iron_ore.description = "Raw iron ore mined from rocks."
+	iron_ore.item_type = Item.ItemType.MISC
+	iron_ore.rarity = Item.ItemRarity.COMMON
+	iron_ore.stackable = true
+	iron_ore.max_stack = 99
+	iron_ore.value = 10
+	iron_ore.icon = placeholder_icon
+	items[iron_ore.id] = iron_ore
+
+
 func add_item_to_database(item: Item) -> bool:
 	if item.id.is_empty():
 		push_error("Cannot add item with empty ID to database")

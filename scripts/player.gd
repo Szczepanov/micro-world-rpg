@@ -11,6 +11,17 @@ enum SkinColor { BLUE, YELLOW, GREEN, RED }
 
 var player_inventory: PlayerInventory
 
+# RPG Mechanics & Combat States
+@export var max_health: int = 100
+@export var current_health: int = 100:
+	set(val):
+		current_health = val
+		update_nickname_display()
+@export var is_dead: bool = false
+var is_attacking: bool = false
+var current_nick: String = "Player"
+var interaction_area: Area3D = null
+
 @export_category("Objects")
 @export var _body: Node3D = null
 @export var _spring_arm_offset: Node3D = null
@@ -43,6 +54,13 @@ func _ready():
 
 	print("Debug: Player ", name, " ready - authority: ", get_multiplayer_authority(), ", local client: ", local_client_id, ", is_local: ", is_local_player)
 
+	if _body and _body.animation_player:
+		_body.animation_player.animation_finished.connect(_on_animation_finished)
+
+	_setup_input_actions()
+	_setup_interaction_area()
+	_setup_health_replication()
+
 	if is_local_player:
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
@@ -56,6 +74,10 @@ func _ready():
 func _physics_process(delta):
 	if not is_multiplayer_authority(): return
 
+	if is_dead:
+		freeze()
+		return
+
 	var current_scene = get_tree().get_current_scene()
 	if current_scene and is_on_floor():
 		var should_freeze = false
@@ -68,18 +90,25 @@ func _physics_process(delta):
 			freeze()
 			return
 
+	# Handle Attack & Interaction
+	if not is_attacking:
+		if Input.is_action_just_pressed("attack"):
+			_perform_melee_attack(false)
+		elif Input.is_action_just_pressed("interact"):
+			_perform_melee_attack(true)
+
 	if is_on_floor():
 		can_double_jump = true
 		has_double_jumped = false
 
-		if Input.is_action_just_pressed("jump"):
+		if Input.is_action_just_pressed("jump") and not is_attacking:
 			velocity.y = JUMP_VELOCITY
 			can_double_jump = true
 			_body.play_jump_animation("Jump")
 	else:
 		velocity.y -= gravity * delta
 
-		if can_double_jump and not has_double_jumped and Input.is_action_just_pressed("jump"):
+		if can_double_jump and not has_double_jumped and Input.is_action_just_pressed("jump") and not is_attacking:
 			velocity.y = JUMP_VELOCITY
 			has_double_jumped = true
 			can_double_jump = false
@@ -89,19 +118,27 @@ func _physics_process(delta):
 
 	_move()
 	move_and_slide()
-	_body.animate(velocity)
+	if not is_attacking:
+		_body.animate(velocity)
 
 func _process(_delta):
 	if not is_multiplayer_authority(): return
 	_check_fall_and_respawn()
+	_update_interaction_ui()
 
 func freeze():
 	velocity.x = 0
 	velocity.z = 0
 	_current_speed = 0
-	_body.animate(Vector3.ZERO)
+	if not is_attacking:
+		_body.animate(Vector3.ZERO)
 
 func _move() -> void:
+	if is_attacking:
+		velocity.x = 0
+		velocity.z = 0
+		return
+
 	var _input_direction: Vector2 = Vector2.ZERO
 	if is_multiplayer_authority():
 		_input_direction = Input.get_vector(
@@ -141,8 +178,16 @@ func _respawn():
 
 @rpc("any_peer", "reliable")
 func change_nick(new_nick: String):
+	current_nick = new_nick
+	update_nickname_display()
+
+func set_nickname(new_nick: String):
+	current_nick = new_nick
+	update_nickname_display()
+
+func update_nickname_display():
 	if nickname:
-		nickname.text = new_nick
+		nickname.text = current_nick + " (" + str(current_health) + "/" + str(max_health) + " HP)"
 
 func get_texture_from_name(skin_color: SkinColor) -> CompressedTexture2D:
 	match skin_color:
@@ -334,3 +379,204 @@ func _add_starting_items():
 		player_inventory.add_item(sword, 1)
 	if potion:
 		player_inventory.add_item(potion, 3)
+
+func _setup_input_actions():
+	if not InputMap.has_action("attack"):
+		InputMap.add_action("attack")
+		var click_event = InputEventMouseButton.new()
+		click_event.button_index = MOUSE_BUTTON_LEFT
+		InputMap.action_add_event("attack", click_event)
+		var key_event = InputEventKey.new()
+		key_event.physical_keycode = KEY_F
+		InputMap.action_add_event("attack", key_event)
+		
+	if not InputMap.has_action("interact"):
+		InputMap.add_action("interact")
+		var key_event = InputEventKey.new()
+		key_event.physical_keycode = KEY_E
+		InputMap.action_add_event("interact", key_event)
+
+func _setup_interaction_area():
+	interaction_area = Area3D.new()
+	interaction_area.name = "InteractionDetector"
+	# Detect world (2) and interactables (4). binary 110 = 6.
+	interaction_area.collision_mask = 6
+	interaction_area.collision_layer = 0 # Doesn't need to be detected
+	
+	var col_shape = CollisionShape3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = 2.5
+	col_shape.shape = sphere
+	interaction_area.add_child(col_shape)
+	
+	add_child(interaction_area)
+
+func _setup_health_replication():
+	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
+	if synchronizer:
+		var config = synchronizer.replication_config
+		var hp_path = NodePath(".:current_health")
+		if not config.has_property(hp_path):
+			config.add_property(hp_path)
+			config.property_set_replication_mode(hp_path, 1) # 1: REPLICATION_MODE_ALWAYS / CONTINUOUS
+			
+		var dead_path = NodePath(".:is_dead")
+		if not config.has_property(dead_path):
+			config.add_property(dead_path)
+			config.property_set_replication_mode(dead_path, 1) # 1: REPLICATION_MODE_ALWAYS / CONTINUOUS
+
+func _on_animation_finished(anim_name: String):
+	if anim_name == "Attack1":
+		is_attacking = false
+
+func _perform_melee_attack(is_interact: bool):
+	is_attacking = true
+	if _body and _body.animation_player:
+		_body.animation_player.play("Attack1")
+		
+	# Fallback timer (1.3s) to prevent getting stuck if animation_finished fails to fire
+	get_tree().create_timer(1.3).timeout.connect(func():
+		is_attacking = false
+	)
+		
+	var target = _find_closest_target()
+	if target:
+		if target is HarvestableNode:
+			request_harvest_hit.rpc_id(1, target.get_path())
+		elif target is Character and target != self:
+			request_combat_hit.rpc_id(1, target.get_path())
+
+func _find_closest_target() -> Node3D:
+	if not interaction_area:
+		return null
+		
+	var bodies = interaction_area.get_overlapping_bodies()
+	var closest_body: Node3D = null
+	var closest_dist: float = 999.0
+	
+	for body in bodies:
+		if body == self:
+			continue
+		if body is HarvestableNode and body.is_depleted:
+			continue
+		if body is Character and body.is_dead:
+			continue
+			
+		var dist = global_position.distance_to(body.global_position)
+		if dist < closest_dist:
+			closest_dist = dist
+			closest_body = body
+			
+	return closest_body
+
+func _update_interaction_ui():
+	var level = get_tree().current_scene
+	if not level or not level.has_method("set_interaction_prompt"):
+		return
+		
+	if is_dead:
+		level.set_interaction_prompt("You are dead. Respawning...")
+		return
+		
+	if is_attacking:
+		level.set_interaction_prompt("")
+		return
+		
+	var target = _find_closest_target()
+	if target:
+		if target is HarvestableNode:
+			level.set_interaction_prompt("[E] Harvest " + target.node_name + " (HP: " + str(target.current_health) + ")")
+		elif target is Character:
+			level.set_interaction_prompt("[Left-Click] Attack " + target.current_nick)
+	else:
+		level.set_interaction_prompt("")
+
+@rpc("any_peer", "call_local", "reliable")
+func request_harvest_hit(node_path: NodePath):
+	if not multiplayer.is_server():
+		return
+		
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority() and sender_id != 1:
+		return
+		
+	var node = get_node_or_null(node_path)
+	if not node or not (node is HarvestableNode) or node.is_depleted:
+		return
+		
+	var dist = global_position.distance_to(node.global_position)
+	if dist > 5.0:
+		return
+		
+	node.harvest_hit(self)
+
+@rpc("any_peer", "call_local", "reliable")
+func request_combat_hit(target_path: NodePath):
+	if not multiplayer.is_server():
+		return
+		
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority() and sender_id != 1:
+		return
+		
+	var target = get_node_or_null(target_path)
+	if not target or not (target is Character) or target.is_dead or target == self:
+		return
+		
+	var dist = global_position.distance_to(target.global_position)
+	if dist > 5.0:
+		return
+		
+	target.take_damage(20, self)
+
+func take_damage(amount: int, attacker: Character):
+	if not multiplayer.is_server():
+		return
+	if is_dead:
+		return
+		
+	current_health = max(0, current_health - amount)
+	play_hurt_effect.rpc()
+	
+	if current_health <= 0:
+		die(attacker)
+
+@rpc("call_local", "reliable")
+func play_hurt_effect():
+	if _body and _body.animation_player:
+		_body.animation_player.play("Hurt")
+
+func die(attacker: Character):
+	if not multiplayer.is_server():
+		return
+	is_dead = true
+	
+	var level = get_tree().current_scene
+	if level and level.has_method("msg_rpc"):
+		level.msg_rpc.rpc("System", current_nick + " was slain by " + attacker.current_nick + "!")
+		
+	get_tree().create_timer(3.0).timeout.connect(func():
+		respawn()
+	)
+
+func respawn():
+	if not multiplayer.is_server():
+		return
+	is_dead = false
+	current_health = max_health
+	
+	var level = get_tree().current_scene
+	if level and level.has_method("get_spawn_point"):
+		global_position = level.get_spawn_point()
+	else:
+		global_position = Vector3(0, 5, 0)
+		
+	velocity = Vector3.ZERO
+	respawn_client.rpc(global_position)
+
+@rpc("call_local", "reliable")
+func respawn_client(pos: Vector3):
+	global_position = pos
+	velocity = Vector3.ZERO
+	if is_multiplayer_authority():
+		is_attacking = false

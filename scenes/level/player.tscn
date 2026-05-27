@@ -455,7 +455,7 @@ resource_local_to_scene = true
 [sub_resource type="Animation" id="Animation_jou0i"]
 resource_name = "Attack1"
 length = 1.20833
-loop_mode = 1
+loop_mode = 0
 tracks/0/type = "position_3d"
 tracks/0/imported = true
 tracks/0/enabled = true
