@@ -1,0 +1,9 @@
+.git
+.gitignore
+.godot/
+*.log
+Dockerfile
+.dockerignore
+implementation_plan.md
+task.md
+walkthrough.md

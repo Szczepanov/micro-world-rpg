@@ -26,6 +26,11 @@ var interaction_area: Area3D = null
 @export var _body: Node3D = null
 @export var _spring_arm_offset: Node3D = null
 
+@export_category("Modular Outfits")
+@export var outfits_dir: String = "res://assets/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Outfits/"
+@export var textures_dir: String = "res://assets/Modular Character Outfits - Fantasy[Standard]/Textures/"
+@export var main_skeleton: Skeleton3D = null
+
 @export_category("Skin Colors")
 @export var blue_texture : CompressedTexture2D
 @export var yellow_texture : CompressedTexture2D
@@ -580,3 +585,202 @@ func respawn_client(pos: Vector3):
 	velocity = Vector3.ZERO
 	if is_multiplayer_authority():
 		is_attacking = false
+
+# --- Modular Character Customization ---
+
+func _find_meshes_recursive(node: Node, meshes: Array[MeshInstance3D]) -> void:
+	if node is MeshInstance3D:
+		meshes.append(node)
+	for child in node.get_children():
+		_find_meshes_recursive(child, meshes)
+
+func find_gltf_file(part_name: String, outfit_style: String) -> String:
+	var dir = DirAccess.open(outfits_dir)
+	if not dir:
+		push_error("Cannot open outfits directory: " + outfits_dir)
+		return ""
+		
+	# Search patterns for flexibility
+	var search_patterns = [
+		part_name + "_" + outfit_style,
+		outfit_style + "_" + part_name,
+		"Male_" + outfit_style + "_" + part_name,
+		"Female_" + outfit_style + "_" + part_name,
+		"Male_" + part_name + "_" + outfit_style,
+		"Female_" + part_name + "_" + outfit_style,
+		part_name,
+		outfit_style
+	]
+	
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir() and file_name.ends_with(".gltf"):
+			var base_name = file_name.get_basename()
+			for pattern in search_patterns:
+				if base_name.to_lower() == pattern.to_lower():
+					dir.list_dir_end()
+					return outfits_dir.path_join(file_name)
+				if part_name.to_lower() in base_name.to_lower() and outfit_style.to_lower() in base_name.to_lower():
+					dir.list_dir_end()
+					return outfits_dir.path_join(file_name)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	
+	# Direct fallbacks
+	var direct_name = part_name + "_" + outfit_style + ".gltf"
+	var direct_path = outfits_dir.path_join(direct_name)
+	if FileAccess.file_exists(direct_path):
+		return direct_path
+		
+	var direct_alt_name = outfit_style + "_" + part_name + ".gltf"
+	var direct_alt_path = outfits_dir.path_join(direct_alt_name)
+	if FileAccess.file_exists(direct_alt_path):
+		return direct_alt_path
+		
+	# Try sub-folder "Modular Parts" if present
+	var parts_dir_path = outfits_dir.get_base_dir().path_join("Modular Parts")
+	var parts_dir = DirAccess.open(parts_dir_path)
+	if parts_dir:
+		parts_dir.list_dir_begin()
+		file_name = parts_dir.get_next()
+		while file_name != "":
+			if not parts_dir.current_is_dir() and file_name.ends_with(".gltf"):
+				var base_name = file_name.get_basename()
+				if part_name.to_lower() in base_name.to_lower() and outfit_style.to_lower() in base_name.to_lower():
+					parts_dir.list_dir_end()
+					return parts_dir_path.path_join(file_name)
+			file_name = parts_dir.get_next()
+		parts_dir.list_dir_end()
+		
+	push_error("Could not find gltf file for part: %s, style: %s" % [part_name, outfit_style])
+	return ""
+
+func find_texture_file(outfit_style: String) -> String:
+	var base_dir = DirAccess.open(textures_dir)
+	if not base_dir:
+		push_error("Cannot open textures directory: " + textures_dir)
+		return ""
+		
+	var target_subdir = ""
+	base_dir.list_dir_begin()
+	var sub_name = base_dir.get_next()
+	while sub_name != "":
+		if base_dir.current_is_dir() and sub_name.to_lower() == outfit_style.to_lower():
+			target_subdir = sub_name
+			break
+		sub_name = base_dir.get_next()
+	base_dir.list_dir_end()
+	
+	if target_subdir == "":
+		target_subdir = outfit_style
+		
+	var outfit_textures_dir = textures_dir.path_join(target_subdir)
+	var dir = DirAccess.open(outfit_textures_dir)
+	if not dir:
+		dir = DirAccess.open(textures_dir)
+		outfit_textures_dir = textures_dir
+		if not dir:
+			return ""
+			
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	var best_match = ""
+	while file_name != "":
+		if not dir.current_is_dir() and file_name.ends_with(".png"):
+			var lower_name = file_name.to_lower()
+			if "basecolor" in lower_name or "diffuse" in lower_name or "albedo" in lower_name:
+				dir.list_dir_end()
+				return outfit_textures_dir.path_join(file_name)
+			elif best_match == "" and not "normal" in lower_name and not "orm" in lower_name and not "roughness" in lower_name:
+				best_match = file_name
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	
+	if best_match != "":
+		return outfit_textures_dir.path_join(best_match)
+		
+	dir.list_dir_begin()
+	file_name = dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir() and file_name.ends_with(".png"):
+			dir.list_dir_end()
+			return outfit_textures_dir.path_join(file_name)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	
+	return ""
+
+func load_local_mesh(part_name: String, outfit_style: String) -> void:
+	if not main_skeleton:
+		main_skeleton = get_node_or_null("UAL1_Standard/Skeleton3D")
+		if not main_skeleton:
+			main_skeleton = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D")
+		
+		if not main_skeleton:
+			push_error("main_skeleton not set and cannot be auto-detected! Please assign it in the Inspector.")
+			return
+
+	var gltf_path = find_gltf_file(part_name, outfit_style)
+	if gltf_path == "":
+		return
+		
+	var texture_path = find_texture_file(outfit_style)
+	if texture_path == "":
+		push_warning("Could not find matching texture for outfit style: " + outfit_style)
+	
+	var scene = load(gltf_path)
+	if not scene:
+		push_error("Failed to load scene: " + gltf_path)
+		return
+		
+	var temp_instance = scene.instantiate()
+	if not temp_instance:
+		push_error("Failed to instantiate scene: " + gltf_path)
+		return
+		
+	var node_name = "Part_" + part_name
+	var existing_node = main_skeleton.get_node_or_null(node_name)
+	if existing_node:
+		existing_node.queue_free()
+		existing_node.name = "Old_" + node_name
+		
+	var meshes: Array[MeshInstance3D] = []
+	_find_meshes_recursive(temp_instance, meshes)
+	
+	if meshes.is_empty():
+		push_error("No MeshInstance3D found in instanced modular scene: " + gltf_path)
+		temp_instance.queue_free()
+		return
+		
+	for i in range(meshes.size()):
+		var mesh_instance = meshes[i]
+		mesh_instance.get_parent().remove_child(mesh_instance)
+		main_skeleton.add_child(mesh_instance)
+		
+		if i == 0:
+			mesh_instance.name = node_name
+		else:
+			mesh_instance.name = node_name + "_" + str(i)
+			
+		mesh_instance.skeleton = NodePath("..")
+		mesh_instance.transform = Transform3D.IDENTITY
+		mesh_instance.owner = main_skeleton.owner
+		
+		if texture_path != "":
+			var texture = load(texture_path)
+			if texture:
+				for s in range(mesh_instance.get_surface_count()):
+					var material: StandardMaterial3D = mesh_instance.get_surface_override_material(s)
+					if not material:
+						var mesh_material = mesh_instance.mesh.surface_get_material(s)
+						if mesh_material and mesh_material is StandardMaterial3D:
+							material = mesh_material.duplicate()
+						else:
+							material = StandardMaterial3D.new()
+					
+					material.albedo_texture = texture
+					mesh_instance.set_surface_override_material(s, material)
+					
+	temp_instance.queue_free()
+	print("Loaded modular part: ", part_name, " with style: ", outfit_style, " from: ", gltf_path)
