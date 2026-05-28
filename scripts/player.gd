@@ -121,6 +121,7 @@ func _ready():
 
 	# Dynamically load the character model (e.g. Male_ranger) for testing/customization
 	set_character_model("res://assets/Modular character outfits - fantasy/Exports/glTF/Outfits/Male_ranger.gltf")
+	_sanitize_player_mesh_materials()
 
 
 
@@ -328,12 +329,14 @@ func set_player_skin(skin_name: SkinColor) -> void:
 	set_mesh_texture(_limbs_head_mesh, texture)
 
 func set_mesh_texture(mesh_instance: MeshInstance3D, texture: CompressedTexture2D) -> void:
-	if mesh_instance:
-		var material := mesh_instance.get_surface_override_material(0)
-		if material and material is StandardMaterial3D:
-			var new_material := material
-			new_material.albedo_texture = texture
-			mesh_instance.set_surface_override_material(0, new_material)
+if mesh_instance:
+var material := mesh_instance.get_surface_override_material(0)
+if material and material is StandardMaterial3D:
+var new_material := material.duplicate(true) as StandardMaterial3D
+new_material.resource_local_to_scene = true
+new_material.albedo_texture = texture
+_configure_player_standard_material(new_material, mesh_instance.name)
+mesh_instance.set_surface_override_material(0, new_material)
 
 # Inventory Network Functions - Server authoritative, client-specific
 @rpc("any_peer", "call_local", "reliable")
@@ -1071,6 +1074,7 @@ func load_local_mesh(part_name: String, outfit_style: String) -> void:
 							material = StandardMaterial3D.new()
 					
 					material.albedo_texture = texture
+					_configure_player_standard_material(material, mesh_instance.name)
 					mesh_instance.set_surface_override_material(s, material)
 					
 	temp_instance.queue_free()
@@ -1251,14 +1255,62 @@ func set_character_model(gltf_path: String) -> void:
 		mesh_instance.transform = Transform3D.IDENTITY
 		mesh_instance.owner = main_skeleton.owner
 		mesh_instance.visible = true
+		_sanitize_mesh_materials(mesh_instance)
 			
 	temp_instance.queue_free()
 	print("Successfully set character model to: ", resolved_path)
 
+func _sanitize_player_mesh_materials() -> void:
+main_skeleton = _get_main_skeleton()
+if not main_skeleton:
+return
+
+for child in main_skeleton.get_children():
+if child is MeshInstance3D:
+_sanitize_mesh_materials(child as MeshInstance3D)
+
+func _sanitize_mesh_materials(mesh_instance: MeshInstance3D) -> void:
+if not mesh_instance or not mesh_instance.mesh:
+return
+
+for s in range(mesh_instance.mesh.get_surface_count()):
+var material: Material = mesh_instance.get_surface_override_material(s)
+if not material:
+material = mesh_instance.mesh.surface_get_material(s)
+if not material:
+continue
+
+var unique_material: Material = material.duplicate(true)
+if unique_material is Resource:
+(unique_material as Resource).resource_local_to_scene = true
+
+if unique_material is StandardMaterial3D:
+_configure_player_standard_material(unique_material as StandardMaterial3D, mesh_instance.name)
+elif unique_material is ShaderMaterial:
+(unique_material as ShaderMaterial).render_priority = 0
+
+mesh_instance.set_surface_override_material(s, unique_material)
+
+func _configure_player_standard_material(material: StandardMaterial3D, mesh_name: String) -> void:
+material.no_depth_test = false
+material.render_priority = 0
+if _material_requires_transparency(mesh_name, material):
+return
+material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+
+func _material_requires_transparency(mesh_name: String, material: StandardMaterial3D) -> bool:
+var lower_name := mesh_name.to_lower()
+if lower_name.contains("hair") or lower_name.contains("brow") or lower_name.contains("lash") or lower_name.contains("accent"):
+return true
+if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR or material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_HASH:
+return true
+if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA and material.albedo_color.a < 0.999:
+return true
+return false
 func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 	var shader = Shader.new()
 	shader.code = "shader_type spatial;\n" \
-		+ "render_mode depth_draw_always;\n" \
+		+ "render_mode depth_draw_opaque, cull_back;\n" \
 		+ "uniform sampler2D albedo_texture : source_color, filter_linear_mipmap, repeat_enable;\n" \
 		+ "uniform vec4 albedo_color : source_color = vec4(1.0);\n" \
 		+ "uniform float metallic : hint_range(0.0, 1.0) = 0.0;\n" \
@@ -1290,6 +1342,8 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		if s == 1:
 			var invisible_mat = StandardMaterial3D.new()
 			invisible_mat.transparency = StandardMaterial3D.TRANSPARENCY_ALPHA
+			invisible_mat.no_depth_test = false
+			invisible_mat.render_priority = 0
 			invisible_mat.albedo_color = Color(0, 0, 0, 0)
 			mannequin.set_surface_override_material(s, invisible_mat)
 			continue
@@ -1312,6 +1366,7 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 			
 		var mat = ShaderMaterial.new()
 		mat.shader = shader
+		mat.render_priority = 0
 		if orig_texture:
 			mat.set_shader_parameter("albedo_texture", orig_texture)
 		mat.set_shader_parameter("albedo_color", orig_color)
@@ -1319,3 +1374,4 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		mat.set_shader_parameter("roughness", orig_roughness)
 		mat.set_shader_parameter("cut_height", 1.48) # Cut higher up to completely slice off neck joints
 		mannequin.set_surface_override_material(s, mat)
+

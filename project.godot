@@ -27,6 +27,10 @@ Network="*res://scripts/network.gd"
 ItemDatabase="*res://scripts/item_database.gd"
 GridManager="*res://scripts/grid_manager.gd"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+
 [display]
 
 window/size/viewport_width=1280

@@ -23,4 +23,22 @@ Before submitting a pull request, please ensure your changes work in both:
 1. **Host/Client Mode:** Run multiple instances locally to verify player interaction.
 2. **Dedicated Server Mode:** Use the provided scripts to run a headless server and connect to it with a client.
 
+### Unit Tests (GUT)
+
+This project uses [GUT](https://github.com/bitwes/Gut) for automated unit tests.
+
+1. Install GUT into `res://addons/gut/`:
+   - Option A: Godot Asset Library (search for `GUT` and install)
+   - Option B: Git submodule
+     ```bash
+     git submodule add https://github.com/bitwes/Gut.git addons/gut
+     ```
+2. Ensure the plugin is enabled in `project.godot`:
+   - `[editor_plugins]`
+   - `enabled=PackedStringArray("res://addons/gut/plugin.cfg")`
+3. Run the unit test suite from project root:
+   ```bash
+   bash run_tests.sh
+   ```
+
 Thank you for contributing!

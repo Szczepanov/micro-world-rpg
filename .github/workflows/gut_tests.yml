@@ -1,0 +1,56 @@
+name: GUT Unit Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Headless GUT Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Cache Godot binary
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/godot
+          key: godot-4.6-linux
+
+      - name: Download Godot 4.6 headless
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          GODOT_VERSION="4.6"
+          GODOT_URL="https://downloads.tuxfamily.org/godotengine/${GODOT_VERSION}/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -sL "${GODOT_URL}" -o /tmp/godot.zip
+          unzip /tmp/godot.zip -d /tmp/godot_bin
+          mkdir -p ~/.local/bin
+          mv /tmp/godot_bin/Godot_v*_linux.x86_64 ~/.local/bin/godot
+          chmod +x ~/.local/bin/godot
+
+      - name: Verify Godot version
+        run: ~/.local/bin/godot --version
+
+      - name: Import project assets (warm-up)
+        run: |
+          ~/.local/bin/godot --headless --path . --import 2>&1 | tail -20
+        continue-on-error: true
+
+      - name: Run GUT test suite
+        run: bash run_tests.sh ~/.local/bin/godot
+
+      - name: Upload GUT report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gut-report
+          path: |
+            user://gut_results*.xml
+            user://logs/
