@@ -2,6 +2,25 @@ extends Node
 
 var items: Dictionary = {}
 
+var recipes: Dictionary = {
+	"iron_sword": {
+		"wood": 2,
+		"iron_ore": 2
+	},
+	"health_potion": {
+		"magic_gem": 1,
+		"wood": 1
+	},
+	"leather_armor": {
+		"wood": 3,
+		"magic_gem": 1
+	},
+	"iron_pickaxe": {
+		"wood": 2,
+		"iron_ore": 3
+	}
+}
+
 func _ready():
 	_load_items()
 

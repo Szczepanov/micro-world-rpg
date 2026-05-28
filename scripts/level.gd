@@ -6,9 +6,11 @@ extends Node3D
 
 @onready var multiplayer_chat: MultiplayerChatUI = $MultiplayerChatUI
 @onready var inventory_ui: InventoryUI = $InventoryUI
+@onready var crafting_ui: CraftingUI = $CraftingUI
 
 var chat_visible = false
 var inventory_visible = false
+var crafting_visible = false
 
 var interaction_prompt: Label
 
@@ -27,6 +29,9 @@ func _ready():
 
 	if inventory_ui:
 		inventory_ui.inventory_closed.connect(_on_inventory_closed)
+
+	if crafting_ui:
+		crafting_ui.crafting_closed.connect(_on_crafting_closed)
 
 	if multiplayer_chat:
 		multiplayer_chat.message_sent.connect(_on_chat_message_sent)
@@ -190,6 +195,22 @@ func spawn_resources():
 		ore.position = Vector3(x, 0.0, z)
 		$Environment.add_child(ore)
 
+	# Spawn a Workbench crafting station
+	var station_scene = load("res://scenes/environment/crafting_station.tscn")
+	if station_scene:
+		var workbench = station_scene.instantiate()
+		workbench.station_type = "Workbench"
+		workbench.name = "Crafting_Workbench"
+		workbench.position = Vector3(-3.0, 0.0, -3.0)
+		$Environment.add_child(workbench)
+		
+		# Spawn an Anvil crafting station
+		var anvil = station_scene.instantiate()
+		anvil.station_type = "Anvil"
+		anvil.name = "Crafting_Anvil"
+		anvil.position = Vector3(3.0, 0.0, -3.0)
+		$Environment.add_child(anvil)
+
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 
@@ -212,6 +233,8 @@ func _input(event):
 			multiplayer_chat._on_send_pressed()
 			get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("inventory"):
+		if crafting_visible:
+			toggle_crafting()
 		toggle_inventory()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F1:
 		_debug_add_item()
@@ -247,6 +270,34 @@ func toggle_inventory():
 
 func is_inventory_visible() -> bool:
 	return inventory_visible
+
+# ---------- CRAFTING SYSTEM ----------
+func toggle_crafting(station = null):
+	if main_menu.is_menu_visible():
+		return
+
+	var local_player = _get_local_player()
+	if not local_player:
+		return
+
+	if not crafting_visible:
+		if inventory_visible:
+			toggle_inventory()
+		crafting_visible = true
+		crafting_ui.open_crafting(local_player)
+	else:
+		crafting_visible = false
+		crafting_ui.close_crafting()
+
+func is_crafting_visible() -> bool:
+	return crafting_visible
+
+func close_crafting_ui_if_open() -> void:
+	if crafting_visible:
+		toggle_crafting()
+
+func _on_crafting_closed():
+	crafting_visible = false
 
 # Additional helper for testing
 func _notification(what):

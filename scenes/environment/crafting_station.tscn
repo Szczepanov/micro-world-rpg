@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/crafting_station.gd" id="1_craft"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_craft"]
+radius = 2.0
+
+[node name="CraftingStation" type="Area3D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_craft")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_craft")

@@ -1,0 +1,116 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/crafting_ui.gd" id="1_craft_ui"]
+
+[node name="CraftingUI" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_craft_ui")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleBar" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/MarginContainer/VBoxContainer/TitleBar" unique_name_in_owner = true]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "CRAFTING BENCH"
+horizontal_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/TitleBar" unique_name_in_owner = true]
+layout_mode = 2
+text = " X "
+
+[node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ContentSplit" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="RecipeListScroll" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer/ContentSplit"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="RecipeListContainer" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/RecipeListScroll" unique_name_in_owner = true]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="VSeparator" type="VSeparator" parent="Panel/MarginContainer/VBoxContainer/ContentSplit"]
+layout_mode = 2
+
+[node name="DetailPanel" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/ContentSplit" unique_name_in_owner = true]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ItemName" type="Label" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel" unique_name_in_owner = true]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Select a recipe"
+
+[node name="ItemDescription" type="RichTextLabel" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel" unique_name_in_owner = true]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+bbcode_enabled = true
+text = "Item description details will go here."
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel"]
+layout_mode = 2
+
+[node name="IngredientsTitle" type="Label" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Required Ingredients:"
+
+[node name="IngredientsContainer" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel" unique_name_in_owner = true]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Spacer" type="Control" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CraftButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel" unique_name_in_owner = true]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "CRAFT ITEM"

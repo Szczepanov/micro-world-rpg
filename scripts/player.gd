@@ -21,6 +21,7 @@ var player_inventory: PlayerInventory
 var is_attacking: bool = false
 var current_nick: String = "Player"
 var interaction_area: Area3D = null
+var active_crafting_station: Area3D = null
 @onready var interaction_raycast: RayCast3D = %InteractionRayCast if has_node("%InteractionRayCast") else null
 
 @export_category("Objects")
@@ -96,6 +97,8 @@ func _physics_process(delta):
 		if current_scene.has_method("is_chat_visible") and current_scene.is_chat_visible():
 			should_freeze = true
 		elif current_scene.has_method("is_inventory_visible") and current_scene.is_inventory_visible():
+			should_freeze = true
+		elif current_scene.has_method("is_crafting_visible") and current_scene.is_crafting_visible():
 			should_freeze = true
 
 		if should_freeze:
@@ -273,6 +276,11 @@ func sync_inventory_to_owner(inventory_data: Dictionary):
 				if inventory_ui.visible and inventory_ui.has_method("refresh_display"):
 					print("Debug: Calling refresh_display directly on InventoryUI")
 					inventory_ui.refresh_display()
+			if level_scene.has_node("CraftingUI"):
+				var crafting_ui = level_scene.get_node("CraftingUI")
+				if crafting_ui.visible and crafting_ui.has_method("refresh_display"):
+					print("Debug: Calling refresh_display directly on CraftingUI")
+					crafting_ui.refresh_display()
 		else:
 			print("Debug: Not the local player, skipping UI update")
 
@@ -383,6 +391,55 @@ func request_remove_item(item_id: String, quantity: int = 1):
 		if owner_id != 1:
 			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
 
+@rpc("any_peer", "call_local", "reliable")
+func request_craft(item_to_craft: String):
+	print("Debug: request_craft called for ", item_to_craft, " on player ", name, " by client ", multiplayer.get_remote_sender_id())
+	
+	if not multiplayer.is_server():
+		return
+		
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority():
+		push_warning("Client " + str(sender_id) + " tried to craft for player " + str(get_multiplayer_authority()))
+		return
+		
+	if not player_inventory:
+		return
+		
+	if not ItemDatabase.recipes.has(item_to_craft):
+		push_warning("Item is not craftable: " + item_to_craft)
+		return
+		
+	var recipe = ItemDatabase.recipes[item_to_craft]
+	
+	var can_craft = true
+	for ing_id in recipe:
+		var req_qty = recipe[ing_id]
+		if not player_inventory.has_item(ing_id, req_qty):
+			can_craft = false
+			break
+			
+	if not can_craft:
+		print("Server: Player does not have enough materials to craft ", item_to_craft)
+		return
+		
+	for ing_id in recipe:
+		var req_qty = recipe[ing_id]
+		player_inventory.remove_item(ing_id, req_qty)
+		
+	var crafted_item = ItemDatabase.get_item(item_to_craft)
+	if crafted_item:
+		player_inventory.add_item(crafted_item, 1)
+		print("Server: Crafted ", item_to_craft, " successfully for player ", sender_id)
+		
+	var owner_id = get_multiplayer_authority()
+	if owner_id != 1:
+		sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
+	else:
+		var level_scene = get_tree().get_current_scene()
+		if level_scene and level_scene.has_method("update_local_inventory_display"):
+			level_scene.update_local_inventory_display()
+
 func get_inventory() -> PlayerInventory:
 	return player_inventory
 
@@ -464,6 +521,10 @@ func _perform_melee_attack(is_interact: bool):
 			request_combat_hit.rpc_id(1, target.get_path())
 
 func _perform_interaction() -> void:
+	if active_crafting_station != null:
+		active_crafting_station.open_crafting_ui(self)
+		return
+		
 	var target = null
 	
 	# Detect via RayCast3D first
@@ -525,6 +586,10 @@ func _update_interaction_ui():
 		
 	if is_attacking:
 		level.set_interaction_prompt("")
+		return
+		
+	if active_crafting_station != null:
+		level.set_interaction_prompt("[E] Open Crafting Station (" + active_crafting_station.station_type + ")")
 		return
 		
 	var target = null
