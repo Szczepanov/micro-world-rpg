@@ -136,7 +136,8 @@ func _physics_process(delta):
 		return
 
 	var current_scene = get_tree().get_current_scene()
-	if current_scene and is_on_floor():
+	# Check menu visibility regardless of floor state
+	if current_scene:
 		var should_freeze = false
 		if current_scene.has_method("is_chat_visible") and current_scene.is_chat_visible():
 			should_freeze = true
@@ -148,13 +149,6 @@ func _physics_process(delta):
 		if should_freeze:
 			freeze()
 			return
-
-	# Handle Attack & Interaction
-	# Block combat actions if any menu cursor is free (mouse is visible)
-	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
-		# Debug: Log why movement is blocked
-		print("Movement blocked: mouse_mode is VISIBLE")
-		return
 	
 	# Attack and interact are now handled in _unhandled_input to prevent input leakage
 

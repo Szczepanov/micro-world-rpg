@@ -58,20 +58,16 @@ func _open() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _close() -> void:
-	print("InGameMenu: _close called - releasing focus")
 	hide()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
 	# AGGRESSIVE FOCUS EVICTION: Force ALL UI elements to release focus
 	var current_focus: Control = get_viewport().gui_get_focus_owner()
-	print("InGameMenu: Current focus owner: ", current_focus)
 	if current_focus:
 		current_focus.release_focus()
-		print("InGameMenu: Focus released from: ", current_focus.name)
 	
 	# Force viewport to re-capture input handling
 	get_viewport().set_input_as_handled()
-	print("InGameMenu: Input handling reset, mouse_mode: ", Input.mouse_mode)
 
 # ---------------------------------------------------------------------------
 # Button callbacks

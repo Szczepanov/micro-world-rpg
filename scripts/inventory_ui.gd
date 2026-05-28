@@ -157,20 +157,16 @@ func open_inventory(player: Character = null):
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func close_inventory():
-	print("InventoryUI: close_inventory called - releasing focus")
 	visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
 	# AGGRESSIVE FOCUS EVICTION: Force ALL UI elements to release focus
 	var current_focus: Control = get_viewport().gui_get_focus_owner()
-	print("InventoryUI: Current focus owner: ", current_focus)
 	if current_focus:
 		current_focus.release_focus()
-		print("InventoryUI: Focus released from: ", current_focus.name)
 	
 	# Force viewport to re-capture input handling
 	get_viewport().set_input_as_handled()
-	print("InventoryUI: Input handling reset, mouse_mode: ", Input.mouse_mode)
 
 func refresh_display():
 	print("Debug: InventoryUI refresh_display called")
