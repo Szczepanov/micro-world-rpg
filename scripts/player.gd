@@ -330,13 +330,16 @@ func set_player_skin(skin_name: SkinColor) -> void:
 
 func set_mesh_texture(mesh_instance: MeshInstance3D, texture: CompressedTexture2D) -> void:
 	if mesh_instance:
-		var material := mesh_instance.get_surface_override_material(0)
-		if material and material is StandardMaterial3D:
-			var new_material := material.duplicate(true) as StandardMaterial3D
-			new_material.resource_local_to_scene = true
-			new_material.albedo_texture = texture
-			_configure_player_standard_material(new_material, mesh_instance.name)
-			mesh_instance.set_surface_override_material(0, new_material)
+		for s in range(mesh_instance.get_surface_count()):
+			var material := mesh_instance.get_surface_override_material(s)
+			if not material and mesh_instance.mesh:
+				material = mesh_instance.mesh.surface_get_material(s)
+			if material and material is StandardMaterial3D:
+				var new_material := material.duplicate(true) as StandardMaterial3D
+				new_material.resource_local_to_scene = true
+				new_material.albedo_texture = texture
+				_configure_player_standard_material(new_material, mesh_instance.name, s)
+				mesh_instance.set_surface_override_material(s, new_material)
 
 # Inventory Network Functions - Server authoritative, client-specific
 @rpc("any_peer", "call_local", "reliable")
@@ -1075,7 +1078,7 @@ func load_local_mesh(part_name: String, outfit_style: String) -> void:
 							material = StandardMaterial3D.new()
 					
 					material.albedo_texture = texture
-					_configure_player_standard_material(material, mesh_instance.name)
+					_configure_player_standard_material(material, mesh_instance.name, s)
 					mesh_instance.set_surface_override_material(s, material)
 					
 	temp_instance.queue_free()
@@ -1287,28 +1290,64 @@ func _sanitize_mesh_materials(mesh_instance: MeshInstance3D) -> void:
 			(unique_material as Resource).resource_local_to_scene = true
 
 		if unique_material is StandardMaterial3D:
-			_configure_player_standard_material(unique_material as StandardMaterial3D, mesh_instance.name)
+			_configure_player_standard_material(unique_material as StandardMaterial3D, mesh_instance.name, s)
 		elif unique_material is ShaderMaterial:
 			(unique_material as ShaderMaterial).render_priority = 0
 
 		mesh_instance.set_surface_override_material(s, unique_material)
 
-func _configure_player_standard_material(material: StandardMaterial3D, mesh_name: String) -> void:
+func _configure_player_standard_material(material: StandardMaterial3D, mesh_name: String, surface_index: int = -1) -> void:
 	material.no_depth_test = false
 	material.render_priority = 0
-	if _material_requires_transparency(mesh_name, material):
+	if _material_requires_transparency(mesh_name, material, surface_index):
+		if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA:
+			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR:
+			if material.alpha_scissor_threshold <= 0.0:
+				material.alpha_scissor_threshold = 0.1
 		return
 	material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 
-func _material_requires_transparency(mesh_name: String, material: StandardMaterial3D) -> bool:
+func _material_requires_transparency(mesh_name: String, material: StandardMaterial3D, surface_index: int = -1) -> bool:
 	var lower_name := mesh_name.to_lower()
-	if lower_name.contains("hair") or lower_name.contains("brow") or lower_name.contains("lash") or lower_name.contains("accent"):
+	if lower_name.contains("hair") or lower_name.contains("brow") or lower_name.contains("lash") or lower_name.contains("accent") or lower_name.contains("hood") or lower_name.contains("cap"):
+		return true
+	var material_name := material.resource_name.to_lower()
+	if material_name.contains("hair") or material_name.contains("brow") or material_name.contains("lash") or material_name.contains("cap") or material_name.contains("hood"):
+		return true
+	if surface_index > 0 and (lower_name.contains("hair") or lower_name.contains("hood") or lower_name.contains("cap") or lower_name.contains("brow") or lower_name.contains("lash")):
+		# Keep transparent treatment for known cutout-type mesh slots only.
 		return true
 	if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR or material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_HASH:
 		return true
 	if material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA and material.albedo_color.a < 0.999:
 		return true
 	return false
+
+func _should_apply_body_cut_shader(mesh_name: String, surface_index: int, material: Material) -> bool:
+	if material is StandardMaterial3D:
+		var standard := material as StandardMaterial3D
+		if _material_requires_transparency(mesh_name, standard, surface_index):
+			return false
+
+		var material_name := standard.resource_name.to_lower()
+		var texture_path := ""
+		if standard.albedo_texture and standard.albedo_texture.resource_path != "":
+			texture_path = standard.albedo_texture.resource_path.to_lower()
+
+		if material_name.contains("hair") or material_name.contains("head") or material_name.contains("face") or material_name.contains("eye") or material_name.contains("brow") or material_name.contains("lash") or material_name.contains("cap") or material_name.contains("hood"):
+			return false
+		if texture_path.contains("hair") or texture_path.contains("head") or texture_path.contains("face") or texture_path.contains("eye") or texture_path.contains("cap") or texture_path.contains("hood"):
+			return false
+
+		# Apply cut shader only to skin/body-like slots; preserve everything else.
+		var looks_like_body := material_name.contains("body") or material_name.contains("skin") or material_name.contains("torso") or material_name.contains("chest") or material_name.contains("arm") or material_name.contains("leg")
+		looks_like_body = looks_like_body or texture_path.contains("base") or texture_path.contains("skin") or texture_path.contains("body")
+		return looks_like_body
+
+	if material is ShaderMaterial:
+		return false
+	return true
 func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 	var shader = Shader.new()
 	shader.code = "shader_type spatial;\n" \
@@ -1340,19 +1379,24 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 	var skin_texture = load(path_to_load)
 
 	for s in range(mannequin.mesh.get_surface_count() if mannequin.mesh else 0):
-		# Surface 1 is the skeleton joints. Hide it completely to remove purple neck joints.
-		if s == 1:
-			var invisible_mat = StandardMaterial3D.new()
-			invisible_mat.transparency = StandardMaterial3D.TRANSPARENCY_ALPHA
-			invisible_mat.no_depth_test = false
-			invisible_mat.render_priority = 0
-			invisible_mat.albedo_color = Color(0, 0, 0, 0)
-			mannequin.set_surface_override_material(s, invisible_mat)
-			continue
-
 		var orig_mat = mannequin.get_surface_override_material(s)
 		if not orig_mat:
 			orig_mat = mannequin.mesh.surface_get_material(s)
+		if not orig_mat:
+			continue
+
+		if not _should_apply_body_cut_shader(mannequin.name, s, orig_mat):
+			if orig_mat is StandardMaterial3D:
+				var preserved := (orig_mat as StandardMaterial3D).duplicate(true) as StandardMaterial3D
+				preserved.resource_local_to_scene = true
+				_configure_player_standard_material(preserved, mannequin.name, s)
+				mannequin.set_surface_override_material(s, preserved)
+			elif orig_mat is ShaderMaterial:
+				var preserved_shader := (orig_mat as ShaderMaterial).duplicate(true) as ShaderMaterial
+				preserved_shader.resource_local_to_scene = true
+				preserved_shader.render_priority = 0
+				mannequin.set_surface_override_material(s, preserved_shader)
+			continue
 		
 		# Apply the proper male skin texture (untinted with white albedo color)
 		var orig_texture = skin_texture
