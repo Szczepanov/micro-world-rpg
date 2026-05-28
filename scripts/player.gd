@@ -13,12 +13,24 @@ var player_inventory: PlayerInventory
 var is_building: bool = false
 
 # RPG Mechanics & Combat States
-@export var max_health: int = 100
-@export var current_health: int = 100:
+@onready var health_component: HealthComponent = $HealthComponent
+
+var max_health: float:
+	get:
+		return health_component.max_health if health_component else 100.0
 	set(val):
-		current_health = val
-		update_nickname_display()
-@export var is_dead: bool = false
+		if health_component:
+			health_component.max_health = val
+
+var current_health: float:
+	get:
+		return health_component.current_health if health_component else 100.0
+	set(val):
+		if health_component:
+			health_component.current_health = val
+
+var is_dead: bool = false
+var _last_attacker: Character = null
 var is_attacking: bool = false
 var current_nick: String = "Player"
 var interaction_area: Area3D = null
@@ -69,6 +81,12 @@ func _ready():
 	_setup_input_actions()
 	_setup_interaction_area()
 	_setup_health_replication()
+	
+	if health_component:
+		health_component.health_changed.connect(func(_new_health: float, _max_health: float) -> void:
+			update_nickname_display()
+		)
+		health_component.died.connect(_on_died)
 
 	if is_local_player:
 		player_inventory = PlayerInventory.new()
@@ -96,6 +114,10 @@ func _ready():
 
 func _physics_process(delta):
 	if not is_multiplayer_authority(): return
+
+	if not Network.is_network_active:
+		freeze()
+		return
 
 	if is_dead:
 		freeze()
@@ -154,6 +176,8 @@ func _physics_process(delta):
 
 func _process(_delta):
 	if not is_multiplayer_authority(): return
+	if not Network.is_network_active:
+		return
 	_check_fall_and_respawn()
 	_update_interaction_ui()
 
@@ -499,15 +523,10 @@ func _setup_interaction_area():
 	
 	add_child(interaction_area)
 
-func _setup_health_replication():
+func _setup_health_replication() -> void:
 	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
 	if synchronizer:
 		var config = synchronizer.replication_config
-		var hp_path = NodePath(".:current_health")
-		if not config.has_property(hp_path):
-			config.add_property(hp_path)
-			config.property_set_replication_mode(hp_path, 1) # 1: REPLICATION_MODE_ALWAYS / CONTINUOUS
-			
 		var dead_path = NodePath(".:is_dead")
 		if not config.has_property(dead_path):
 			config.add_property(dead_path)
@@ -671,30 +690,34 @@ func request_combat_hit(target_path: NodePath):
 		
 	target.take_damage(20, self)
 
-func take_damage(amount: int, attacker: Character):
+func take_damage(amount: float, attacker: Character) -> void:
 	if not multiplayer.is_server():
 		return
 	if is_dead:
 		return
 		
-	current_health = max(0, current_health - amount)
+	_last_attacker = attacker
 	play_hurt_effect.rpc()
-	
-	if current_health <= 0:
-		die(attacker)
+	health_component.request_damage(amount)
 
 @rpc("call_local", "reliable")
-func play_hurt_effect():
+func play_hurt_effect() -> void:
 	_play_anim("Hurt")
 
-func die(attacker: Character):
+func _on_died() -> void:
+	if multiplayer.is_server():
+		die(_last_attacker)
+		_last_attacker = null
+
+func die(attacker: Character) -> void:
 	if not multiplayer.is_server():
 		return
 	is_dead = true
 	
 	var level = get_tree().current_scene
 	if level and level.has_method("msg_rpc"):
-		level.msg_rpc.rpc("System", current_nick + " was slain by " + attacker.current_nick + "!")
+		var attacker_name = attacker.current_nick if attacker else "Unknown"
+		level.msg_rpc.rpc("System", current_nick + " was slain by " + attacker_name + "!")
 		
 	get_tree().create_timer(3.0).timeout.connect(func():
 		respawn()

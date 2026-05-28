@@ -15,12 +15,19 @@ var crafting_visible = false
 var interaction_prompt: Label
 
 func _ready():
+	get_tree().paused = false
+
 	if DisplayServer.get_name() == "headless":
 		print("Dedicated server starting...")
 		Network.start_host("", "")
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
+
+	if Network.pending_error_message != "":
+		main_menu.show_error(Network.pending_error_message)
+		Network.pending_error_message = ""
+
 	multiplayer_chat.set_process_input(true)
 
 	main_menu.host_pressed.connect(_on_host_pressed)
@@ -395,7 +402,7 @@ func _get_local_player() -> Character:
 func _debug_add_item():
 	var local_player = _get_local_player()
 	if local_player:
-		var test_items = ["iron_sword", "health_potion", "leather_armor", "magic_gem", "iron_pickaxe"]
+		var test_items = ["iron_sword", "health_potion", "leather_armor", "magic_gem", "iron_pickaxe", "spiked_wall_item", "automated_turret_item", "wood", "iron_ore"]
 		var random_item = test_items[randi() % test_items.size()]
 		print("Debug: Requesting to add ", random_item, " to player ", local_player.name, " (authority: ", local_player.get_multiplayer_authority(), ")")
 		local_player.request_add_item.rpc_id(1, random_item, 1)

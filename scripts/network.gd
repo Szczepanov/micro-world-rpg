@@ -9,18 +9,21 @@ var player_info = {
 	"nick" : "host",
 	"skin" : Character.SkinColor.BLUE
 }
+var is_network_active: bool = true
+var pending_error_message: String = ""
 
 signal player_connected(peer_id, player_info)
 signal server_disconnected
 
 func _ready() -> void:
-	multiplayer.server_disconnected.connect(_on_connection_failed)
-	multiplayer.connection_failed.connect(_on_server_disconnected)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.peer_disconnected.connect(_on_player_disconnected)
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.connected_to_server.connect(_on_connected_ok)
 
 func start_host(nickname: String, skin_color_str: String):
+	is_network_active = true
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(SERVER_PORT, MAX_PLAYERS)
 	if error:
@@ -40,12 +43,16 @@ func start_host(nickname: String, skin_color_str: String):
 	player_connected.emit(1, player_info)
 
 func join_game(nickname: String, skin_color_str: String, address: String = SERVER_ADDRESS):
+	is_network_active = true
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_client(address, SERVER_PORT)
 	if error:
 		return error
 
 	multiplayer.multiplayer_peer = peer
+
+	if not multiplayer.server_disconnected.is_connected(_on_server_disconnected):
+		multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 	if !nickname or nickname.strip_edges() == "":
 		nickname = "Player_" + str(multiplayer.get_unique_id())
@@ -78,9 +85,35 @@ func _on_connection_failed():
 	multiplayer.multiplayer_peer = null
 
 func _on_server_disconnected():
+	is_network_active = false
+	
+	# Execute cleanup steps
+	var local_player = _get_local_player()
+	if local_player:
+		var placement_controller = local_player.get_node_or_null("PlayerPlacementController")
+		if placement_controller and placement_controller.has_method("_destroy_ghost_preview"):
+			placement_controller._destroy_ghost_preview()
+		
+		if "player_inventory" in local_player and local_player.player_inventory:
+			local_player.player_inventory.clear()
+
+	pending_error_message = "Error: Connection to host lost."
+	
 	multiplayer.multiplayer_peer = null
 	players.clear()
 	server_disconnected.emit()
+	
+	get_tree().change_scene_to_file("res://scenes/level/level.tscn")
+
+func _get_local_player() -> Node:
+	var tree = get_tree()
+	if not tree or not tree.current_scene:
+		return null
+	var players_container = tree.current_scene.get_node_or_null("PlayersContainer")
+	if players_container:
+		var peer_id = multiplayer.get_unique_id()
+		return players_container.get_node_or_null(str(peer_id))
+	return null
 
 func skin_str_to_e(s):
 	match s.to_lower():

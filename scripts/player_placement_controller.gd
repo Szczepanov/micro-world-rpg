@@ -61,20 +61,33 @@ func _setup_input_actions() -> void:
 		InputMap.action_add_event("toggle_build_mode", key_event)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not player.is_multiplayer_authority():
+	if not player.is_multiplayer_authority() or not Network.is_network_active:
 		return
 		
 	if event.is_action_pressed("toggle_build_mode"):
 		toggle_build_mode()
 		get_viewport().set_input_as_handled()
 		
-	if is_active and event.is_action_pressed("attack"):
-		# Try to place structure when clicking in Build Mode
-		_try_place_structure()
-		get_viewport().set_input_as_handled()
+	if is_active:
+		if event is InputEventKey and event.pressed:
+			if event.keycode == KEY_1:
+				selected_structure_id = "spiked_wall"
+				_create_ghost_preview()
+				_update_interaction_prompt()
+				get_viewport().set_input_as_handled()
+			elif event.keycode == KEY_2:
+				selected_structure_id = "automated_turret"
+				_create_ghost_preview()
+				_update_interaction_prompt()
+				get_viewport().set_input_as_handled()
+				
+		if event.is_action_pressed("attack"):
+			# Try to place structure when clicking in Build Mode
+			_try_place_structure()
+			get_viewport().set_input_as_handled()
 
 func toggle_build_mode() -> void:
-	if player.is_dead:
+	if player.is_dead or not Network.is_network_active:
 		return
 		
 	is_active = !is_active
@@ -89,16 +102,19 @@ func toggle_build_mode() -> void:
 		print("PlayerPlacementController: Build Mode Deactivated")
 		_destroy_ghost_preview()
 		
-	# Clear prompt if exiting, or set initial prompt if entering
+	_update_interaction_prompt()
+
+func _update_interaction_prompt() -> void:
 	var level = get_tree().current_scene
 	if level and level.has_method("set_interaction_prompt"):
 		if is_active:
-			level.set_interaction_prompt("Build Mode: [LMB] Place Spiked Wall | [B] Exit")
+			var structure_name = "Spiked Wall" if selected_structure_id == "spiked_wall" else "Automated Turret"
+			level.set_interaction_prompt("Build Mode: [1] Spiked Wall | [2] Turret | [LMB] Place %s | [B] Exit" % structure_name)
 		else:
 			level.set_interaction_prompt("")
 
 func _physics_process(_delta: float) -> void:
-	if not is_active or not player.is_multiplayer_authority() or player.is_dead:
+	if not is_active or not player.is_multiplayer_authority() or player.is_dead or not Network.is_network_active:
 		return
 		
 	if raycast and raycast.is_colliding():

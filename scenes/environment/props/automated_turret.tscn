@@ -1,0 +1,74 @@
+[gd_scene load_steps=10 format=3 uid="uid://c2turret0022"]
+
+[ext_resource type="Script" path="res://scripts/automated_turret.gd" id="1_turret"]
+[ext_resource type="Script" path="res://scripts/health_component.gd" id="2_health"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_collision"]
+size = Vector3(1.0, 1.2, 1.0)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stand"]
+top_radius = 0.15
+bottom_radius = 0.35
+height = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iron"]
+albedo_color = Color(0.18, 0.20, 0.25, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+radius = 0.4
+height = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bronze"]
+albedo_color = Color(0.65, 0.45, 0.20, 1)
+metallic = 0.9
+roughness = 0.35
+
+[sub_resource type="BoxMesh" id="BoxMesh_barrel"]
+size = Vector3(0.18, 0.18, 0.8)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_detection"]
+radius = 10.0
+
+[node name="automated_turret" type="StaticBody3D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_turret")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+shape = SubResource("BoxShape3D_collision")
+
+[node name="BaseMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CylinderMesh_stand")
+surface_material_override/0 = SubResource("StandardMaterial3D_iron")
+
+[node name="TurretHead" type="Node3D" parent="." unique_name="TurretHead"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+
+[node name="HeadMesh" type="MeshInstance3D" parent="TurretHead"]
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = SubResource("StandardMaterial3D_bronze")
+
+[node name="BarrelMesh" type="MeshInstance3D" parent="TurretHead"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.4)
+mesh = SubResource("BoxMesh_barrel")
+surface_material_override/0 = SubResource("StandardMaterial3D_iron")
+
+[node name="Muzzle" type="Node3D" parent="TurretHead" unique_name="Muzzle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.9)
+
+[node name="DetectionArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+shape = SubResource("SphereShape3D_detection")
+
+[node name="AttackTimer" type="Timer" parent="."]
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 200.0

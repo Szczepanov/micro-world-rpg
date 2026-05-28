@@ -21,9 +21,9 @@ This document tracks the high-level milestones for our automated, AI-driven mult
 - [x] **2.3 Structure Deployment Validation:** Build server-side RPC logic that consumes deployment items from a player's inventory (e.g., `spiked_wall_item`) before spawning a physical building mesh across all connected peers.
 
 ## Phase 3: The Threat Matrix & Wave Loops
-- [ ] **3.1 Reusable Decoupled Health Component:** Create a modular `HealthComponent` node that tracks HP, handles network damage replication, and broadcasts death states. It will be attached to players, walls, turrets, and enemies.
-- [ ] **3.2 Dynamic Navigation Re-Baking:** Hook up Godot's `NavigationRegion3D` to automatically recalculate enemy pathfinding meshes in real-time whenever players place new walls to build defensive mazes.
-- [ ] **3.3 Automated Defense Turrets:** Create logic for placed turrets to scan a radial zone for targets, rotate smoothly toward the nearest enemy, and deal damage on a server-controlled heartbeat loop.
+- [x] **3.1 Reusable Decoupled Health Component:** Create a modular `HealthComponent` node that tracks HP, handles network damage replication, and broadcasts death states. It will be attached to players, walls, turrets, and enemies.
+- [x] **3.2 Dynamic Navigation Re-Baking:** Hook up Godot's `NavigationRegion3D` to automatically recalculate enemy pathfinding meshes in real-time whenever players place new walls to build defensive mazes.
+- [x] **3.3 Automated Defense Turrets:** Create logic for placed turrets to scan a radial zone for targets, rotate smoothly toward the nearest enemy, and deal damage on a server-controlled heartbeat loop.
 - [ ] **3.4 Enemy Spawner Hubs & Core Health:** Create server-controlled spawn locations that release enemy waves targeting a centralized "Base Heart" node. If the heart's health hits 0, broadcast a game-over screen.
 
 ## Phase 4: Infrastructure & Automation (No Manual Work)

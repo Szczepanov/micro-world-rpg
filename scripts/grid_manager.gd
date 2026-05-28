@@ -5,6 +5,9 @@ const CELL_SIZE: float = 2.0
 # Master server-side dictionary: Vector3i -> Dictionary {"structure_id": String, "peer_id": int}
 var world_grid: Dictionary = {}
 
+signal structure_placed(grid_coords: Vector3i, structure_id: String)
+signal structure_removed(grid_coords: Vector3i)
+
 func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	if multiplayer.multiplayer_peer and not multiplayer.is_server() and multiplayer.get_unique_id() != 0:
@@ -77,6 +80,8 @@ func spawn_grid_structure(grid_coords: Vector3i, structure_id: String, peer_id: 
 		"peer_id": peer_id
 	}
 	_spawn_visual_node(grid_coords, structure_id)
+	if multiplayer.is_server():
+		structure_placed.emit(grid_coords, structure_id)
 
 func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
 	var scene_path = "res://scenes/environment/props/" + structure_id + ".tscn"
@@ -98,6 +103,8 @@ func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
 		
 	parent_node.add_child(instance)
 	instance.global_position = target_world_pos
+	if "grid_coords" in instance:
+		instance.grid_coords = grid_coords
 	print("GridManager: Spawned structure %s at %s" % [structure_id, target_world_pos])
 
 @rpc("any_peer", "reliable")
@@ -130,3 +137,24 @@ func sync_entire_grid(server_grid: Dictionary) -> void:
 			
 		if parent_node and not parent_node.has_node(node_name):
 			_spawn_visual_node(grid_coords, server_grid[key]["structure_id"])
+
+@rpc("call_local", "reliable")
+func destroy_grid_structure(grid_coords: Vector3i) -> void:
+	if not multiplayer.is_server() and multiplayer.get_remote_sender_id() != 1:
+		return
+		
+	if world_grid.has(grid_coords):
+		world_grid.erase(grid_coords)
+		
+	var node_name = "structure_" + str(grid_coords.x) + "_" + str(grid_coords.y) + "_" + str(grid_coords.z)
+	var level_scene = get_tree().current_scene
+	var parent_node = level_scene
+	if level_scene and level_scene.has_node("Environment"):
+		parent_node = level_scene.get_node("Environment")
+		
+	if parent_node and parent_node.has_node(node_name):
+		parent_node.get_node(node_name).queue_free()
+		print("GridManager: Removed structure at ", grid_coords)
+		
+	if multiplayer.is_server():
+		structure_removed.emit(grid_coords)

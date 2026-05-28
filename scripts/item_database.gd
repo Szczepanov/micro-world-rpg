@@ -22,6 +22,10 @@ var recipes: Dictionary = {
 	"spiked_wall_item": {
 		"wood": 3,
 		"iron_ore": 1
+	},
+	"automated_turret_item": {
+		"wood": 5,
+		"iron_ore": 3
 	}
 }
 
@@ -143,6 +147,19 @@ func _create_sample_items():
 	spiked_wall_item.value = 15
 	spiked_wall_item.icon = placeholder_icon
 	items[spiked_wall_item.id] = spiked_wall_item
+
+	# Automated Turret item
+	var automated_turret_item = Item.new()
+	automated_turret_item.id = "automated_turret_item"
+	automated_turret_item.name = "Automated Turret"
+	automated_turret_item.description = "An automated defense turret that scans and shoots enemies."
+	automated_turret_item.item_type = Item.ItemType.MISC
+	automated_turret_item.rarity = Item.ItemRarity.UNCOMMON
+	automated_turret_item.stackable = true
+	automated_turret_item.max_stack = 10
+	automated_turret_item.value = 40
+	automated_turret_item.icon = placeholder_icon
+	items[automated_turret_item.id] = automated_turret_item
 
 
 func add_item_to_database(item: Item) -> bool:

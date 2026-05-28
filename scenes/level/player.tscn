@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://bj7yrijm7bppq" path="res://scripts/spring_arm_offset.gd" id="4_ygggd"]
 [ext_resource type="Texture2D" uid="uid://brp1gy30s4rks" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotRedPalette.png" id="5_qlefn"]
 [ext_resource type="PackedScene" uid="uid://b1gfdmp63c6u6" path="res://assets/characters/animations/UAL1_Standard.glb" id="8_pnmcy"]
+[ext_resource type="Script" path="res://scripts/health_component.gd" id="9_health"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mx45w"]
 radius = 0.35796
@@ -30,8 +31,6 @@ properties/3/replication_mode = 1
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
 collision_mask = 3
 script = ExtResource("1_tdh26")
-max_health = null
-current_health = null
 is_dead = null
 _body = NodePath("UAL1_Standard")
 _spring_arm_offset = NodePath("SpringArmOffset")
@@ -134,8 +133,10 @@ bones/60/rotation = Quaternion(0.9924842, 9.236082e-09, -1.1387633e-09, 0.122372
 bones/61/rotation = Quaternion(0.036589734, -0.00013117323, -4.797519e-06, 0.9993304)
 bones/62/rotation = Quaternion(-0.52907336, -0.0003280949, 0.0003434579, 0.84857595)
 bones/63/rotation = Quaternion(-0.00013717556, 0.9643068, -0.26478708, -0.00049942714)
-
 [node name="Mannequin" parent="UAL1_Standard/Armature/Skeleton3D" index="0" unique_id=449367844]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.042716265, 0)
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("9_health")
 
 [editable path="UAL1_Standard"]

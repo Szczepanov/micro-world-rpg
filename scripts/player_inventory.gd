@@ -194,3 +194,7 @@ func from_dict(data: Dictionary) -> void:
 	var slots_data = data.get("slots", [])
 	for i in range(min(slots_data.size(), slots.size())):
 		slots[i].from_dict(slots_data[i])
+
+func clear() -> void:
+	for slot in slots:
+		slot.clear()

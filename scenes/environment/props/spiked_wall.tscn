@@ -1,4 +1,7 @@
-[gd_scene format=3 uid="uid://c1pikedwa1100"]
+[gd_scene load_steps=3 format=3 uid="uid://c1pikedwa1100"]
+
+[ext_resource type="Script" path="res://scripts/placed_structure.gd" id="1_structure"]
+[ext_resource type="Script" path="res://scripts/health_component.gd" id="2_health"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
 size = Vector3(2.0, 1.5, 0.4)
@@ -23,6 +26,7 @@ roughness = 0.2
 [node name="spiked_wall" type="StaticBody3D"]
 collision_layer = 2
 collision_mask = 0
+script = ExtResource("1_structure")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
@@ -57,3 +61,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_metal")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.4, 0)
 mesh = SubResource("CylinderMesh_spike")
 surface_material_override/0 = SubResource("StandardMaterial3D_metal")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 150.0
