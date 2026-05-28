@@ -1376,4 +1376,3 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		mat.set_shader_parameter("roughness", orig_roughness)
 		mat.set_shader_parameter("cut_height", 1.48) # Cut higher up to completely slice off neck joints
 		mannequin.set_surface_override_material(s, mat)
-

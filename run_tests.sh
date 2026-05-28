@@ -12,6 +12,36 @@ if ! command -v "${GODOT_BIN}" &>/dev/null; then
 	exit 2
 fi
 
+if [ -f "${PROJECT_DIR}/addons/gut/addons/gut/gut_cmdln.gd" ] || [ -f "${PROJECT_DIR}/addons/gut/addons/gut/gut_cmdline.gd" ]; then
+	echo "Detected nested GUT layout at addons/gut/addons/gut (repo root checked out at addons/gut)." >&2
+	echo "GUT expects files directly under addons/gut/, so this layout fails at runtime." >&2
+	echo "Reinstall submodule at addons/ (not addons/gut):" >&2
+	echo "  git submodule deinit -f addons/gut" >&2
+	echo "  git rm -f addons/gut" >&2
+	echo "  rm -rf .git/modules/addons/gut" >&2
+	echo "  git submodule add https://github.com/bitwes/Gut.git addons" >&2
+	exit 2
+fi
+
+GUT_SCRIPT=""
+for candidate in "addons/gut/gut_cmdline.gd" "addons/gut/gut_cmdln.gd"
+do
+	if [ -f "${PROJECT_DIR}/${candidate}" ]; then
+		GUT_SCRIPT="${candidate}"
+		break
+	fi
+done
+
+if [ -z "${GUT_SCRIPT}" ]; then
+	echo "GUT command-line script not found." >&2
+	echo "Checked:" >&2
+	echo "  ${PROJECT_DIR}/addons/gut/gut_cmdline.gd" >&2
+	echo "  ${PROJECT_DIR}/addons/gut/gut_cmdln.gd" >&2
+	echo "Install GUT into addons/gut (plugin root), e.g.:" >&2
+	echo "  git submodule add https://github.com/bitwes/Gut.git addons" >&2
+	exit 2
+fi
+
 echo "============================================"
 echo "micro-world-rpg - GUT Headless Test Runner"
 echo "Godot: $(${GODOT_BIN} --version 2>/dev/null || echo 'unknown')"
@@ -21,7 +51,7 @@ echo "============================================"
 "${GODOT_BIN}" \
 	--headless \
 	--path "${PROJECT_DIR}" \
-	-s addons/gut/gut_cmdline.gd \
+	-s "${GUT_SCRIPT}" \
 	-gdir=res://test/unit/ \
 	-gprefix=test_ \
 	-gsuffix=.gd \
