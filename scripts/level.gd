@@ -318,6 +318,7 @@ func msg_rpc(nick, msg):
 
 # ---------- INVENTORY SYSTEM ----------
 func toggle_inventory():
+	print("Level: toggle_inventory called, current inventory_visible: ", inventory_visible)
 	if main_menu.is_menu_visible():
 		return
 
@@ -326,9 +327,12 @@ func toggle_inventory():
 		return
 
 	inventory_visible = !inventory_visible
+	print("Level: inventory_visible toggled to: ", inventory_visible)
 	if inventory_visible:
 		inventory_ui.open_inventory(local_player)
 	else:
+		# Explicitly reset state before closing to prevent desync
+		inventory_visible = false
 		inventory_ui.close_inventory()
 
 func is_inventory_visible() -> bool:
@@ -336,6 +340,7 @@ func is_inventory_visible() -> bool:
 
 # ---------- CRAFTING SYSTEM ----------
 func toggle_crafting(station = null):
+	print("Level: toggle_crafting called, current crafting_visible: ", crafting_visible)
 	if main_menu.is_menu_visible():
 		return
 
@@ -347,9 +352,12 @@ func toggle_crafting(station = null):
 		if inventory_visible:
 			toggle_inventory()
 		crafting_visible = true
+		print("Level: crafting_visible set to: ", crafting_visible)
 		crafting_ui.open_crafting(local_player)
 	else:
+		# Explicitly reset state before closing to prevent desync
 		crafting_visible = false
+		print("Level: crafting_visible set to: ", crafting_visible)
 		crafting_ui.close_crafting()
 
 func is_crafting_visible() -> bool:

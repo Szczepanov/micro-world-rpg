@@ -19,6 +19,9 @@ func _ready():
 	close_button.pressed.connect(_on_close_pressed)
 	tooltip.visible = false
 	_create_slot_uis()
+	
+	# Explicitly set focus mode to NONE to prevent keyboard focus capture
+	focus_mode = Control.FOCUS_NONE
 
 func _create_slot_uis():
 	for child in grid_container.get_children():
@@ -154,13 +157,20 @@ func open_inventory(player: Character = null):
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func close_inventory():
+	print("InventoryUI: close_inventory called - releasing focus")
 	visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
-	# Release keyboard focus from UI elements to restore player movement
-	var focused_node = get_viewport().gui_get_focus_owner()
-	if focused_node and is_ancestor_of(focused_node):
-		focused_node.release_focus()
+	# AGGRESSIVE FOCUS EVICTION: Force ALL UI elements to release focus
+	var current_focus: Control = get_viewport().gui_get_focus_owner()
+	print("InventoryUI: Current focus owner: ", current_focus)
+	if current_focus:
+		current_focus.release_focus()
+		print("InventoryUI: Focus released from: ", current_focus.name)
+	
+	# Force viewport to re-capture input handling
+	get_viewport().set_input_as_handled()
+	print("InventoryUI: Input handling reset, mouse_mode: ", Input.mouse_mode)
 
 func refresh_display():
 	print("Debug: InventoryUI refresh_display called")

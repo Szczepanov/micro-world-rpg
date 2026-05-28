@@ -22,6 +22,9 @@ func _ready() -> void:
 	craft_button.pressed.connect(_on_craft_pressed)
 	detail_panel.visible = false
 	visible = false
+	
+	# Explicitly set focus mode to NONE to prevent keyboard focus capture
+	focus_mode = Control.FOCUS_NONE
 
 func open_crafting(player: Character) -> void:
 	current_player = player
@@ -37,13 +40,20 @@ func open_crafting(player: Character) -> void:
 		detail_panel.visible = false
 
 func close_crafting() -> void:
+	print("CraftingUI: close_crafting called - releasing focus")
 	visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
-	# Release keyboard focus from UI elements to restore player movement
-	var focused_node = get_viewport().gui_get_focus_owner()
-	if focused_node and is_ancestor_of(focused_node):
-		focused_node.release_focus()
+	# AGGRESSIVE FOCUS EVICTION: Force ALL UI elements to release focus
+	var current_focus: Control = get_viewport().gui_get_focus_owner()
+	print("CraftingUI: Current focus owner: ", current_focus)
+	if current_focus:
+		current_focus.release_focus()
+		print("CraftingUI: Focus released from: ", current_focus.name)
+	
+	# Force viewport to re-capture input handling
+	get_viewport().set_input_as_handled()
+	print("CraftingUI: Input handling reset, mouse_mode: ", Input.mouse_mode)
 	
 	crafting_closed.emit()
 

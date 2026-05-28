@@ -152,6 +152,8 @@ func _physics_process(delta):
 	# Handle Attack & Interaction
 	# Block combat actions if any menu cursor is free (mouse is visible)
 	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		# Debug: Log why movement is blocked
+		print("Movement blocked: mouse_mode is VISIBLE")
 		return
 	
 	# Attack and interact are now handled in _unhandled_input to prevent input leakage
