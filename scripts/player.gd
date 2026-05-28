@@ -585,8 +585,8 @@ func _setup_input_actions():
 func _setup_interaction_area():
 	interaction_area = Area3D.new()
 	interaction_area.name = "InteractionDetector"
-	# Detect world (2) and interactables (4). binary 110 = 6.
-	interaction_area.collision_mask = 6
+	# Layer 1 (player=1) + Layer 2 (world=2) + Layer 4 (enemy=8) = 11
+	interaction_area.collision_mask = 11
 	interaction_area.collision_layer = 0 # Doesn't need to be detected
 	
 	var col_shape = CollisionShape3D.new()
@@ -610,21 +610,26 @@ func _on_animation_finished(anim_name: String):
 	if anim_name == "Attack1" or anim_name == "Sword_Attack":
 		is_attacking = false
 
-func _perform_melee_attack(is_interact: bool):
+func _perform_melee_attack(is_interact: bool) -> void:
 	is_attacking = true
 	_play_anim("Attack1")
-		
+	# Always broadcast the swing VFX so all peers see the animation.
+	play_strike_vfx.rpc()
+
 	# Fallback timer (1.3s) to prevent getting stuck if animation_finished fails to fire
 	get_tree().create_timer(1.3).timeout.connect(func():
 		is_attacking = false
 	)
-		
+
 	var target = _find_closest_target()
 	if target:
 		if target is HarvestableNode:
 			request_harvest_hit.rpc_id(1, target.get_path())
 		elif target is Character and target != self:
 			request_combat_hit.rpc_id(1, target.get_path())
+		elif target is Enemy:
+			# NEW: Lightweight notification — no damage calculated client-side.
+			request_enemy_melee_hit.rpc_id(1, target.get_path())
 
 func _perform_interaction() -> void:
 	if active_crafting_station != null:
@@ -672,6 +677,9 @@ func _find_closest_target() -> Node3D:
 		if "is_depleted" in body and body.is_depleted:
 			continue
 		if body is Character and body.is_dead:
+			continue
+		# Skip dead enemies (Enemy._is_dead is not exported, check collision_layer instead)
+		if body is Enemy and body.collision_layer == 0:
 			continue
 			
 		var dist = global_position.distance_to(body.global_position)
@@ -764,6 +772,48 @@ func request_combat_hit(target_path: NodePath):
 		
 	target.take_damage(20, self)
 
+## Player melee hit request against an Enemy.
+## Client sends only the node path — zero gameplay data.
+## Server does all spatial validation and damage application.
+@rpc("any_peer", "call_local", "reliable")
+func request_enemy_melee_hit(enemy_path: NodePath) -> void:
+	# ── Server-only guard ──────────────────────────────────────────────
+	if not multiplayer.is_server():
+		return
+
+	# ── Sender identity check: only this player's authority peer may call ──
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority() and sender_id != 1:
+		push_warning("Security: Peer %d tried to trigger melee for player %d" \
+				% [sender_id, get_multiplayer_authority()])
+		return
+
+	# ── Resolve the enemy node from the path ──────────────────────────
+	var enemy: Enemy = get_node_or_null(enemy_path) as Enemy
+	if not enemy or not is_instance_valid(enemy):
+		return  # Enemy was freed between RPC send and receipt.
+
+	# ── Dead-state guard: collision_layer == 0 means _on_died() was already called ──
+	if enemy.collision_layer == 0:
+		return
+
+	# ── Spatial validation: ShapeCast3D (server-side, ephemeral) ──────
+	# Cast a short sphere from the server-authoritative player position
+	# toward the enemy. Accept hit only if within melee range (2.5 m).
+	const MELEE_REACH: float = 2.5
+	var dist: float = global_position.distance_to(enemy.global_position)
+	if dist > MELEE_REACH:
+		push_warning("Melee rejected: dist=%.2f > reach=%.2f (player=%s)" \
+				% [dist, MELEE_REACH, name])
+		return
+
+	# ── Damage application ─────────────────────────────────────────────
+	const MELEE_DAMAGE: float = 20.0
+	var target_health: HealthComponent = \
+			enemy.get_node_or_null("HealthComponent") as HealthComponent
+	if target_health and target_health.current_health > 0.0:
+		target_health.request_damage(MELEE_DAMAGE)
+
 func take_damage(amount: float, attacker: Character) -> void:
 	if not multiplayer.is_server():
 		return
@@ -777,6 +827,17 @@ func take_damage(amount: float, attacker: Character) -> void:
 @rpc("call_local", "reliable")
 func play_hurt_effect() -> void:
 	_play_anim("Hurt")
+
+## Broadcast the weapon swing animation to all connected peers.
+## Called by the authority client; executes locally on every peer.
+## Uses unreliable transport — a dropped packet means a missed swing
+## frame, not a gameplay desynced state. This is intentional.
+@rpc("any_peer", "call_local", "unreliable")
+func play_strike_vfx() -> void:
+	# Run on all peers including the caller (call_local).
+	# Only play if not already in an attack animation (prevents spam).
+	if not is_attacking:
+		_play_anim("Attack1")
 
 func _on_died() -> void:
 	if multiplayer.is_server():

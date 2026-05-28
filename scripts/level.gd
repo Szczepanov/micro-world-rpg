@@ -52,9 +52,12 @@ func _ready():
 
 	# Setup the screen interaction UI prompt
 	_setup_interaction_ui()
-	
+
 	# Spawn resource nodes in the world
 	spawn_resources()
+
+	# Setup enemy spawner for multiplayer replication
+	_setup_enemy_spawner()
 
 func _on_player_connected(peer_id, player_info):
 	_add_player(peer_id, player_info)
@@ -258,13 +261,25 @@ func spawn_resources():
 		workbench.name = "Crafting_Workbench"
 		workbench.position = Vector3(-3.0, 0.0, -3.0)
 		$Environment.add_child(workbench)
-		
+
 		# Spawn an Anvil crafting station
 		var anvil = station_scene.instantiate()
 		anvil.station_type = "Anvil"
 		anvil.name = "Crafting_Anvil"
 		anvil.position = Vector3(3.0, 0.0, -3.0)
 		$Environment.add_child(anvil)
+
+func _setup_enemy_spawner() -> void:
+	if not multiplayer.is_server():
+		return
+	var spawner: MultiplayerSpawner = get_node_or_null("EnemySpawner") as MultiplayerSpawner
+	if not spawner:
+		push_error("Level: EnemySpawner (MultiplayerSpawner) node is missing from level.tscn!")
+		return
+	# Register the enemy scene so the spawner can track it.
+	spawner.add_spawnable_scene("res://scenes/level/enemy.tscn")
+	# Set the spawn path to the scene root (where WaveSpawner places enemies).
+	spawner.spawn_path = get_path()
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

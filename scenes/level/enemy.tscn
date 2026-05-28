@@ -2,10 +2,11 @@
 ; Instantiated by WaveSpawner on the server. NavigationAgent3D handles pathfinding.
 ; HealthComponent enables damage from turrets and player attacks.
 ; MultiplayerSynchronizer replicates position to all clients.
-[gd_scene load_steps=9 format=3 uid="uid://enemy_char_001"]
+[gd_scene load_steps=14 format=3 uid="uid://enemy_char_001"]
 
 [ext_resource type="Script" path="res://scripts/enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/health_component.gd" id="2_health"]
+[ext_resource type="Script" path="res://scripts/enemy_health_bar_3d.gd" id="3_healthbar"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
 radius = 0.35
@@ -29,6 +30,23 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_hpbg"]
+size = Vector3(0.6, 0.07, 0.01)
+
+[sub_resource type="StandardMaterial3D" id="HealthBarBG"]
+albedo_color = Color(0.15, 0.15, 0.15, 0.85)
+transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+no_depth_test = true
+shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+[sub_resource type="BoxMesh" id="BoxMesh_hpfg"]
+size = Vector3(0.6, 0.07, 0.01)
+
+[sub_resource type="StandardMaterial3D" id="HealthBarFG"]
+albedo_color = Color(0.20, 0.85, 0.25, 1.0)
+no_depth_test = true
+shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 
 [node name="Enemy" type="CharacterBody3D"]
 collision_layer = 8
@@ -56,6 +74,18 @@ one_shot = false
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")
 max_health = 50.0
+
+[node name="HealthBar3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+script = ExtResource("3_healthbar")
+
+[node name="Background" type="MeshInstance3D" parent="HealthBar3D"]
+mesh = SubResource("BoxMesh_hpbg")
+surface_material_override/0 = SubResource("HealthBarBG")
+
+[node name="Foreground" type="MeshInstance3D" parent="HealthBar3D"]
+mesh = SubResource("BoxMesh_hpfg")
+surface_material_override/0 = SubResource("HealthBarFG")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_enemy")

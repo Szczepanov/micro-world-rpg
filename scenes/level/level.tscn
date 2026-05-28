@@ -47,6 +47,10 @@ shadow_blur = 0.5
 
 [node name="PlayersContainer" type="Node3D" parent="." unique_id=369040509]
 
+[node name="EnemySpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("..")
+auto_spawning = false
+
 [node name="MainMenuUI" parent="." unique_id=840342401 instance=ExtResource("6_x9g3h")]
 visible = false
 
