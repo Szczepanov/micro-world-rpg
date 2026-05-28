@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://ctp3icidss7je" path="res://assets/models/environment/Medieval_village/glTF/Door_8_Flat.gltf" id="1_iwegc"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hucgk"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_iwegc"]
 points = PackedVector3Array(-0.046263106, 2.0126567, -0.057566214, -0.046263106, 2.0126567, 0.05755137, -0.046263106, 2.1119084, -0.057566214, 0.8807692, 1.0230162, -0.10770562, -0.041120224, 0.035225272, -0.057566214, -0.04319926, 0.041800957, -0.0505178, -0.046263106, 2.1119084, 0.05755137, -0.04319926, 0.041800957, 0.050502956, -0.041120224, 0.035225272, 0.05755137, 0.05922074, 0.10468093, 0.08531548, -0.023940798, 2.1345124, -0.057566214, 0.8807692, 1.1802162, -0.10770562, 0.9191767, 1.0230162, -0.10770562, 1.069524, 0.035225272, -0.057566214, -0.023940798, 2.1345124, 0.05755137, 0.7959663, 1.0606209, 0.09056762, 1.069524, 0.035225272, 0.05755137, 0.98428345, 0.10468093, 0.08531548, 0.7959663, 0.88677627, 0.0917391, 0.7729875, 0.88965315, 0.09156339, 1.0470923, 2.1345124, -0.057566214, 0.9191767, 1.1802162, -0.10770562, 1.0714936, 0.041800957, -0.0505178, 1.069524, 2.1119084, -0.057566214, 1.0716031, 2.1082096, -0.0505178, 1.0470923, 2.1345124, 0.05755137, 0.81883574, 0.88965315, 0.09156339, 0.8402827, 0.89848924, 0.091055736, 0.85855633, 0.91266805, 0.090216175, 1.069524, 2.1119084, 0.05755137, 1.0714936, 0.041800957, 0.050502956, 1.0716031, 2.1082096, 0.050502956, 0.8726719, 0.93095666, 0.08914232)
 
-[node name="Door_8_Flat" type="StaticBody3D" unique_id=595288533]
+[node name="Door_8_Flat" type="StaticBody3D" unique_id=345076314]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=613882143 instance=ExtResource("1_iwegc")]
 
-[node name="Door_8_FlatCollision" type="CollisionShape3D" parent="." unique_id=1483214276]
-shape = SubResource("ConvexPolygonShape3D_hucgk")
+[node name="Door_8_FlatCollision" type="CollisionShape3D" parent="." unique_id=8236329]
+shape = SubResource("ConvexPolygonShape3D_iwegc")

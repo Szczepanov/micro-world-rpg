@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://clgc2v61hiv3b" path="res://assets/models/environment/Medieval_village/glTF/Roof_Front_Brick4_Half_L.gltf" id="1_q6w86"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hilw0"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_q6w86"]
 points = PackedVector3Array(-2.280707, -0.13180207, -0.10868384, -2.277876, -0.13180207, -0.33496368, -2.280707, -0.13180207, 0.117596, -2.1882281, 0.019021973, -0.24971339, -0.016156673, -0.13180207, -0.33496368, -2.0818303, 0.13167064, -0.33496368, 0.12940311, -0.13180207, 0.117596, -1.2707537, 0.57725865, 0.15454257, -1.3936656, 0.66988087, 0.15459049, -0.83265924, 1.4903387, 0.15454257, -0.3492689, 2.1953316, 0.15454257, -2.0846612, 0.13167064, 0.117596, -1.9211721, 0.43613493, 0.082853734, -1.9862847, 0.33537698, 0.082853734, -1.9862847, 0.33537698, -0.021181315, -1.9211721, 0.43613493, -0.021181315, -0.00011444092, 2.9366224, -0.24971339, 0.12916708, -0.13180207, -0.10868384, -0.016156673, 0.13167064, -0.33496368, 0.115484, -6.571412e-05, -0.16915931, 0.12940311, 0.13167064, -0.10868384, 0.12916708, 0.13167064, 0.117596, -0.22140288, 2.1099062, 0.15454257, -0.28627956, 2.0132163, 0.15454257, -1.2009228, 0.6701938, 0.15454257, 0.115484, 3.0649166, 0.094450474, -0.11571288, 2.7779753, 0.094450474, -0.00011444092, 2.9322414, -5.364418e-07, 0.115484, 3.0646036, -0.16915931)
 
-[node name="Roof_Front_Brick4_Half_L" type="StaticBody3D" unique_id=2098360681]
+[node name="Roof_Front_Brick4_Half_L" type="StaticBody3D" unique_id=232772401]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=192478176 instance=ExtResource("1_q6w86")]
 
-[node name="Roof_Front_Brick4_Half_LCollision" type="CollisionShape3D" parent="." unique_id=2094398103]
-shape = SubResource("ConvexPolygonShape3D_hilw0")
+[node name="Roof_Front_Brick4_Half_LCollision" type="CollisionShape3D" parent="." unique_id=1627553675]
+shape = SubResource("ConvexPolygonShape3D_q6w86")

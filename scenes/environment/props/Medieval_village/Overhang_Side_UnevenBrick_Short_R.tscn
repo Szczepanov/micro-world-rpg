@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://x4ubee1hv7iv" path="res://assets/models/environment/Medieval_village/glTF/Overhang_Side_UnevenBrick_Short_R.gltf" id="1_73g26"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_iubkn"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_73g26"]
 points = PackedVector3Array(1.123538, 2.9086962, 1.1228352, 0.9999514, 2.9086962, 1.1228352, 1.123538, 2.6751862, 1.1228352, 1.1652967, 2.9074988, 1.1197408, 1.1050518, 5.9994106, 1.1197408, 0.89489806, 5.9994106, 1.1197408, 0.9999514, 2.6751862, 1.1228352, 1.123538, 0.51072806, 0.22282293, 1.1652967, 2.9074988, 0.8800752, 1.1175324, 6.116764, -0.00010558963, 1.1175324, 6.116166, 0.9999081, 1.123538, 0.101786174, -0.007138014, 0.80485904, 6.116764, 0.9999081, 0.6859644, 6.116764, 0.9999081, 0.89489806, 2.9074988, 1.1197408, 0.9999514, 0.51072806, 0.22282293, 0.6859644, 2.8829503, 0.9999081, 1.123538, 1.8495188, -0.010654241, 1.1050518, 5.9994106, -0.11993843, 0.9999514, 6.116764, -0.3140339, 0.9999514, 0.101786174, -0.007138014, 0.9854063, -2.3841858e-07, -0.1546787, 0.9854063, -2.3841858e-07, -0.23245755, 0.9999514, 2.8829503, -0.3140339, 1.1027527, 2.3638396, -0.11248404, 1.1059432, 2.909295, -0.12092297, 0.80692357, 6.116764, -0.19518559, 0.6859644, 6.116166, -0.3137526, 0.7952405, -2.3841858e-07, -0.1546787, 0.6859644, 2.8829503, -0.3137526, 0.7952405, -2.3841858e-07, -0.23245755)
 
-[node name="Overhang_Side_UnevenBrick_Short_R" type="StaticBody3D" unique_id=670370409]
+[node name="Overhang_Side_UnevenBrick_Short_R" type="StaticBody3D" unique_id=801112344]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1594151142 instance=ExtResource("1_73g26")]
 
-[node name="Overhang_Side_UnevenBrick_Short_RCollision" type="CollisionShape3D" parent="." unique_id=29175144]
-shape = SubResource("ConvexPolygonShape3D_iubkn")
+[node name="Overhang_Side_UnevenBrick_Short_RCollision" type="CollisionShape3D" parent="." unique_id=1958123954]
+shape = SubResource("ConvexPolygonShape3D_73g26")

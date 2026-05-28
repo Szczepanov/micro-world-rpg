@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://scgeqbk50qn8" path="res://assets/models/environment/Medieval_village/glTF/WindowShutters_Wide_Flat_Open.gltf" id="1_wthai"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_7l3ng"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wthai"]
 points = PackedVector3Array(1.2418603, 2.5172756, 0.47010738, 1.2042245, 2.5172756, 0.5348136, 1.2115089, 2.1583405, 0.5447787, 1.2149082, 1.5280086, 0.53932697, 1.2153937, 1.3737013, 0.5381204, 1.2362756, 1.0932441, 0.47940218, 1.0425116, 1.0932441, 0.35678202, 0.89148223, 2.5172756, 0.26571065, 1.1838282, 2.1586192, 0.5919231, -1.2049582, 2.5172756, 0.50089645, 1.1877133, 1.3732831, 0.5852648, 1.1830996, 2.004312, 0.59317434, 1.1986398, 1.0932441, 0.5441531, 0.8956102, 1.0932441, 0.27201146, 0.7016032, 2.5172756, 0.15564747, -1.1556673, 2.1583405, 0.5384332, -1.2387091, 2.5172756, 0.4341793, -1.200102, 1.0932441, 0.51050407, -1.1544533, 1.3737013, 0.5403547, 0.69601846, 1.0932441, 0.16498697, -0.6581451, 2.5172756, 0.13665564, -1.2338529, 1.0932441, 0.44378692, -0.850938, 2.5172756, 0.23434064, -0.6530461, 1.0932441, 0.14621858, -0.84608173, 1.0932441, 0.24394827)
 
-[node name="WindowShutters_Wide_Flat_Open" type="StaticBody3D" unique_id=131571574]
+[node name="WindowShutters_Wide_Flat_Open" type="StaticBody3D" unique_id=1155416422]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=742597036 instance=ExtResource("1_wthai")]
 
-[node name="WindowShutters_Wide_Flat_OpenCollision" type="CollisionShape3D" parent="." unique_id=1308549995]
-shape = SubResource("ConvexPolygonShape3D_7l3ng")
+[node name="WindowShutters_Wide_Flat_OpenCollision" type="CollisionShape3D" parent="." unique_id=1682269438]
+shape = SubResource("ConvexPolygonShape3D_wthai")

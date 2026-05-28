@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://k7uamsxjhvss" path="res://assets/models/environment/Medieval_village/glTF/Window_Roof_Thin.gltf" id="1_2jq0k"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_v4ams"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_2jq0k"]
 points = PackedVector3Array(-0.3754313, 1.3382161, 0.00079128146, -0.39018986, 2.404915, 0.1579831, -0.3754313, 1.4249948, -0.077804625, 0.35582563, 1.3382161, 0.00079128146, -0.08959904, 2.0958304, 1.0526607, -0.3846033, 2.0973287, 1.0532377, -0.38343593, 2.5099025, 0.1579831, 0.35582563, 1.4249948, -0.077804625, -0.10052204, 2.5155494, 0.1579831, 0.45596698, 2.4050303, 0.1579831, 0.46155354, 2.1070092, 1.0295782, 0.19873467, 2.0973287, 1.0532377, 0.18972942, 2.1731594, 1.1012495, -0.37659866, 2.1812265, 1.0994027, -0.08659732, 2.5154343, 0.1579831, 0.44963, 2.5057538, 0.1579831, -0.09368476, 2.1871037, 1.0972099, -0.079760015, 2.1871037, 1.0972099, 0.4564673, 2.186643, 1.0766666)
 
-[node name="Window_Roof_Thin" type="StaticBody3D" unique_id=2099799359]
+[node name="Window_Roof_Thin" type="StaticBody3D" unique_id=739302219]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1643025091 instance=ExtResource("1_2jq0k")]
 
-[node name="Window_Roof_ThinCollision" type="CollisionShape3D" parent="." unique_id=1952887461]
-shape = SubResource("ConvexPolygonShape3D_v4ams")
+[node name="Window_Roof_ThinCollision" type="CollisionShape3D" parent="." unique_id=328376285]
+shape = SubResource("ConvexPolygonShape3D_2jq0k")

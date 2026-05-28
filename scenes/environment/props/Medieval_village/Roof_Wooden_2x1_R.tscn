@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://balth031ablvv" path="res://assets/models/environment/Medieval_village/glTF/Roof_Wooden_2x1_R.gltf" id="1_vp5pc"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_0dg75"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_vp5pc"]
 points = PackedVector3Array(-0.995207, 1.0557548, -0.041172862, -0.9947902, 0.9197506, -0.041172862, -1, -0.14225537, 0.8801137, -1, 0.12278789, 0.8801137, -1, 0.12278789, 1.1611428, -0.9966657, -0.04034386, 1.4889083, -0.48985726, 1.0871592, -0.041172862, 0.40330935, 0.9228054, -0.041172862, 1.1287208, -0.14225537, -8.763373e-05, 0.88719475, -0.14225537, -8.763373e-05, -0.7957762, -0.16119576, 1.4722604, -0.9960406, -0.14335513, 1.4429356, -1, -0.14225537, 1.1611428, -0.7922335, -0.058184482, 1.5182331, -0.49110758, -0.030568168, 1.5189967, -0.18060404, -0.01822637, 1.4988359, -0.17914528, 1.0849596, -0.041172862, 0.7173556, 0.9242718, -0.041172862, 1.0053527, 0.9261048, -0.041172862, 1.1287208, 0.12278789, -8.763373e-05, 1.1289291, -0.14225537, 1.1611428, 0.7173556, -0.1599738, 1.473024, 0.40330935, -0.16119576, 1.4722604, -0.48277193, -0.1599738, 1.473024, 0.1059345, -0.07272581, 1.5191494, 0.7088115, -0.064416476, 1.5189967, 0.98951507, -0.040954836, 1.4988359, 0.99076545, 1.062109, -0.041172862, 1.1289291, 0.12278789, 1.1611428, 1.0053527, -0.14408831, 1.4528632)
 
-[node name="Roof_Wooden_2x1_R" type="StaticBody3D" unique_id=947460884]
+[node name="Roof_Wooden_2x1_R" type="StaticBody3D" unique_id=1968753360]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=739903707 instance=ExtResource("1_vp5pc")]
 
-[node name="Roof_Wooden_2x1_RCollision" type="CollisionShape3D" parent="." unique_id=1730455482]
-shape = SubResource("ConvexPolygonShape3D_0dg75")
+[node name="Roof_Wooden_2x1_RCollision" type="CollisionShape3D" parent="." unique_id=298730947]
+shape = SubResource("ConvexPolygonShape3D_vp5pc")

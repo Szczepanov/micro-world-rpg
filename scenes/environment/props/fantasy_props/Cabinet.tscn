@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://boe1lo6ltpy3o" path="res://assets/models/environment/fantasy_props/glTF/Cabinet.gltf" id="1_p2hi4"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_x664x"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_p2hi4"]
 points = PackedVector3Array(0.6371906, 0.997604, 0.16760486, 0.6226605, 0.102018505, 0.17651749, 0.6269262, 0.00018751621, 0.17651749, 0.68091416, 0.00096857845, 0.16540292, 0.6371906, 0.997604, -0.16723049, -0.6373239, 0.997604, 0.16760486, 0.58480227, 0.9967253, 0.17651749, 0.6269262, 0.00018751621, -0.180547, -0.6270596, 0.00018751621, 0.17651749, 0.68091416, 0.00096857845, -0.16946737, 0.58480227, 0.9967253, -0.180547, -0.6373239, 0.997604, -0.16723049, -0.67651516, 0.1028972, 0.16561261, -0.68091416, 0.00096857845, 0.16540292, -0.62279385, 0.102018505, 0.17651749, -0.58493567, 0.9967253, 0.17651749, 0.6226605, 0.102018505, -0.180547, -0.6270596, 0.00018751621, -0.180547, -0.58493567, 0.9967253, -0.180547, -0.68091416, 0.00096857845, -0.16946737, -0.67651516, 0.1028972, -0.16922271, -0.62279385, 0.102018505, -0.180547)
 
-[node name="Cabinet" type="StaticBody3D" unique_id=916052860]
+[node name="Cabinet" type="StaticBody3D" unique_id=410524424]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1248829620 instance=ExtResource("1_p2hi4")]
 
-[node name="CabinetCollision" type="CollisionShape3D" parent="." unique_id=1827690119]
-shape = SubResource("ConvexPolygonShape3D_x664x")
+[node name="CabinetCollision" type="CollisionShape3D" parent="." unique_id=10988499]
+shape = SubResource("ConvexPolygonShape3D_p2hi4")

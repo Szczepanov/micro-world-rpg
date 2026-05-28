@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://4kro7yf68wkj" path="res://assets/models/environment/fantasy_props/glTF/Book_5.gltf" id="1_23yi3"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_6mt1x"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_23yi3"]
 points = PackedVector3Array(0.0923445, 0.031820107, 0.14356226, -0.10563667, 0.031820107, 0.14356226, 0.0923445, -0.031820107, 0.14356226, 0.0923445, 0.031820107, -0.14356226, -0.114161186, 0.021404441, 0.14356226, -0.10563667, 0.031820107, -0.14356226, -0.10563667, -0.031820107, 0.14356226, 0.0923445, -0.031820107, -0.14356226, -0.120559774, 0.007830437, 0.14356226, -0.114161186, 0.021404441, -0.14356226, -0.114161186, -0.0214169, 0.14356226, -0.10563667, -0.031820107, -0.14356226, -0.120559774, -0.0078428965, 0.14356226, -0.120559774, 0.007830437, -0.14356226, -0.114161186, -0.0214169, -0.14356226, -0.120559774, -0.0078428965, -0.14356226)
 
-[node name="Book_5" type="StaticBody3D" unique_id=1141355164]
+[node name="Book_5" type="StaticBody3D" unique_id=704264049]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=976352749 instance=ExtResource("1_23yi3")]
 
-[node name="Book_5Collision" type="CollisionShape3D" parent="." unique_id=1318717791]
-shape = SubResource("ConvexPolygonShape3D_6mt1x")
+[node name="Book_5Collision" type="CollisionShape3D" parent="." unique_id=283328708]
+shape = SubResource("ConvexPolygonShape3D_23yi3")

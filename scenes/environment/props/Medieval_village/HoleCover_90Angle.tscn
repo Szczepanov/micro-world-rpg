@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://cq1lwvhirgwix" path="res://assets/models/environment/Medieval_village/glTF/HoleCover_90Angle.gltf" id="1_biqu2"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_bmos4"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_biqu2"]
 points = PackedVector3Array(-1.0000001, -0.1050869, -1.1198205, -1.0000001, -0.1050869, -0.88036543, -1.0000001, 0.105067186, -1.1198205, 1.1196128, -0.1050869, -1.1198205, -1.0000001, 0.105067186, -0.88036543, 0.8801578, -0.1050869, 0.99979246, 1.1196128, 0.105067186, -1.1198205, 1.1198205, -0.1050869, 1.0000001, 0.8801578, 0.105067186, 0.99979246, 1.1198205, 0.105067186, 1.0000001)
 
-[node name="HoleCover_90Angle" type="StaticBody3D" unique_id=683233081]
+[node name="HoleCover_90Angle" type="StaticBody3D" unique_id=296541877]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1262232818 instance=ExtResource("1_biqu2")]
 
-[node name="HoleCover_90AngleCollision" type="CollisionShape3D" parent="." unique_id=774122112]
-shape = SubResource("ConvexPolygonShape3D_bmos4")
+[node name="HoleCover_90AngleCollision" type="CollisionShape3D" parent="." unique_id=1578369596]
+shape = SubResource("ConvexPolygonShape3D_biqu2")

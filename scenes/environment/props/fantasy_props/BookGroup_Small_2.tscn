@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dixduqxytq6pc" path="res://assets/models/environment/fantasy_props/glTF/BookGroup_Small_2.gltf" id="1_wj0x6"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_yvpye"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wj0x6"]
 points = PackedVector3Array(0.07693556, -0.00060850946, 0.10470745, -0.09003153, -0.00060850946, 0.0780012, -0.067913294, -0.0007193621, 0.07788509, 0.10544649, -0.0007193621, 0.104614556, 0.07804927, 0.28192708, 0.10417333, -0.08916284, 0.27616274, 0.07744385, -0.103195556, -0.00052537, 0.066296905, -0.10390833, -0.000885641, -0.1317009, -0.055439763, -0.0011350594, -0.1320028, -0.10230459, 0.27619046, 0.06576277, -0.054704715, -0.00080250157, 0.06599501, 0.12248622, -0.00080250157, 0.09272447, 0.12364447, 0.28181624, 0.092190355, 0.10662702, 0.28184396, 0.10405722, 0.061098635, 0.2819825, 0.09249225, -0.10301737, 0.27599648, -0.1322118, -0.097181536, 0.27596876, -0.13225825, -0.08996471, 0.27594104, -0.1323047, -0.0604069, 0.27585793, -0.13249049, -0.0044542104, 0.2733083, -0.1325137, -0.0053451806, -0.0011350594, -0.1320028, 0.12152843, -0.0011350594, -0.10527333, -0.054548796, 0.2758302, -0.1325137, 0.122686684, 0.28159454, -0.10580745, 0.115135744, 0.28162226, -0.10576101, 0.10584742, 0.28164998, -0.10571456, 0.060163125, 0.2817608, -0.10548233, -0.06760146, 0.2758856, -0.13244404, 0.05804707, 0.2671837, -0.12087907, 0.056911096, -0.0011350594, -0.120344944)
 
-[node name="BookGroup_Small_2" type="StaticBody3D" unique_id=516210651]
+[node name="BookGroup_Small_2" type="StaticBody3D" unique_id=1914587670]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1721012572 instance=ExtResource("1_wj0x6")]
 
-[node name="BookGroup_Small_2Collision" type="CollisionShape3D" parent="." unique_id=1770520169]
-shape = SubResource("ConvexPolygonShape3D_yvpye")
+[node name="BookGroup_Small_2Collision" type="CollisionShape3D" parent="." unique_id=1858617414]
+shape = SubResource("ConvexPolygonShape3D_wj0x6")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://b1cm30l8dyosq" path="res://assets/models/environment/Medieval_village/glTF/Prop_Vine6.gltf" id="1_lf81l"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ojpf6"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_lf81l"]
 points = PackedVector3Array(-0.59547544, 1.3963047, -1.3687867, -1.4349391, -1.0719956, -0.07565606, -0.7003578, 1.3402508, -1.3379842, -1.6625218, 1.0307468, -1.0242014, -1.1170526, 0.7656994, -0.57684493, 1.1555333, 1.0247065, -0.9328013, 0.35372996, 1.3124655, -1.3289161, -0.40028906, -0.9062503, -0.11077666, -1.3430153, -1.0260894, -0.033338547, -1.4669304, -0.88281405, -0.05665636, -1.4948721, -0.9956465, -0.08645141, -1.8751211, 0.814988, -0.76410705, -1.5997543, 0.5484909, -0.44528645, -1.6212168, 0.24236941, -0.14892006, -0.9927325, 0.32065153, -0.16475308, 0.8655884, 0.32065153, -0.16475308, 1.4304953, 0.6253233, -0.52646697, 1.7204401, 0.82247806, -0.79620504, 2.0800369, 0.38371205, -0.4278701, 2.1019042, 0.22642314, -0.2590319, 2.1006892, 0.16771162, -0.19915402, -0.30188584, -0.8603442, -0.08645141, -0.6420449, -0.07100034, 0.10167444, -1.461666, -0.049255252, 0.040357232, -1.562094, -0.15435618, 0.004660845, -1.3920144, -0.93065304, -0.036937, 1.2162759, -0.07100034, 0.10167444, -2.0350769, 0.22980571, -0.26982713, -1.3944441, 0.08169794, 0.0037971735, -0.01032114, 0.20250356, -0.07580006, 1.7568858, 0.29576552, -0.23398685, 1.9933774, 0.19718814, -0.19411623)
 
-[node name="Prop_Vine6" type="StaticBody3D" unique_id=1376885237]
+[node name="Prop_Vine6" type="StaticBody3D" unique_id=578209659]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1132516609 instance=ExtResource("1_lf81l")]
 
-[node name="Prop_Vine6Collision" type="CollisionShape3D" parent="." unique_id=577701630]
-shape = SubResource("ConvexPolygonShape3D_ojpf6")
+[node name="Prop_Vine6Collision" type="CollisionShape3D" parent="." unique_id=497854233]
+shape = SubResource("ConvexPolygonShape3D_lf81l")

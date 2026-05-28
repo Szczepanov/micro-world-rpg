@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://clevf5onb1gn3"]
+
+[ext_resource type="PackedScene" uid="uid://dt4d3ynn28ayu" path="res://assets/models/environment/fantasy_props/glTF/Shield_Wooden.gltf" id="1_bfyrt"]
+
+[node name="Shield_Wooden" type="Node3D" unique_id=1520228064]
+
+[node name="Visuals" type="Node3D" parent="." unique_id=2131356911 instance=ExtResource("1_bfyrt")]

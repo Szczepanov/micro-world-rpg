@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bfv4vg6dxfqch" path="res://assets/models/environment/Medieval_village/glTF/Wall_Arch.gltf" id="1_5fmry"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_tj7jg"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5fmry"]
 points = PackedVector3Array(-1, -1.1920929e-07, -3.7252903e-08, 1, -1.1920929e-07, -3.7252903e-08, -1, -1.1920929e-07, 0.06403942, -1, 3, -3.7252903e-08, 1, -1.1920929e-07, 0.06403942, 1, 3, -3.7252903e-08, -1, 3, 0.06404569, 1, 3, 0.06404569)
 
-[node name="Wall_Arch" type="StaticBody3D" unique_id=96832718]
+[node name="Wall_Arch" type="StaticBody3D" unique_id=1988887052]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1125097396 instance=ExtResource("1_5fmry")]
 
-[node name="Wall_ArchCollision" type="CollisionShape3D" parent="." unique_id=1276924283]
-shape = SubResource("ConvexPolygonShape3D_tj7jg")
+[node name="Wall_ArchCollision" type="CollisionShape3D" parent="." unique_id=1748610469]
+shape = SubResource("ConvexPolygonShape3D_5fmry")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://cm6rd4mux52ta" path="res://assets/models/environment/fantasy_props/glTF/Table_Fork.gltf" id="1_psamg"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ank4t"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_psamg"]
 points = PackedVector3Array(0.024820307, 0.0030792535, -0.11285247, 0.012938166, 0.0030798565, 0.03615576, 0.012177629, 0.0030798565, 0.0585147, 0.024820307, -0.0030798565, -0.11285247, 0.023985693, 0.0030792535, -0.16864702, 0.0043846034, 0.0030798565, -0.11835225, 0.012177629, -0.0030798565, 0.0585147, 0.0063945893, 0.0030798565, 0.07771255, 0.023985693, -0.0030798565, -0.16864702, 0.018676756, 0.0030792535, -0.1800835, -0.005201116, 0.0030798565, -0.11835225, 0.0063945893, -0.0030798565, 0.07771255, 0.0026067253, 0.0030798565, 0.082441345, 0.018676756, -0.0030798565, -0.1800835, -0.019498209, 0.0030792535, -0.1800835, -0.024802208, 0.0030792535, -0.16864702, -0.013759618, 0.0030798565, 0.03615576, 0.0026067253, -0.0030798565, 0.082441345, -0.00342324, 0.0030798565, 0.082441345, -0.019498209, -0.0030798565, -0.1800835, -0.025631884, 0.0030792535, -0.11285247, -0.024802208, -0.0030798565, -0.16864702, -0.012994143, 0.0030798565, 0.0585147, -0.00342324, -0.0030798565, 0.082441345, -0.007211106, 0.0030798565, 0.07771255, -0.025631884, -0.0030798565, -0.11285247, -0.012994143, -0.0030798565, 0.0585147, -0.007211106, -0.0030798565, 0.07771255)
 
-[node name="Table_Fork" type="StaticBody3D" unique_id=87329112]
+[node name="Table_Fork" type="StaticBody3D" unique_id=830492462]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1343703063 instance=ExtResource("1_psamg")]
 
-[node name="Table_ForkCollision" type="CollisionShape3D" parent="." unique_id=862295723]
-shape = SubResource("ConvexPolygonShape3D_ank4t")
+[node name="Table_ForkCollision" type="CollisionShape3D" parent="." unique_id=1309606557]
+shape = SubResource("ConvexPolygonShape3D_psamg")

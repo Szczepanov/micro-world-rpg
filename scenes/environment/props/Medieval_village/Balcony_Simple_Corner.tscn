@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dtwt3fkncufpm" path="res://assets/models/environment/Medieval_village/glTF/Balcony_Simple_Corner.gltf" id="1_dactp"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8ir1h"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_dactp"]
 points = PackedVector3Array(1.1042535, 1.116613, -1.1042533, 1.1042535, 1.0699024, -1.1042533, -0.99999976, 1.116613, -1.1042533, 0.95533276, 1.1246791, -0.9555384, 0.95533276, 1.1246791, 1.0000005, 1.1040475, 1.116613, 1.0000005, 1.1019878, -0.10508715, -1.1021935, -0.99999976, 1.0699024, -1.1042533, 1.1040475, 1.0699024, 1.0000005, 1.1019878, -0.10508715, 1.0000005, -0.99999976, 1.1246791, -0.9555384, 0.8978654, 0.104990385, 1.0000005, -0.99999976, -0.10508715, -1.1021935, 0.8978654, -0.10508715, 1.0000005, -0.99999976, 0.104990385, -0.89807105, -0.99999976, -0.10508715, -0.89807105)
 
-[node name="Balcony_Simple_Corner" type="StaticBody3D" unique_id=1366303676]
+[node name="Balcony_Simple_Corner" type="StaticBody3D" unique_id=1790271831]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1287863407 instance=ExtResource("1_dactp")]
 
-[node name="Balcony_Simple_CornerCollision" type="CollisionShape3D" parent="." unique_id=48915056]
-shape = SubResource("ConvexPolygonShape3D_8ir1h")
+[node name="Balcony_Simple_CornerCollision" type="CollisionShape3D" parent="." unique_id=387469548]
+shape = SubResource("ConvexPolygonShape3D_dactp")

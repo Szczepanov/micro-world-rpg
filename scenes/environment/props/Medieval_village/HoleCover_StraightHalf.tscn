@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://crlgrrul4ruuj" path="res://assets/models/environment/Medieval_village/glTF/HoleCover_StraightHalf.gltf" id="1_ngmku"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xbqj2"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ngmku"]
 points = PackedVector3Array(-0.5, -0.10508604, -1.11982, -0.5, 0.10508764, -1.11982, 0.5, -0.10508604, -1.11982, -0.5, -0.10508604, -0.88017994, -0.5, 0.105067074, -0.88017994, 0.49990213, 0.10508764, -1.11982, 0.5, 0.105067074, -0.88020337, 0.5, -0.10508604, -0.88020337)
 
-[node name="HoleCover_StraightHalf" type="StaticBody3D" unique_id=496618146]
+[node name="HoleCover_StraightHalf" type="StaticBody3D" unique_id=1894304203]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1930157693 instance=ExtResource("1_ngmku")]
 
-[node name="HoleCover_StraightHalfCollision" type="CollisionShape3D" parent="." unique_id=421562070]
-shape = SubResource("ConvexPolygonShape3D_xbqj2")
+[node name="HoleCover_StraightHalfCollision" type="CollisionShape3D" parent="." unique_id=1808241544]
+shape = SubResource("ConvexPolygonShape3D_ngmku")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://b6iufoprfaulv" path="res://assets/models/environment/Medieval_village/glTF/Prop_ExteriorBorder_Straight1.gltf" id="1_68lo8"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_l6jmw"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_68lo8"]
 points = PackedVector3Array(-1.0000001, 2.7015695e-08, 0, -1.0000001, 0.13401802, 0, 0.9998044, 2.7015695e-08, 0, -1.0000001, 2.7015695e-08, 0.6999315, -1.0000001, 0.13401802, 0.6799922, 0.9998044, 0.13401802, 0, 0.9998044, 2.7015695e-08, 0.6999315, -1.0000001, 0.11961397, 0.6999315, 0.9998044, 0.13401802, 0.6799922, 0.9998044, 0.11961397, 0.6999315)
 
-[node name="Prop_ExteriorBorder_Straight1" type="StaticBody3D" unique_id=1205227589]
+[node name="Prop_ExteriorBorder_Straight1" type="StaticBody3D" unique_id=217270017]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=633250441 instance=ExtResource("1_68lo8")]
 
-[node name="Prop_ExteriorBorder_Straight1Collision" type="CollisionShape3D" parent="." unique_id=1733883471]
-shape = SubResource("ConvexPolygonShape3D_l6jmw")
+[node name="Prop_ExteriorBorder_Straight1Collision" type="CollisionShape3D" parent="." unique_id=1156790924]
+shape = SubResource("ConvexPolygonShape3D_68lo8")

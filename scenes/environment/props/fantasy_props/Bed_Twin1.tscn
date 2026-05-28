@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dk1tlstpm7fxt" path="res://assets/models/environment/fantasy_props/glTF/Bed_Twin1.gltf" id="1_ucniy"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gwtb2"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ucniy"]
 points = PackedVector3Array(0.93786174, 0.00045332327, -1.1771461, 0.6732848, 0.00045332327, -1.1939085, 0.7397503, 0.6207519, -1.2059491, 0.7643537, 0.7555926, -1.2059491, 0.7643537, 0.7555926, -1.0104663, 0.93767816, 0.00045332327, 1.1769099, 0.5383341, 0.00045332327, -1.1941446, -0.5385177, 0.00045332327, -1.1941446, 0.36078662, 0.6209095, -1.2059491, 0.2188589, 0.8055569, -1.2059491, 0.2188589, 0.8055569, -1.0104663, 0.7643537, 0.67820305, 1.2059491, 0.7397503, 0.55715376, 1.2059491, 0.6732848, 0.00045332327, 1.1936724, -0.6734685, 0.00045332327, -1.1939085, -0.7314881, 0.62154, -1.2059491, -0.3525244, 0.62130356, -1.2059491, -0.21059662, 0.8055569, -1.2059491, -0.21059662, 0.8055569, -1.0104663, 0.627016, 0.68781763, 1.1296918, 0.6406029, 0.68781763, 1.1237895, -0.7559078, 0.67820305, 1.2059491, -0.7314881, 0.55786306, 1.2059491, -0.5385177, 0.00045332327, 1.1939085, 0.5383341, 0.00045332327, 1.1939085, -0.93786174, 0.00045332327, -1.1771461, -0.7559078, 0.7555926, -1.2059491, -0.7559078, 0.7555926, -1.0104663, -0.6334423, 0.68781763, 1.1240256, -0.6198554, 0.68781763, 1.1296918, -0.93786174, 0.00045332327, 1.1769099, -0.6734685, 0.00045332327, 1.1936724)
 
-[node name="Bed_Twin1" type="StaticBody3D" unique_id=501323291]
+[node name="Bed_Twin1" type="StaticBody3D" unique_id=1746777709]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1906115535 instance=ExtResource("1_ucniy")]
 
-[node name="Bed_Twin1Collision" type="CollisionShape3D" parent="." unique_id=99333749]
-shape = SubResource("ConvexPolygonShape3D_gwtb2")
+[node name="Bed_Twin1Collision" type="CollisionShape3D" parent="." unique_id=1618339419]
+shape = SubResource("ConvexPolygonShape3D_ucniy")

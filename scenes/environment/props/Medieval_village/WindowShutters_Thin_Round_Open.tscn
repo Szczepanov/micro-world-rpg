@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bspgv2rj0owrw" path="res://assets/models/environment/Medieval_village/glTF/WindowShutters_Thin_Round_Open.gltf" id="1_rytv4"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_t7b8x"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rytv4"]
 points = PackedVector3Array(0.7867057, 2.611667, 0.32830042, 0.77915853, 1.0932441, 0.33618692, 0.61721, 1.0932441, 0.17399776, 0.62538594, 2.543891, 0.179194, 0.60982007, 2.546269, 0.18188426, -0.6349826, 2.5556326, 0.1810735, -0.8195725, 2.611667, 0.31241685, 0.73576254, 2.611667, 0.38321108, 0.740794, 2.15834, 0.39452487, 0.7451965, 1.5279922, 0.38991827, 0.7461398, 1.3737123, 0.3888864, 0.72837275, 1.0932441, 0.39109755, 0.49236804, 1.0932441, 0.059017062, 0.48497814, 2.3490343, 0.06686671, 0.5473991, 2.4851813, 0.12435706, -0.557153, 2.5055437, 0.12236701, -0.6453599, 2.5532546, 0.18461138, -0.4793233, 2.347548, 0.06362366, -0.81328326, 1.0932441, 0.32107726, -0.77539045, 2.611667, 0.37274486, 0.7033729, 2.158637, 0.43443644, 0.7398506, 2.00406, 0.39555675, 0.7024295, 2.0043573, 0.43550518, 0.7077754, 1.527695, 0.42982984, 0.7087187, 1.3732665, 0.42879796, -0.7689439, 1.0932441, 0.38140526, -0.47287682, 1.0932441, 0.072284065, -0.6389134, 1.0932441, 0.19327179, -0.72051656, 2.15834, 0.40171117, -0.7192587, 1.3737123, 0.4034801)
 
-[node name="WindowShutters_Thin_Round_Open" type="StaticBody3D" unique_id=1997874174]
+[node name="WindowShutters_Thin_Round_Open" type="StaticBody3D" unique_id=763278443]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=666606283 instance=ExtResource("1_rytv4")]
 
-[node name="WindowShutters_Thin_Round_OpenCollision" type="CollisionShape3D" parent="." unique_id=7879285]
-shape = SubResource("ConvexPolygonShape3D_t7b8x")
+[node name="WindowShutters_Thin_Round_OpenCollision" type="CollisionShape3D" parent="." unique_id=1518105820]
+shape = SubResource("ConvexPolygonShape3D_rytv4")

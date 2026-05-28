@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://btladan5w5lej" path="res://assets/models/environment/Medieval_village/glTF/Overhang_UnevenBrick_Short.gltf" id="1_wn042"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_2f1nc"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wn042"]
 points = PackedVector3Array(-1.0000001, 0, -0.20000009, 0.9999999, 0, -0.20000009, -1.0000001, 0, -7.279217e-05, -1.0000001, 1.8994114, -0.20000009, 0.9999999, 0, -7.279217e-05, 0.9999999, 1.8994114, -0.20000009, -0.062255383, 2.6754987, 1.122835, -1.0000001, 2.8830462, 1.0924057, -1.0000001, 2.0562184, -0.18977065, 0.9999999, 2.8830462, 1.0924057, 0.061276317, 2.6754987, 1.122835, 0.9999999, 2.0562184, -0.18977065, -0.062255383, 2.9090278, 1.122835, -1.0000001, 2.9133072, 1.0947365, -1.0000001, 2.2099686, -0.15921181, 0.9999999, 2.9133072, 1.0947365, 0.061276317, 2.9090278, 1.122835, 0.9999999, 2.2099686, -0.15921181, -1.0000001, 3.1165752, 1.0924057, -1.0000001, 2.358828, -0.10871204, 0.9999999, 3.1165752, 1.0924057, 0.9999999, 2.358828, -0.10871204, 0.74393094, 3.1226888, 0.8048158, -1.0000001, 3.1165752, 0.6859472, -1.0000001, 2.4994347, -0.03930722, 0.9999999, 3.1165752, 0.6859472, 0.9999999, 2.4994347, -0.03930722, 0.74393094, 3.1226888, 0.6859472, -1.0000001, 2.7479415, 0.15142654, -1.0000001, 2.6299543, 0.047966734, 0.9999999, 2.7479415, 0.15142654, 0.9999999, 2.6299543, 0.047966734)
 
-[node name="Overhang_UnevenBrick_Short" type="StaticBody3D" unique_id=1198709189]
+[node name="Overhang_UnevenBrick_Short" type="StaticBody3D" unique_id=1048759212]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1834320067 instance=ExtResource("1_wn042")]
 
-[node name="Overhang_UnevenBrick_ShortCollision" type="CollisionShape3D" parent="." unique_id=292385593]
-shape = SubResource("ConvexPolygonShape3D_2f1nc")
+[node name="Overhang_UnevenBrick_ShortCollision" type="CollisionShape3D" parent="." unique_id=1897928471]
+shape = SubResource("ConvexPolygonShape3D_wn042")

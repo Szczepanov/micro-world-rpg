@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://b4lt8t767h46o" path="res://assets/models/environment/Medieval_village/glTF/Floor_WoodDark_OverhangCorner2.gltf" id="1_300y3"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mmiqf"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_300y3"]
 points = PackedVector3Array(-0.043352425, 0.0099999895, 1, -1, 0.0099999895, 1, -0.043446064, -0.010000368, 1, -0.043352425, -0.010000368, 0.7499021, -0.043446064, 0.0099999895, 0.24987763, -1, -0.010000368, 1, -1, 0.0099999895, -0.75, -0.043446064, -0.010000368, 0.24987763, -0.5217699, 0.0099999895, -0.25014684, -1, -0.010000368, -0.75, -0.5217699, -0.010000368, -0.25014684)
 
-[node name="Floor_WoodDark_OverhangCorner2" type="StaticBody3D" unique_id=32197916]
+[node name="Floor_WoodDark_OverhangCorner2" type="StaticBody3D" unique_id=1916643274]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=94493161 instance=ExtResource("1_300y3")]
 
-[node name="Floor_WoodDark_OverhangCorner2Collision" type="CollisionShape3D" parent="." unique_id=492153135]
-shape = SubResource("ConvexPolygonShape3D_mmiqf")
+[node name="Floor_WoodDark_OverhangCorner2Collision" type="CollisionShape3D" parent="." unique_id=714943207]
+shape = SubResource("ConvexPolygonShape3D_300y3")

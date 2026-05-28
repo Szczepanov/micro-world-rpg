@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bp5fhh2ymbec" path="res://assets/models/environment/Medieval_village/glTF/Overhang_Side_UnevenBrick_Long_R.gltf" id="1_00ywr"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xt1we"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_00ywr"]
 points = PackedVector3Array(0.79997945, 2.9134862, 2.0000005, 0.79997945, 2.9057026, 2.0000005, 1.1175324, 6.116166, 1.9997741, 0.80485904, 6.116764, 1.9997741, 0.6859644, 6.116764, 1.9997741, 0.99859077, 2.8829503, 1.9997741, 1.1175324, 2.8829503, 1.9997741, 0.6859644, 2.9739592, 1.9997741, 0.7952405, -2.3841858e-07, -0.1547968, 0.9999514, 0.101786174, -0.007111728, 1.1175324, 6.116764, -8.991361e-05, 1.1652967, 2.9074988, 1.1197796, 0.80692357, 6.116764, -0.19511572, 0.6859644, 6.116166, -0.3138074, 1.123538, 0.101786174, -0.007111728, 0.6859644, 2.9739592, -0.3138074, 0.7952405, -2.3841858e-07, -0.23249, 1.0053941, -2.3841858e-07, -0.1547968, 1.1050518, 5.9994106, -0.11991413, 0.9999514, 6.116764, -0.3140339, 1.1652967, 2.9074988, 0.8801311, 1.123538, 1.8495188, -0.010735899, 1.0053941, -2.3841858e-07, -0.23249, 1.1027527, 2.3638396, -0.11243926, 1.1059432, 2.909295, -0.12104668, 0.9999514, 2.9739592, -0.3140339)
 
-[node name="Overhang_Side_UnevenBrick_Long_R" type="StaticBody3D" unique_id=160530303]
+[node name="Overhang_Side_UnevenBrick_Long_R" type="StaticBody3D" unique_id=478004982]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1904960531 instance=ExtResource("1_00ywr")]
 
-[node name="Overhang_Side_UnevenBrick_Long_RCollision" type="CollisionShape3D" parent="." unique_id=1968773307]
-shape = SubResource("ConvexPolygonShape3D_xt1we")
+[node name="Overhang_Side_UnevenBrick_Long_RCollision" type="CollisionShape3D" parent="." unique_id=187923091]
+shape = SubResource("ConvexPolygonShape3D_00ywr")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bltaucw4miats" path="res://assets/models/environment/Medieval_village/glTF/Overhang_Roof_Plaster.gltf" id="1_yi10j"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i14u1"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_yi10j"]
 points = PackedVector3Array(1, -0.075482726, 1.0000001, 0.061276436, -0.32443213, 1.0000001, 1, -0.17328241, 0.059048176, 1, -0.05856687, 0.059048176, -1, -0.075482726, 1.0000001, -0.062255263, -0.32443213, 1.0000001, 0.061276436, -0.32443213, -1.0000424, 1, -0.17328241, -1.021612, -1, -0.058592886, 0.059048176, 1, -0.05856687, -1.021612, -1, -0.17328241, 0.059048176, -0.062255263, -0.32443213, -1.0000424, -1, -0.17328241, -1.021612, -1, -0.058592886, -1.021612)
 
-[node name="Overhang_Roof_Plaster" type="StaticBody3D" unique_id=1300624644]
+[node name="Overhang_Roof_Plaster" type="StaticBody3D" unique_id=338081332]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1142753944 instance=ExtResource("1_yi10j")]
 
-[node name="Overhang_Roof_PlasterCollision" type="CollisionShape3D" parent="." unique_id=1022722406]
-shape = SubResource("ConvexPolygonShape3D_i14u1")
+[node name="Overhang_Roof_PlasterCollision" type="CollisionShape3D" parent="." unique_id=1345235702]
+shape = SubResource("ConvexPolygonShape3D_yi10j")

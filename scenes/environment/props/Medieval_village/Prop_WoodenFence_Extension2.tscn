@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://jle7my3xbpju" path="res://assets/models/environment/Medieval_village/glTF/Prop_WoodenFence_Extension2.gltf" id="1_ktuig"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gngin"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ktuig"]
 points = PackedVector3Array(0.912805, 0.80985653, -0.049907092, 0.912805, 0.80911815, 0.05517861, 1.032649, 0.8068211, -0.049928695, 1.0120137, -0.02825252, -0.05517866, 0.892368, -0.02825252, -0.055167858, -0.9931922, 0.5776045, -0.013881106, -0.9931922, 0.72634095, -0.0057901107, -0.9931922, 0.72379774, 0.04097346, -0.99418426, 0.3519156, 0.044084545, 0.892368, -0.02825252, 0.049917843, 1.032649, 0.8060827, 0.055157002, 1.0120137, -0.02825252, 0.049896237, -0.9943827, 0.34912628, -0.0026682168, -0.9918032, 0.49786273, -0.011331741)
 
-[node name="Prop_WoodenFence_Extension2" type="StaticBody3D" unique_id=1760224135]
+[node name="Prop_WoodenFence_Extension2" type="StaticBody3D" unique_id=335152250]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1521599070 instance=ExtResource("1_ktuig")]
 
-[node name="Prop_WoodenFence_Extension2Collision" type="CollisionShape3D" parent="." unique_id=377627299]
-shape = SubResource("ConvexPolygonShape3D_gngin")
+[node name="Prop_WoodenFence_Extension2Collision" type="CollisionShape3D" parent="." unique_id=1252021302]
+shape = SubResource("ConvexPolygonShape3D_ktuig")

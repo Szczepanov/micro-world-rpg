@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://clyev33xn638i"]
+
+[ext_resource type="PackedScene" uid="uid://vq57x0lybbnu" path="res://assets/models/environment/fantasy_props/glTF/Pickaxe_Bronze.gltf" id="1_sbbjd"]
+
+[node name="Pickaxe_Bronze" type="Node3D" unique_id=18343024]
+
+[node name="Visuals" type="Node3D" parent="." unique_id=355960039 instance=ExtResource("1_sbbjd")]

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://c7bj10jadit3m" path="res://assets/models/environment/Medieval_village/glTF/Overhang_RoofIncline_UnevenBricks.gltf" id="1_qjuap"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_67rxt"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qjuap"]
 points = PackedVector3Array(-1, -0.17328241, -1.021612, -1, -0.058592886, -1.021612, 1, -0.17328241, -1.021612, -0.062255263, -0.32443213, -1.0000627, -1, -0.17328241, 0.059073687, -1, -0.058592886, 0.059073687, 1, -0.05856687, -1.021612, 0.061276436, -0.32443213, -1.0000627, 1, -0.17328241, 0.059073687, -0.062255263, -0.32443213, 0.40778136, -1, -0.075482726, 0.21117854, 1, -0.05856687, 0.059073687, 0.061276436, -0.32443213, 0.40778136, 1, -0.075482726, 0.21117854, -0.062255263, -0.090707004, 0.2232126, 0.061276436, -0.090707004, 0.2232126)
 
-[node name="Overhang_RoofIncline_UnevenBricks" type="StaticBody3D" unique_id=378633928]
+[node name="Overhang_RoofIncline_UnevenBricks" type="StaticBody3D" unique_id=1929265012]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=2043695680 instance=ExtResource("1_qjuap")]
 
-[node name="Overhang_RoofIncline_UnevenBricksCollision" type="CollisionShape3D" parent="." unique_id=11815883]
-shape = SubResource("ConvexPolygonShape3D_67rxt")
+[node name="Overhang_RoofIncline_UnevenBricksCollision" type="CollisionShape3D" parent="." unique_id=150717774]
+shape = SubResource("ConvexPolygonShape3D_qjuap")

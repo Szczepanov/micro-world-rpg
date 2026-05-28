@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bd3ox8rn1on2n" path="res://assets/models/environment/fantasy_props/glTF/WeaponStand.gltf" id="1_t64e2"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_j3sc0"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_t64e2"]
 points = PackedVector3Array(0.66039735, 1.1059458, 0.05470991, 0.680615, 0.052002195, 0.48719192, 0.69309837, 0.8124356, 0.009190559, 0.69309837, 0.8124356, -0.013136029, 0.66039735, 1.1047513, -0.048935622, -0.6605331, 1.1059458, 0.05470991, 0.680615, 0.0007492185, 0.48834676, -0.68075067, 0.052002195, 0.48719192, 0.66731745, -0.0033770802, -0.4946981, 0.66731745, 0.047115788, -0.4946981, -0.6605331, 1.1047513, -0.048935622, -0.69309837, 0.8124356, -0.013136029, -0.69309837, 0.8124356, 0.009190559, -0.68075067, 0.0007492185, 0.48834676, -0.66745317, -0.0033770802, -0.4946981, -0.66745317, 0.047115788, -0.4946981)
 
-[node name="WeaponStand" type="StaticBody3D" unique_id=836081847]
+[node name="WeaponStand" type="StaticBody3D" unique_id=1045279718]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1062195793 instance=ExtResource("1_t64e2")]
 
-[node name="WeaponStandCollision" type="CollisionShape3D" parent="." unique_id=1828458045]
-shape = SubResource("ConvexPolygonShape3D_j3sc0")
+[node name="WeaponStandCollision" type="CollisionShape3D" parent="." unique_id=1765449049]
+shape = SubResource("ConvexPolygonShape3D_t64e2")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://cwmvlg5qncmej" path="res://assets/models/environment/Medieval_village/glTF/Stair_Interior_Simple.gltf" id="1_rvdoq"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wxy2f"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rvdoq"]
 points = PackedVector3Array(-0.65078235, -0.010405513, 0.034729004, 0.6506525, -0.010405513, 0.034729004, -0.79926926, 0.2103267, 0.0021715164, -0.79926926, 0.13011445, 0.0021715164, -0.79926926, 0.13011445, -0.35731697, -0.65078235, -0.008920101, -0.3799262, 0.6506525, -0.008920101, -0.3799262, 0.84130645, 0.13011445, -0.35731697, 0.84130645, 0.13011445, 0.0021715164, 0.84130645, 0.2103267, 0.0021715164, -0.8173174, 0.4266027, -0.2899413, -0.8173174, 0.34668753, -0.2899413, -0.82322407, 0.34668753, -0.6489773, -0.8251929, 0.5629635, -0.9677689, -0.81387186, 1.4289587, -2.2167087, -0.8348733, 2.7278028, -4.0209336, -0.65078235, 1.3891495, -2.338799, 0.6506525, 1.3891495, -2.338799, 0.82014096, 2.5112298, -3.7301774, 0.84130645, 0.2103267, -0.35731697, 0.83835316, 2.2949538, -3.3932984, 0.7942172, 1.5091709, -1.8025057, 0.83835316, 2.3748689, -3.3932984, 0.83080566, 2.3748689, -3.0342622, -0.8251929, 0.6431757, -0.6087327, -0.8161689, 1.9420199, -2.4220014, -0.8348733, 2.808015, -3.6618972, -0.8251929, 0.5629635, -0.6087327, -0.8348733, 2.7278028, -3.6618972, -0.8348733, 2.808015, -4.0209336, -0.8202707, 2.9443758, -4.3266115, -0.65078235, 2.9930973, -4.5848103, 0.6506525, 2.9930973, -4.5848103, 0.82014096, 2.9443758, -4.3266115, 0.82014096, 3.024291, -4.3266115, 0.82014096, 3.024588, -3.9671233, -0.8202707, 3.024588, -3.9671233, -0.8202707, 3.024291, -4.3266115)
 
-[node name="Stair_Interior_Simple" type="StaticBody3D" unique_id=369866858]
+[node name="Stair_Interior_Simple" type="StaticBody3D" unique_id=1150958261]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1230141601 instance=ExtResource("1_rvdoq")]
 
-[node name="Stair_Interior_SimpleCollision" type="CollisionShape3D" parent="." unique_id=834160725]
-shape = SubResource("ConvexPolygonShape3D_wxy2f")
+[node name="Stair_Interior_SimpleCollision" type="CollisionShape3D" parent="." unique_id=145374306]
+shape = SubResource("ConvexPolygonShape3D_rvdoq")

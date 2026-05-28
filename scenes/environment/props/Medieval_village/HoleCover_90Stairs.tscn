@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://c14r0kph3mqdy" path="res://assets/models/environment/Medieval_village/glTF/HoleCover_90Stairs.gltf" id="1_175gl"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5y627"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_175gl"]
 points = PackedVector3Array(1.1198205, 0.105067186, 1.0000001, 0.8801691, 0.105067186, 0.99979246, 1.1198205, -0.1050869, 1.0000001, 1.1197888, 0.105067186, -1.1198205, 0.8801691, -0.1050869, 0.99979246, 0.79563105, 0.105067186, -0.88036543, 1.1197888, -0.1050869, -1.1198205, 0.79563105, 0.105067186, -1.1198205, 0.79563105, -0.1050869, -0.88036543, 0.79563105, -0.1050869, -1.1198205)
 
-[node name="HoleCover_90Stairs" type="StaticBody3D" unique_id=1485717039]
+[node name="HoleCover_90Stairs" type="StaticBody3D" unique_id=335545546]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=589100578 instance=ExtResource("1_175gl")]
 
-[node name="HoleCover_90StairsCollision" type="CollisionShape3D" parent="." unique_id=1656279425]
-shape = SubResource("ConvexPolygonShape3D_5y627")
+[node name="HoleCover_90StairsCollision" type="CollisionShape3D" parent="." unique_id=1610692386]
+shape = SubResource("ConvexPolygonShape3D_175gl")

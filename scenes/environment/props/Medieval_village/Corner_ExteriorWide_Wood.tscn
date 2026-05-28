@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://o7tt87snpa8i" path="res://assets/models/environment/Medieval_village/glTF/Corner_ExteriorWide_Wood.gltf" id="1_p250t"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_sa3hl"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_p250t"]
 points = PackedVector3Array(0.14522664, -1.6249024e-07, 0.16558899, -0.14522837, -1.6249024e-07, 0.16558899, 0.14519821, -1.6249024e-07, -0.16558872, 0.10508151, 2.9999998, -0.11984755, 0.10508151, 2.9999998, 0.119783, -0.14522837, -1.6249024e-07, -0.16558872, -0.10511169, 2.9999998, 0.119783, -0.10511169, 2.9999998, -0.11984755)
 
-[node name="Corner_ExteriorWide_Wood" type="StaticBody3D" unique_id=1857039928]
+[node name="Corner_ExteriorWide_Wood" type="StaticBody3D" unique_id=979241698]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=2134873227 instance=ExtResource("1_p250t")]
 
-[node name="Corner_ExteriorWide_WoodCollision" type="CollisionShape3D" parent="." unique_id=2008983476]
-shape = SubResource("ConvexPolygonShape3D_sa3hl")
+[node name="Corner_ExteriorWide_WoodCollision" type="CollisionShape3D" parent="." unique_id=777925080]
+shape = SubResource("ConvexPolygonShape3D_p250t")

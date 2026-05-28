@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bvqtlpb1y813c" path="res://assets/models/environment/Medieval_village/glTF/HoleCover_Straight.gltf" id="1_p2bw1"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_dixey"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_p2bw1"]
 points = PackedVector3Array(-1.0000001, -0.10508651, -1.1198205, -1.0000001, 0.10508735, -1.1198205, 0.9999999, -0.10508651, -1.1198205, -1.0000001, -0.10508651, -0.88017994, -1.0000001, 0.10508735, -0.88017994, 0.9999999, 0.10506677, -1.1198205, 0.9999999, -0.10508651, -0.88020337, 0.9999999, 0.10506677, -0.88020337)
 
-[node name="HoleCover_Straight" type="StaticBody3D" unique_id=282633763]
+[node name="HoleCover_Straight" type="StaticBody3D" unique_id=1523388005]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=41483329 instance=ExtResource("1_p2bw1")]
 
-[node name="HoleCover_StraightCollision" type="CollisionShape3D" parent="." unique_id=889185839]
-shape = SubResource("ConvexPolygonShape3D_dixey")
+[node name="HoleCover_StraightCollision" type="CollisionShape3D" parent="." unique_id=655624292]
+shape = SubResource("ConvexPolygonShape3D_p2bw1")

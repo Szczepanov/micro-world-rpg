@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dixei2dsqb555"]
+
+[ext_resource type="PackedScene" uid="uid://clnellfg7hlnq" path="res://assets/models/environment/fantasy_props/glTF/Sword_Bronze.gltf" id="1_f2510"]
+
+[node name="Sword_Bronze" type="Node3D" unique_id=1146327699]
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1298184271 instance=ExtResource("1_f2510")]

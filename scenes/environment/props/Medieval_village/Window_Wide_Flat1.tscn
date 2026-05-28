@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://c16jyidd266yf" path="res://assets/models/environment/Medieval_village/glTF/Window_Wide_Flat1.gltf" id="1_i5hyl"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_jlea2"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i5hyl"]
 points = PackedVector3Array(0.8041172, 2.524289, 0.16913113, 0.7005327, 1.0646662, 0.41679052, 0.8041172, 2.3833842, 0.16913113, 0.8041172, 2.524289, -0.26658085, -0.8041191, 2.5241342, 0.16913113, -0.700692, 1.0646662, 0.41685745, 0.7005327, 0.96443987, 0.41679052, 0.8041172, 2.3833842, -0.26658085, -0.8041191, 2.5241342, -0.26658085, -0.8041191, 2.3833842, 0.16913113, -0.700692, 0.96443987, 0.41685745, 0.6712519, 0.94417804, 0.16913113, 0.7005327, 0.96443987, 0.1703353, 0.6712519, 0.94417804, -0.26658085, -0.8041191, 2.3833842, -0.26658085, -0.700692, 0.96443987, 0.1703353, -0.6714113, 0.94417804, 0.16913113, -0.6714113, 0.94417804, -0.26658085)
 
-[node name="Window_Wide_Flat1" type="StaticBody3D" unique_id=1947508231]
+[node name="Window_Wide_Flat1" type="StaticBody3D" unique_id=805194133]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=983564593 instance=ExtResource("1_i5hyl")]
 
-[node name="Window_Wide_Flat1Collision" type="CollisionShape3D" parent="." unique_id=1037437180]
-shape = SubResource("ConvexPolygonShape3D_jlea2")
+[node name="Window_Wide_Flat1Collision" type="CollisionShape3D" parent="." unique_id=1868078191]
+shape = SubResource("ConvexPolygonShape3D_i5hyl")

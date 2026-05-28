@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dl5o3kfcrnpul" path="res://assets/models/environment/Medieval_village/glTF/Corner_Interior_Big.gltf" id="1_k71fe"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_f562q"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_k71fe"]
 points = PackedVector3Array(0.32384607, -1.1920929e-07, 0.04423368, 0.18874328, -1.1920929e-07, 0.04419765, 0.32384607, -1.1920929e-07, -0.32389143, 0.32387868, 3, 0.04419765, 0.18874328, 3, 0.04419765, -0.009263996, -1.1920929e-07, -0.17888992, -0.009263996, -1.1920929e-07, -0.32389143, 0.32384607, 3, -0.32389143, -0.009263996, 3, -0.17888992, -0.009263996, 3, -0.32389143)
 
-[node name="Corner_Interior_Big" type="StaticBody3D" unique_id=351186050]
+[node name="Corner_Interior_Big" type="StaticBody3D" unique_id=1583973762]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1943775588 instance=ExtResource("1_k71fe")]
 
-[node name="Corner_Interior_BigCollision" type="CollisionShape3D" parent="." unique_id=1599969724]
-shape = SubResource("ConvexPolygonShape3D_f562q")
+[node name="Corner_Interior_BigCollision" type="CollisionShape3D" parent="." unique_id=2118054670]
+shape = SubResource("ConvexPolygonShape3D_k71fe")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://d0wnyflaceql1" path="res://assets/models/environment/Medieval_village/glTF/Roof_Wooden_2x1_Center.gltf" id="1_cq1ik"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_b75d7"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_cq1ik"]
 points = PackedVector3Array(-1, 0.9261929, -6.397578e-08, -1, -0.14223239, 0.8800853, -1, 1.0621248, -6.397578e-08, 0.5998436, 0.924538, -6.397578e-08, -1, -0.14412361, 1.4529183, 0.9998045, 0.92418337, -6.397578e-08, 0.9998045, -0.14223239, 0.8800853, 0.9998045, -0.14530563, 1.4520379, 0.5998436, -0.14518744, 1.4521847, -1, -0.04105173, 1.4989915, -0.6000391, 1.059879, -6.397578e-08, 0.19988275, -0.14471462, 1.4524782, 0.9998045, -0.054290317, 1.4979644, 0.5998436, -0.05204449, 1.4982579, 0.9998045, 1.0482953, -6.397578e-08, -0.6000391, -0.043179356, 1.498698, 0.19988275, 1.0552691, -6.397578e-08, 0.19988275, -0.04767102, 1.4984046)
 
-[node name="Roof_Wooden_2x1_Center" type="StaticBody3D" unique_id=285805489]
+[node name="Roof_Wooden_2x1_Center" type="StaticBody3D" unique_id=813778498]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1388061119 instance=ExtResource("1_cq1ik")]
 
-[node name="Roof_Wooden_2x1_CenterCollision" type="CollisionShape3D" parent="." unique_id=1454201741]
-shape = SubResource("ConvexPolygonShape3D_b75d7")
+[node name="Roof_Wooden_2x1_CenterCollision" type="CollisionShape3D" parent="." unique_id=529354014]
+shape = SubResource("ConvexPolygonShape3D_cq1ik")

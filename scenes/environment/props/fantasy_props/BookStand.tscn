@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://b1tfh6fsh1nd3" path="res://assets/models/environment/fantasy_props/glTF/BookStand.gltf" id="1_fhbgn"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ikcms"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_fhbgn"]
 points = PackedVector3Array(0.059047014, 0.051599402, 0.25566974, -0.0590944, 0.051599402, 0.25531945, 0.059047014, -0.0024995261, 0.25566974, 0.22394857, 1.199148, 0.13067508, -0.25025514, 1.199148, 0.13067508, -0.0590944, -0.0024995261, 0.25531945, 0.25328535, -0.0024995261, 0.059070855, 0.22394857, 1.2169923, 0.115163356, 0.25328535, 0.058963656, 0.059070855, -0.25025514, 1.2169923, 0.115163356, -0.2534817, 0.058963656, 0.059070855, -0.2534817, -0.0024995261, 0.059070855, 0.2535832, -0.0024995261, -0.05911863, 0.22394857, 1.4442927, -0.15093815, 0.2535832, 0.058963656, -0.05911863, -0.25025514, 1.4442927, -0.15093815, -0.2534817, 0.058963656, -0.05911863, -0.2534817, -0.0024995261, -0.05911863, 0.059096634, -0.0024995261, -0.25551733, 0.22394857, 1.4332463, -0.1635477, -0.25025514, 1.4332463, -0.1635477, -0.0590944, -0.0024995261, -0.25551733, 0.059096634, 0.051599402, -0.25551733, -0.0590944, 0.051599402, -0.25551733)
 
-[node name="BookStand" type="StaticBody3D" unique_id=1528418173]
+[node name="BookStand" type="StaticBody3D" unique_id=745860115]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1170439610 instance=ExtResource("1_fhbgn")]
 
-[node name="BookStandCollision" type="CollisionShape3D" parent="." unique_id=1226319249]
-shape = SubResource("ConvexPolygonShape3D_ikcms")
+[node name="BookStandCollision" type="CollisionShape3D" parent="." unique_id=822079600]
+shape = SubResource("ConvexPolygonShape3D_fhbgn")

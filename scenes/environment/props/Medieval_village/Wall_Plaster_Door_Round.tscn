@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bx8g21j7ng0xe" path="res://assets/models/environment/Medieval_village/glTF/Wall_Plaster_Door_Round.gltf" id="1_8ntks"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1gicl"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8ntks"]
 points = PackedVector3Array(-1.0000001, 0, -0.20000072, 0.9999999, 0, -0.20000072, -1.0000001, 0, -2.2381544e-05, -1.0000001, 2.8830462, -0.31403533, 0.74393094, 2.8772385, -0.31403533, 0.9999999, 0, -2.2381544e-05, 0.9999999, 2.8830462, -0.31403533, -1.0000001, 0.64954126, 0.09240693, -1.0000001, 3.1165752, -0.31403533, 0.9999999, 0.64954126, 0.09240693, 0.9999999, 3.1165752, -0.31403533, -1.0000001, 0.8830704, 0.092446715, -1.0000001, 3.1165752, 0.09240693, 0.74393094, 3.1226888, -0.31403533, 0.9999999, 3.1165752, 0.09240693, 0.74393094, 3.1226888, -0.1951067)
 
-[node name="Wall_Plaster_Door_Round" type="StaticBody3D" unique_id=234283566]
+[node name="Wall_Plaster_Door_Round" type="StaticBody3D" unique_id=1995170600]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=572189071 instance=ExtResource("1_8ntks")]
 
-[node name="Wall_Plaster_Door_RoundCollision" type="CollisionShape3D" parent="." unique_id=515233402]
-shape = SubResource("ConvexPolygonShape3D_1gicl")
+[node name="Wall_Plaster_Door_RoundCollision" type="CollisionShape3D" parent="." unique_id=28481653]
+shape = SubResource("ConvexPolygonShape3D_8ntks")

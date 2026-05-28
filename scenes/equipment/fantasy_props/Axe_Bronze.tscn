@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://wtc0h24gyh8w"]
+
+[ext_resource type="PackedScene" uid="uid://bit6pe4uibsr6" path="res://assets/models/environment/fantasy_props/glTF/Axe_Bronze.gltf" id="1_mpi2o"]
+
+[node name="Axe_Bronze" type="Node3D" unique_id=1237495360]
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1386432944 instance=ExtResource("1_mpi2o")]

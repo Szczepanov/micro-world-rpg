@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bk12hcokhobqo" path="res://assets/models/environment/Medieval_village/glTF/Overhang_Plaster_Long.gltf" id="1_awu57"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_das0d"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_awu57"]
 points = PackedVector3Array(0.9999999, 2.9242709, 2, 0.9999999, 3.0280104, 1.1007048, -1.0000001, 2.9242709, 2, 0.061276317, 2.6752958, 2, 0.9999999, 0, -0.00015670061, 0.9999999, 3.0280104, 0.9818323, -1.0000001, 3.027714, 1.1007048, -0.062255383, 2.6752958, 2, -1.0000001, 0, -0.00015670061, 0.9999999, 0, -0.20000009, 0.9999999, 2.9998524, 0.68594354, -1.0000001, 2.9998524, 0.68594354, -1.0000001, 3.027714, 0.9818323, -1.0000001, 0, -0.20000009, 0.9999999, 1.89962, -0.20000009, 0.9999999, 2.8202348, 0.2694596, -1.0000001, 2.8202348, 0.2694596, -1.0000001, 1.89962, -0.20000009, 0.9999999, 2.0561187, -0.18987872, 0.9999999, 2.74821, 0.15123327, -1.0000001, 2.74821, 0.15123327, -1.0000001, 2.0561187, -0.18987872, 0.9999999, 2.210246, -0.15929922, 0.9999999, 2.6299467, 0.047866017, -1.0000001, 2.6299467, 0.047866017, -1.0000001, 2.210246, -0.15929922, 0.9999999, 2.3587418, -0.10869233, 0.9999999, 2.4995313, -0.039350122, -1.0000001, 2.4995313, -0.039350122, -1.0000001, 2.3587418, -0.10869233)
 
-[node name="Overhang_Plaster_Long" type="StaticBody3D" unique_id=74925537]
+[node name="Overhang_Plaster_Long" type="StaticBody3D" unique_id=1004245433]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=378150354 instance=ExtResource("1_awu57")]
 
-[node name="Overhang_Plaster_LongCollision" type="CollisionShape3D" parent="." unique_id=1369118262]
-shape = SubResource("ConvexPolygonShape3D_das0d")
+[node name="Overhang_Plaster_LongCollision" type="CollisionShape3D" parent="." unique_id=1545386426]
+shape = SubResource("ConvexPolygonShape3D_awu57")

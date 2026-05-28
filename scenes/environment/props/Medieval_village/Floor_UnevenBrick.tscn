@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://cwuuim1rpc40j" path="res://assets/models/environment/Medieval_village/glTF/Floor_UnevenBrick.gltf" id="1_nldx0"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_07vpd"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_nldx0"]
 points = PackedVector3Array(-1, -0.010000384, -1, -1, 0.009999991, -1, 1, -0.010000384, -1, -1, -0.010000384, 1, -1, 0.009999991, 1, 1, 0.009999991, -1, 1, -0.010000384, 1, 1, 0.009999991, 1)
 
-[node name="Floor_UnevenBrick" type="StaticBody3D" unique_id=1994222042]
+[node name="Floor_UnevenBrick" type="StaticBody3D" unique_id=147064543]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1837879443 instance=ExtResource("1_nldx0")]
 
-[node name="Floor_UnevenBrickCollision" type="CollisionShape3D" parent="." unique_id=118883332]
-shape = SubResource("ConvexPolygonShape3D_07vpd")
+[node name="Floor_UnevenBrickCollision" type="CollisionShape3D" parent="." unique_id=1605286651]
+shape = SubResource("ConvexPolygonShape3D_nldx0")

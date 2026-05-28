@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bo7f2ryflvumn" path="res://assets/models/environment/Medieval_village/glTF/Balcony_Cross_Straight.gltf" id="1_tph0y"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_7op8g"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_tph0y"]
 points = PackedVector3Array(0.9998046, 1.1246791, 0.95549744, 0.9998046, 1.116613, 1.104253, 1.0000004, 1.0124773, 0.97474056, 0.9998046, 0.10499036, 0.89797, 0.07537198, 1.0938597, 0.95317537, -1.0000004, 1.1246791, 0.95549744, 0.9998046, 1.0699024, 1.104253, -1.0000004, 1.116613, 1.104253, 0.9998046, -0.105087176, 1.1021531, 0.9998046, -0.105087176, 0.89797, -1.0000004, 0.10499036, 0.89797, -0.07576352, 1.0938597, 0.95317537, -1.0000004, 1.0699024, 1.104253, -1.0000004, -0.105087176, 1.1021531, -1.0000004, -0.105087176, 0.89797)
 
-[node name="Balcony_Cross_Straight" type="StaticBody3D" unique_id=28622045]
+[node name="Balcony_Cross_Straight" type="StaticBody3D" unique_id=920309388]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=448971954 instance=ExtResource("1_tph0y")]
 
-[node name="Balcony_Cross_StraightCollision" type="CollisionShape3D" parent="." unique_id=1849584278]
-shape = SubResource("ConvexPolygonShape3D_7op8g")
+[node name="Balcony_Cross_StraightCollision" type="CollisionShape3D" parent="." unique_id=2019311888]
+shape = SubResource("ConvexPolygonShape3D_tph0y")

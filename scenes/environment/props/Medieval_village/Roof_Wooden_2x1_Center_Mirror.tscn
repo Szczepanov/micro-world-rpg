@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://nv8idtrlbgrf" path="res://assets/models/environment/Medieval_village/glTF/Roof_Wooden_2x1_Center_Mirror.gltf" id="1_nuyw7"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i618o"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_nuyw7"]
 points = PackedVector3Array(-1, -0.04105173, -1.4989915, -1, -0.14412361, -1.453065, -1, 1.0621248, -0.00014662743, -0.6000391, -0.043179356, -1.4989915, 0.5998436, -0.05204449, -1.4984046, -1, -0.14223239, -0.8802319, 0.9998045, -0.054290317, -1.4982579, 0.19988275, -0.14471462, -1.4526249, 0.5998436, -0.14518744, -1.4523314, -1, 0.9261929, -0.00014662743, 0.9998045, 1.0482953, 1.1920929e-07, -0.6000391, 1.059879, -0.00014662743, 0.19988275, 1.0552691, -0.00014662743, 0.19988275, -0.04767102, -1.498698, 0.9998045, -0.14530563, -1.4521847, 0.9998045, -0.14223239, -0.8802319, 0.9998045, 0.92418337, 1.1920929e-07)
 
-[node name="Roof_Wooden_2x1_Center_Mirror" type="StaticBody3D" unique_id=1152309532]
+[node name="Roof_Wooden_2x1_Center_Mirror" type="StaticBody3D" unique_id=1493683693]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1225864465 instance=ExtResource("1_nuyw7")]
 
-[node name="Roof_Wooden_2x1_Center_MirrorCollision" type="CollisionShape3D" parent="." unique_id=1526863257]
-shape = SubResource("ConvexPolygonShape3D_i618o")
+[node name="Roof_Wooden_2x1_Center_MirrorCollision" type="CollisionShape3D" parent="." unique_id=138097195]
+shape = SubResource("ConvexPolygonShape3D_nuyw7")

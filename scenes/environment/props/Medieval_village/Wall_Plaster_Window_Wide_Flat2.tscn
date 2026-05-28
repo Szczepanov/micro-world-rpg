@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bba1bhkvrl1j6" path="res://assets/models/environment/Medieval_village/glTF/Wall_Plaster_Window_Wide_Flat2.gltf" id="1_v0mrj"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_lb77n"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_v0mrj"]
 points = PackedVector3Array(-1.0000001, -0.00025952607, -0.20000072, 0.9999999, -0.00025952607, -0.20000072, -0.19205183, -0.023045778, -0.04442665, -1.0000001, -0.00025952607, -2.2381544e-05, -1.0000001, 2.8831253, -0.31403533, 0.74393094, 2.8772748, -0.31403533, 0.9999999, -0.00025952607, -2.2381544e-05, 0.19185579, -0.023045778, -0.019359708, 0.16053236, -0.023045778, -0.04442665, 0.9999999, 2.8831253, -0.31403533, -0.19205183, -0.023045778, 0.060536116, -0.9810103, -0.00025952607, 0.078640014, -1.0000001, 0.5438393, 0.08600095, -1.0000001, 3.1165304, -0.31403533, 0.9999999, 0.5438393, 0.08600095, 0.98081434, -0.00025952607, 0.078640014, 0.19185579, -0.023045778, 0.08560306, 0.9999999, 3.1165304, -0.31403533, -0.1607284, -0.023045778, 0.08560306, -1.0000001, 0.6494566, 0.09240693, -1.0000001, 3.1165304, 0.09240693, 0.74393094, 3.122381, -0.31403533, 0.9999999, 0.6494566, 0.09240693, 0.9999999, 3.1165304, 0.09240693, -1.0000001, 0.88286173, 0.092446715, 0.74393094, 3.122381, -0.1951067)
 
-[node name="Wall_Plaster_Window_Wide_Flat2" type="StaticBody3D" unique_id=1689079737]
+[node name="Wall_Plaster_Window_Wide_Flat2" type="StaticBody3D" unique_id=284183408]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=448794606 instance=ExtResource("1_v0mrj")]
 
-[node name="Wall_Plaster_Window_Wide_Flat2Collision" type="CollisionShape3D" parent="." unique_id=1613408092]
-shape = SubResource("ConvexPolygonShape3D_lb77n")
+[node name="Wall_Plaster_Window_Wide_Flat2Collision" type="CollisionShape3D" parent="." unique_id=1270840257]
+shape = SubResource("ConvexPolygonShape3D_v0mrj")

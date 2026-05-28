@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dhypm62i7ak2k" path="res://assets/models/environment/Medieval_village/glTF/Stairs_Exterior_Platform45.gltf" id="1_xqckw"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_d2ffy"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xqckw"]
 points = PackedVector3Array(1.0004752, 1, 0.99988794, 0.9998876, 0.97562647, 1.0006713, 1.0004752, 0.96838295, 0.99988794, 1.0004752, 1, 0.80072165, -1.0000002, 1, 0.99988794, 0.9998876, 0.781715, 1.0006713, -0.90012336, 0.97562647, 1.0006713, 0.9998876, -3.8206755e-16, -0.8000505, 1.0004752, 0.96838295, 0.80072165, 0.9998876, 1, -1.0000001, -1.0000002, -3.8206755e-16, 0.99988794, -1.0000002, 1, -0.98805404, -0.90012336, 0.781715, 1.0006713, -0.8000506, -3.8206755e-16, 0.99988794, 0.9998876, -3.8206755e-16, -1.0000001, -0.98805416, 1, -1.0000001, -1.0000002, -3.8206755e-16, -0.98805404, -0.98805416, -3.8206755e-16, -1.0000001)
 
-[node name="Stairs_Exterior_Platform45" type="StaticBody3D" unique_id=341744753]
+[node name="Stairs_Exterior_Platform45" type="StaticBody3D" unique_id=321618134]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1019158480 instance=ExtResource("1_xqckw")]
 
-[node name="Stairs_Exterior_Platform45Collision" type="CollisionShape3D" parent="." unique_id=1211217304]
-shape = SubResource("ConvexPolygonShape3D_d2ffy")
+[node name="Stairs_Exterior_Platform45Collision" type="CollisionShape3D" parent="." unique_id=17042488]
+shape = SubResource("ConvexPolygonShape3D_xqckw")

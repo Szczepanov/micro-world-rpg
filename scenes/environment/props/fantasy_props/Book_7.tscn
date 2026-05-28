@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://ca30w8ioxwpcd" path="res://assets/models/environment/fantasy_props/glTF/Book_7.gltf" id="1_5l4iv"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_05sla"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5l4iv"]
 points = PackedVector3Array(0.115714446, 0.033934806, 0.16662596, 0.03142862, 0.033934806, 0.16662596, 0.115714446, -0.03394145, 0.16662596, 0.115714446, 0.03394145, 0.096981004, 0.08336377, 0.03394145, 0.11071427, -0.11410101, 0.0320344, 0.16541903, -0.12391743, 0.021548968, 0.16541903, -0.13129184, 0.007887334, 0.16541903, 0.03142862, -0.03394145, 0.16662596, 0.03142862, 0.033934806, -0.16662599, 0.115714446, -0.03394145, -0.097013645, 0.115714446, 0.03394145, -0.097013645, 0.08336377, 0.03394145, -0.11074692, -0.11410101, 0.0320344, -0.16545165, -0.12391743, 0.021548968, -0.16545165, -0.13129184, -0.00789398, 0.16541903, -0.13129184, 0.007887334, -0.16545165, -0.12391743, -0.021562258, 0.16541903, -0.11410101, -0.03204105, 0.16541903, 0.03142862, -0.03394145, -0.16662599, 0.11569026, 0.033934806, -0.16662599, 0.11569026, -0.03394145, -0.16662599, -0.13129184, -0.00789398, -0.16545165, -0.12391743, -0.021562258, -0.16545165, -0.11410101, -0.03204105, -0.16545165)
 
-[node name="Book_7" type="StaticBody3D" unique_id=1523269208]
+[node name="Book_7" type="StaticBody3D" unique_id=956365412]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1450646831 instance=ExtResource("1_5l4iv")]
 
-[node name="Book_7Collision" type="CollisionShape3D" parent="." unique_id=1276870902]
-shape = SubResource("ConvexPolygonShape3D_05sla")
+[node name="Book_7Collision" type="CollisionShape3D" parent="." unique_id=716607568]
+shape = SubResource("ConvexPolygonShape3D_5l4iv")

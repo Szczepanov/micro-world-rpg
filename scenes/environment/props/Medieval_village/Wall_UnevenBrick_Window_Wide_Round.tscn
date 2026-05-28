@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://c245r2ptccv6j" path="res://assets/models/environment/Medieval_village/glTF/Wall_UnevenBrick_Window_Wide_Round.gltf" id="1_qjvmu"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_v4spv"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qjvmu"]
 points = PackedVector3Array(-1.0000001, 0, -0.2000008, 0.9999999, 0, -0.2000008, -1.0000001, 0, -2.2619963e-05, -1.0000001, 2.8830462, -0.31403533, 0.74393094, 2.8772385, -0.31403533, 0.9999999, 0, -2.2619963e-05, 0.9999999, 2.8830462, -0.31403533, -1.0000001, 2.8830462, 0.09244642, -1.0000001, 3.1165752, -0.31403533, 0.9999999, 2.8830462, 0.09244642, 0.9999999, 3.1165752, -0.31403533, -1.0000001, 3.1165752, 0.09244642, 0.74393094, 3.1226888, -0.31403533, 0.9999999, 3.1165752, 0.09244642, 0.74393094, 3.1226888, -0.19510679)
 
-[node name="Wall_UnevenBrick_Window_Wide_Round" type="StaticBody3D" unique_id=209046574]
+[node name="Wall_UnevenBrick_Window_Wide_Round" type="StaticBody3D" unique_id=490250654]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=237520425 instance=ExtResource("1_qjvmu")]
 
-[node name="Wall_UnevenBrick_Window_Wide_RoundCollision" type="CollisionShape3D" parent="." unique_id=1315156435]
-shape = SubResource("ConvexPolygonShape3D_v4spv")
+[node name="Wall_UnevenBrick_Window_Wide_RoundCollision" type="CollisionShape3D" parent="." unique_id=87776903]
+shape = SubResource("ConvexPolygonShape3D_qjvmu")

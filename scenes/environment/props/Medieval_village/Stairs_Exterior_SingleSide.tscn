@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dml5iy1inc4sj" path="res://assets/models/environment/Medieval_village/glTF/Stairs_Exterior_SingleSide.gltf" id="1_svprj"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mhpob"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_svprj"]
 points = PackedVector3Array(-1.0000002, 0, -1, -0.8000002, 0, -1, -1.0000002, 0, 1, -1.0000002, 1, -1, -0.8000002, 1, -1, -0.8000002, 0, 1, -1.0000002, 1, 1, -0.8000002, 1, 1)
 
-[node name="Stairs_Exterior_SingleSide" type="StaticBody3D" unique_id=1387999700]
+[node name="Stairs_Exterior_SingleSide" type="StaticBody3D" unique_id=799489716]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1940297160 instance=ExtResource("1_svprj")]
 
-[node name="Stairs_Exterior_SingleSideCollision" type="CollisionShape3D" parent="." unique_id=1537540286]
-shape = SubResource("ConvexPolygonShape3D_mhpob")
+[node name="Stairs_Exterior_SingleSideCollision" type="CollisionShape3D" parent="." unique_id=188764020]
+shape = SubResource("ConvexPolygonShape3D_svprj")

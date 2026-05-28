@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://cq7tku15c8sv0" path="res://assets/models/environment/Medieval_village/glTF/Roof_Wooden_2x1_Middle.gltf" id="1_jt24s"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_o7npv"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_jt24s"]
 points = PackedVector3Array(-0.99999994, 0.92621017, -1, -0.99999994, 0.92621017, 1, -0.99999994, 1.062243, -1, 0.59984344, 0.92461693, -1, -0.99999994, 1.062243, 1, 0.59984344, 0.92461693, 1, -0.20007825, 1.0576118, -1, 1, 0.9243064, -1, -0.20007825, 1.0576118, 1, 1, 0.9243064, 1, 0.19988257, 1.0552895, -1, 1, 1.0483494, -1, 0.19988257, 1.0552895, 1, 1, 1.0483494, 1)
 
-[node name="Roof_Wooden_2x1_Middle" type="StaticBody3D" unique_id=1690052929]
+[node name="Roof_Wooden_2x1_Middle" type="StaticBody3D" unique_id=1202547973]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1151177963 instance=ExtResource("1_jt24s")]
 
-[node name="Roof_Wooden_2x1_MiddleCollision" type="CollisionShape3D" parent="." unique_id=1528821572]
-shape = SubResource("ConvexPolygonShape3D_o7npv")
+[node name="Roof_Wooden_2x1_MiddleCollision" type="CollisionShape3D" parent="." unique_id=246168350]
+shape = SubResource("ConvexPolygonShape3D_jt24s")

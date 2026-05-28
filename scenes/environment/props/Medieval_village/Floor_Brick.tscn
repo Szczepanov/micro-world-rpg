@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://li67w3r7xhyu" path="res://assets/models/environment/Medieval_village/glTF/Floor_Brick.gltf" id="1_7klxo"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_kr1bd"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_7klxo"]
 points = PackedVector3Array(-1, -0.010000384, -1, -1, 0.009999991, -1, 1, -0.010000384, -1, -1, -0.010000384, 1, -1, 0.009999991, 1, 1, 0.009999991, -1, 1, -0.010000384, 1, 1, 0.009999991, 1)
 
-[node name="Floor_Brick" type="StaticBody3D" unique_id=1132333019]
+[node name="Floor_Brick" type="StaticBody3D" unique_id=205282088]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1280510701 instance=ExtResource("1_7klxo")]
 
-[node name="Floor_BrickCollision" type="CollisionShape3D" parent="." unique_id=1019290277]
-shape = SubResource("ConvexPolygonShape3D_kr1bd")
+[node name="Floor_BrickCollision" type="CollisionShape3D" parent="." unique_id=1685637654]
+shape = SubResource("ConvexPolygonShape3D_7klxo")

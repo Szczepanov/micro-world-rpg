@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://dp4rasnoarri0" path="res://assets/models/environment/fantasy_props/glTF/Crate_Metal.gltf" id="1_oghq8"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_w81bv"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_oghq8"]
 points = PackedVector3Array(0.43194914, 0.8705162, 0.43296075, 0.43194914, 0.8705162, -0.43296075, -0.43194908, 0.8705162, 0.43296075, 0.43194914, 0.0026296824, 0.43296075, -0.43194908, 0.8705162, -0.43296075, 0.43194914, 0.0026296824, -0.43296075, -0.43194908, 0.0026296824, 0.43296075, -0.43194908, 0.0026296824, -0.43296075)
 
-[node name="Crate_Metal" type="StaticBody3D" unique_id=1209001290]
+[node name="Crate_Metal" type="StaticBody3D" unique_id=1678300747]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=718636294 instance=ExtResource("1_oghq8")]
 
-[node name="Crate_MetalCollision" type="CollisionShape3D" parent="." unique_id=1826867840]
-shape = SubResource("ConvexPolygonShape3D_w81bv")
+[node name="Crate_MetalCollision" type="CollisionShape3D" parent="." unique_id=1095734764]
+shape = SubResource("ConvexPolygonShape3D_oghq8")

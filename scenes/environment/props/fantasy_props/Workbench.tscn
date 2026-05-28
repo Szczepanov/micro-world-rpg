@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://cfqb3ax5lcv34" path="res://assets/models/environment/fantasy_props/glTF/Workbench.gltf" id="1_83ma4"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_sq684"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_83ma4"]
 points = PackedVector3Array(-0.8453089, 0.713106, -0.51479125, -0.8453089, 0.00017460078, -0.42315543, -1.0095483, 0.78780574, -0.50947756, -0.8453089, 0.78079987, -0.51479125, 0.8451115, 0.713106, -0.51479125, -0.8453089, 0.00017460078, 0.4060787, 0.8451115, 0.00017460078, -0.42315543, -1.0095483, 0.78780574, 0.5094447, -1.0095483, 0.89481986, -0.50947756, -0.80933833, 0.8896531, -0.50987864, 0.8451115, 0.78079987, -0.51479125, 1.0095485, 0.78780574, -0.50947756, 0.8451115, 0.00017460078, 0.4060787, -1.0095483, 0.89481986, 0.5094447, 1.0095485, 0.78780574, 0.5094447, -0.91823834, 0.89481986, -0.50947756, 0.8091409, 0.8896531, -0.50987864, 1.0095485, 0.8947323, -0.50947756, -0.91823834, 0.89481986, 0.5094447, 1.0095485, 0.8947323, 0.5094447)
 
-[node name="Workbench" type="StaticBody3D" unique_id=753046699]
+[node name="Workbench" type="StaticBody3D" unique_id=1913047153]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1805080240 instance=ExtResource("1_83ma4")]
 
-[node name="WorkbenchCollision" type="CollisionShape3D" parent="." unique_id=578998670]
-shape = SubResource("ConvexPolygonShape3D_sq684")
+[node name="WorkbenchCollision" type="CollisionShape3D" parent="." unique_id=1976725685]
+shape = SubResource("ConvexPolygonShape3D_83ma4")

@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bj2xdhr0yat68" path="res://assets/models/environment/Medieval_village/glTF/Wall_Plaster_Straight_L.gltf" id="1_fvevj"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_feg41"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_fvevj"]
 points = PackedVector3Array(-1.0000001, 0, -0.20000072, 0.99981856, 0, -0.20000072, -1.0000001, 0, -2.2381544e-05, -1.0000001, 2.8830462, -0.31403533, 0.7439139, 2.8772385, -0.31403533, 1.001582, 0.8754288, -0.06249073, 0.99981856, 0, -2.2381544e-05, 0.99981856, 2.8830462, -0.31403533, -1.0000001, 0.64954126, 0.09240693, -1.0000001, 3.1165752, -0.31403533, 1.001582, 0.8754288, 0.062446, 0.99981856, 3.1165752, -0.31403533, 0.99981856, 0.64954126, 0.09240693, -1.0000001, 0.8830704, 0.092446715, -1.0000001, 3.1165752, 0.09240693, 0.7439139, 3.1226888, -0.31403533, 0.99981856, 3.1165752, 0.09240693, 0.7439139, 3.1226888, -0.1951067)
 
-[node name="Wall_Plaster_Straight_L" type="StaticBody3D" unique_id=1510842583]
+[node name="Wall_Plaster_Straight_L" type="StaticBody3D" unique_id=1970570271]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1029507792 instance=ExtResource("1_fvevj")]
 
-[node name="Wall_Plaster_Straight_LCollision" type="CollisionShape3D" parent="." unique_id=751937527]
-shape = SubResource("ConvexPolygonShape3D_feg41")
+[node name="Wall_Plaster_Straight_LCollision" type="CollisionShape3D" parent="." unique_id=660971094]
+shape = SubResource("ConvexPolygonShape3D_fvevj")

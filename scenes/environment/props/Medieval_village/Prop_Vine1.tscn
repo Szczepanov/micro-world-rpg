@@ -2,14 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://6ydhb070cp15" path="res://assets/models/environment/Medieval_village/glTF/Prop_Vine1.gltf" id="1_1r15l"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_c8yen"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1r15l"]
 points = PackedVector3Array(-0.7831393, -0.63353217, 0.033202402, -0.19054317, -1.0054708, 0.16913296, -0.23744577, -0.7288096, 0.16463196, -0.5086389, -0.2898711, 0.108433604, -0.6681378, 0.14015102, 0.023986049, -0.66858876, -0.48093545, -0.04470797, -0.74240017, -1.3101547, -0.0100930445, -0.35470223, -1.4451735, 0.10845503, -0.043521643, 0.02907896, 0.17425555, 0.09508151, -1.2525806, 0.1690258, -0.48218104, 0.48202896, 0.040789828, 0.4818775, 0.48202896, 0.040789828, 0.7526197, -0.82281315, -0.031890802, -0.37815353, -1.7320248, -0.034291342, -0.65896773, -1.2632802, -0.039306752, -0.27277303, -2.037473, 0.010483012, -0.31261018, -1.9432145, 0.020278074, -0.19971323, -1.8986329, 0.06524532, -0.09132618, -2.0586174, 0.06524532, 0.09523183, 0.028314829, 0.15468687, 0.5844018, -0.77899575, 0.14913562, 0.5247212, -1.3995728, 0.06254472, 0.70015496, -0.15918303, 0.019656502, 0.7055667, -1.1774287, 0.012583483, 0.6209317, -1.3374132, 0.002209723, 0.674599, -1.0054708, -0.023831846, 0.31095368, -1.5401962, -0.0089356415, 0.7293187, -0.8189919, 0.025443517, -0.19565439, -2.1205223, 0.020278074, 0.67745525, -0.71861947, 0.084578246, 0.5979313, -1.2220104, 0.0689533)
 
-[node name="Prop_Vine1" type="StaticBody3D" unique_id=1537836154]
+[node name="Prop_Vine1" type="StaticBody3D" unique_id=1526284746]
 collision_layer = 2
 collision_mask = 0
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1175311089 instance=ExtResource("1_1r15l")]
 
-[node name="Prop_Vine1Collision" type="CollisionShape3D" parent="." unique_id=1070446060]
-shape = SubResource("ConvexPolygonShape3D_c8yen")
+[node name="Prop_Vine1Collision" type="CollisionShape3D" parent="." unique_id=1930470884]
+shape = SubResource("ConvexPolygonShape3D_1r15l")
