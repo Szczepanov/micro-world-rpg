@@ -18,3 +18,7 @@ mono_crash.*.json
 *.zip
 *.tpz
 *.tmp
+
+# Build artifacts
+build/
+export_presets.cfg
