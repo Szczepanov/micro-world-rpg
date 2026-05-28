@@ -51,7 +51,7 @@ func request_place_structure(grid_coords: Vector3i, structure_id: String) -> voi
 		
 	# a) Distance-spoofing check.
 	var target_world_pos := grid_to_world(grid_coords)
-	var distance := player.global_position.distance_to(target_world_pos)
+	var distance: float = player.global_position.distance_to(target_world_pos)
 	if distance > 10.0:
 		push_warning("GridManager: Distance check failed for peer %d (%.1fm)" % [peer_id, distance])
 		notify_placement_failed.rpc_id(peer_id, "Too far from target tile.")
