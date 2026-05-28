@@ -91,7 +91,7 @@ func _ready():
 	if is_local_player:
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
-		
+
 		# Dynamically add the player placement controller for local authority player
 		var controller_script = load("res://scripts/player_placement_controller.gd")
 		if controller_script:
@@ -100,12 +100,24 @@ func _ready():
 			controller.name = "PlayerPlacementController"
 			add_child(controller)
 			print("Debug: PlayerPlacementController attached to local player")
+
+		# Capture the cursor for camera rotation on the local player
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	elif multiplayer.is_server():
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
+		# Server peer does not own a HUD — free it to save resources
+		var hud_node := get_node_or_null("HUD")
+		if hud_node:
+			hud_node.queue_free()
 	else:
 		if get_multiplayer_authority() == local_client_id:
 			request_inventory_sync.rpc_id(1)
+		else:
+			# Remote player — no HUD needed on this client
+			var hud_node := get_node_or_null("HUD")
+			if hud_node:
+				hud_node.queue_free()
 
 	# Dynamically load the character model (e.g. Male_ranger) for testing/customization
 	set_character_model("res://assets/Modular character outfits - fantasy/Exports/glTF/Outfits/Male_ranger.gltf")
@@ -180,6 +192,51 @@ func _process(_delta):
 		return
 	_check_fall_and_respawn()
 	_update_interaction_ui()
+
+## Central ESC / ui_cancel conditional state stack.
+## Priority (high → low): Crafting → Inventory → Chat → Build Mode → Pause Overlay
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_multiplayer_authority():
+		return
+	if not event.is_action_pressed("ui_cancel"):
+		return
+
+	var level := get_tree().get_current_scene()
+
+	# --- Condition 1: Crafting UI is open ---
+	if level and level.has_method("is_crafting_visible") and level.is_crafting_visible():
+		if level.has_method("toggle_crafting"):
+			level.toggle_crafting()
+		get_viewport().set_input_as_handled()
+		return
+
+	# --- Condition 2: Inventory UI is open ---
+	if level and level.has_method("is_inventory_visible") and level.is_inventory_visible():
+		if level.has_method("toggle_inventory"):
+			level.toggle_inventory()
+		get_viewport().set_input_as_handled()
+		return
+
+	# --- Condition 3: Chat is open ---
+	if level and level.has_method("is_chat_visible") and level.is_chat_visible():
+		if level.has_method("toggle_chat"):
+			level.toggle_chat()
+		get_viewport().set_input_as_handled()
+		return
+
+	# --- Condition 4: Build Mode is active ---
+	if is_building:
+		var controller := get_node_or_null("PlayerPlacementController") as PlayerPlacementController
+		if controller and controller.has_method("toggle_build_mode"):
+			controller.toggle_build_mode()
+		get_viewport().set_input_as_handled()
+		return
+
+	# --- Condition 5: No sub-menus open — toggle the in-game pause overlay ---
+	var in_game_menu := get_node_or_null("HUD/InGameMenu") as InGameMenu
+	if in_game_menu:
+		in_game_menu.toggle()
+	get_viewport().set_input_as_handled()
 
 func freeze():
 	velocity.x = 0
@@ -744,6 +801,10 @@ func respawn_client(pos: Vector3):
 	velocity = Vector3.ZERO
 	if is_multiplayer_authority():
 		is_attacking = false
+		# Re-capture cursor in case it was released while the pause menu was open
+		var in_game_menu := get_node_or_null("HUD/InGameMenu") as InGameMenu
+		if in_game_menu and not in_game_menu.is_open():
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 # --- Modular Character Customization ---
 

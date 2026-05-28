@@ -123,8 +123,5 @@ func _on_craft_pressed() -> void:
 func _on_close_pressed() -> void:
 	close_crafting()
 
-func _input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.pressed:
-		if event.keycode == KEY_ESCAPE:
-			close_crafting()
-			get_viewport().set_input_as_handled()
+# ESC handling is centralised in player.gd's _unhandled_input() state stack.
+# Do not add KEY_ESCAPE here to avoid double-consuming the event.

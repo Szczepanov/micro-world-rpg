@@ -1,0 +1,129 @@
+[gd_scene load_steps=3 format=3 uid="uid://in_game_menu_01"]
+
+[ext_resource type="Script" path="res://scripts/in_game_menu.gd" id="1_igm_script"]
+[ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="2_igm_font"]
+
+[node name="InGameMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_igm_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainPanel" type="PanelContainer" parent="CenterContainer" unique_name_in_owner=true]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 320)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/MainPanel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 42
+text = "Paused"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="CenterContainer/MainPanel/VBox" unique_name_in_owner=true]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(280, 56)
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_hover_color = Color(0.2, 0.9, 0.3, 1)
+text = "Resume Game"
+flat = true
+
+[node name="OptionsButton" type="Button" parent="CenterContainer/MainPanel/VBox" unique_name_in_owner=true]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(280, 56)
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_hover_color = Color(0.4, 0.7, 1.0, 1)
+text = "Options"
+flat = true
+
+[node name="LeaveButton" type="Button" parent="CenterContainer/MainPanel/VBox" unique_name_in_owner=true]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(280, 56)
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.86, 0.1, 0.1, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.25, 0.25, 1)
+text = "Leave Match"
+flat = true
+
+[node name="OptionsPanel" type="PanelContainer" parent="CenterContainer" unique_name_in_owner=true]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(360, 260)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="OptionsTitle" type="Label" parent="CenterContainer/OptionsPanel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 36
+text = "Options"
+horizontal_alignment = 1
+
+[node name="VolumeLabel" type="Label" parent="CenterContainer/OptionsPanel/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 24
+text = "Master Volume"
+horizontal_alignment = 1
+
+[node name="VolumeSlider" type="HSlider" parent="CenterContainer/OptionsPanel/VBox" unique_name_in_owner=true]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(280, 32)
+size_flags_horizontal = 4
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="BackButton" type="Button" parent="CenterContainer/OptionsPanel/VBox" unique_name_in_owner=true]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(280, 50)
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_igm_font")
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_hover_color = Color(0.4, 0.7, 1.0, 1)
+text = "Back"
+flat = true

@@ -10,6 +10,10 @@ func _unhandled_input(_event) -> void:
 	if not Network.is_network_active:
 		return
 
+	# Only rotate the camera when the cursor is captured (i.e. no UI overlay is open)
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		return
+
 	if (_event is InputEventMouseMotion) and is_multiplayer_authority():
 		rotate_y(-_event.relative.x * MOUSE_SENSIBILITY)
 		_spring_arm.rotate_x(-_event.relative.y * MOUSE_SENSIBILITY)

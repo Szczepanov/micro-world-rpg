@@ -23,6 +23,8 @@ func _ready():
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
+	# While the main menu is visible the cursor must be free
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	if Network.pending_error_message != "":
 		main_menu.show_error(Network.pending_error_message)
@@ -60,6 +62,7 @@ func _on_player_connected(peer_id, player_info):
 func _on_server_disconnected() -> void:
 	teardown_multiplayer()
 	main_menu.show_menu()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func teardown_multiplayer() -> void:
 	# 1. Close current connection
@@ -98,6 +101,7 @@ func teardown_multiplayer() -> void:
 func _on_host_pressed(nickname: String, skin: String):
 	teardown_multiplayer()
 	main_menu.hide_menu()
+	# Cursor will be captured by the spawned player's _ready()
 	Network.start_host(nickname, skin)
 
 func _on_join_pressed(nickname: String, skin: String, address: String):
@@ -276,7 +280,7 @@ func toggle_chat():
 func is_chat_visible() -> bool:
 	return multiplayer_chat.is_chat_visible()
 
-func _input(event):
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_chat"):
 		toggle_chat()
 	elif chat_visible and multiplayer_chat.message.has_focus():
@@ -287,35 +291,14 @@ func _input(event):
 		if crafting_visible:
 			toggle_crafting()
 		toggle_inventory()
-	elif event.is_action_pressed("quit"):
-		var handled = false
-		if is_chat_visible():
-			toggle_chat()
-			handled = true
-		elif is_crafting_visible():
-			toggle_crafting()
-			handled = true
-		elif is_inventory_visible():
-			toggle_inventory()
-			handled = true
-		else:
-			var local_player = _get_local_player()
-			if local_player and local_player.is_building:
-				var controller = local_player.get_node_or_null("PlayerPlacementController")
-				if controller and controller.has_method("toggle_build_mode"):
-					controller.toggle_build_mode()
-					handled = true
-					
-		if not handled:
-			if main_menu.is_menu_visible():
-				main_menu.hide_menu()
-			else:
-				main_menu.show_menu()
-		get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F1:
 		_debug_add_item()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F2:
 		_debug_print_inventory()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_F3:
+		_debug_start_wave()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_F4:
+		_debug_damage_base_heart()
 
 func _on_chat_message_sent(message_text: String) -> void:
 	var trimmed_message = message_text.strip_edges()
@@ -421,3 +404,30 @@ func _debug_print_inventory():
 		print("=====================")
 	else:
 		print("No inventory found for local player")
+
+# ---------- WAVE SPAWNER DEBUG (SERVER ONLY) ----------
+func _debug_start_wave() -> void:
+	if not multiplayer.is_server():
+		print("Debug: Only the server can start a wave.")
+		return
+	var spawners := get_tree().get_nodes_in_group("Spawners")
+	if spawners.is_empty():
+		print("Debug: No WaveSpawner nodes found in the scene. Add one via 'wave_spawner.tscn'.")
+		return
+	print("Debug: Starting next wave on ", spawners.size(), " spawner(s)...")
+	for spawner in spawners:
+		if spawner.has_method("start_next_wave"):
+			spawner.start_next_wave()
+
+func _debug_damage_base_heart() -> void:
+	if not multiplayer.is_server():
+		print("Debug: Only the server can damage the Base Heart.")
+		return
+	var objectives := get_tree().get_nodes_in_group("Objective")
+	if objectives.is_empty():
+		print("Debug: No node found in group 'Objective'. Place a BaseHeart in the scene.")
+		return
+	var heart_health := objectives[0].get_node_or_null("HealthComponent") as HealthComponent
+	if heart_health:
+		heart_health.request_damage(100.0)
+		print("Debug: Dealt 100 damage to Base Heart (current HP: ", heart_health.current_health, ")")

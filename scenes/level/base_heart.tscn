@@ -1,0 +1,50 @@
+; Base Heart Core scene.
+; Place at the center of the map. The HealthComponent controls its vitality pool.
+; The script base_heart.gd handles group registration and the defeat RPC.
+[gd_scene load_steps=7 format=3 uid="uid://base_heart_001"]
+
+[ext_resource type="Script" path="res://scripts/base_heart.gd" id="1_bheart"]
+[ext_resource type="Script" path="res://scripts/health_component.gd" id="2_health"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_heart"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_heart"]
+size = Vector3(1.0, 1.0, 1.0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_heart"]
+albedo_color = Color(0.05, 0.80, 0.85, 1)
+emission_enabled = true
+emission = Color(0.05, 0.80, 0.85)
+emission_energy_multiplier = 2.5
+metallic = 0.3
+roughness = 0.2
+
+[sub_resource type="OmniLight3D" id="OmniLight3D_glow"]
+light_color = Color(0.05, 0.80, 0.85)
+light_energy = 3.0
+omni_range = 6.0
+
+[node name="BaseHeart" type="StaticBody3D"]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_bheart")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+shape = SubResource("BoxShape3D_heart")
+
+[node name="CoreMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+mesh = SubResource("BoxMesh_heart")
+surface_material_override/0 = SubResource("StandardMaterial3D_heart")
+
+[node name="GlowLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+light_color = Color(0.05, 0.80, 0.85)
+light_energy = 3.0
+omni_range = 6.0
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 1000.0

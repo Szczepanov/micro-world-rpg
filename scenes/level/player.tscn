@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://cffjduipbb3s5"]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/in_game_menu.tscn" id="10_igm"]
+
 [ext_resource type="Script" uid="uid://c2si8gkbnde0c" path="res://scripts/player.gd" id="1_tdh26"]
 [ext_resource type="Texture2D" uid="uid://cw6pxwst2gh85" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotYellowPalette.png" id="3_l3dv8"]
 [ext_resource type="Texture2D" uid="uid://bbid6mowxhd5b" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotGreenPalette.png" id="4_74ree"]
@@ -138,5 +140,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.042716265, 0)
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("9_health")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="InGameMenu" parent="HUD" instance=ExtResource("10_igm")]
+visible = false
 
 [editable path="UAL1_Standard"]

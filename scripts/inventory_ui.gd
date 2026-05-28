@@ -159,7 +159,5 @@ func refresh_display():
 	print("Debug: InventoryUI refresh_display called")
 	update_inventory_display()
 
-func _input(event):
-	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_ESCAPE and visible:
-			_on_close_pressed()
+# ESC handling is centralised in player.gd's _unhandled_input() state stack.
+# Do not add KEY_ESCAPE here to avoid double-consuming the event.
