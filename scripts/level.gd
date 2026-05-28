@@ -38,6 +38,7 @@ func _ready():
 
 	# Always connect player_connected and peer_disconnected so clients spawn/cleanup peers correctly
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
+	Network.server_disconnected.connect(_on_server_disconnected)
 	multiplayer.peer_disconnected.connect(_remove_player)
 
 	# Setup the screen interaction UI prompt
@@ -49,11 +50,51 @@ func _ready():
 func _on_player_connected(peer_id, player_info):
 	_add_player(peer_id, player_info)
 
+func _on_server_disconnected() -> void:
+	teardown_multiplayer()
+	main_menu.show_menu()
+
+func teardown_multiplayer() -> void:
+	# 1. Close current connection
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+	
+	# 2. Reset Network players dictionary
+	Network.players.clear()
+	
+	# 3. Remove all players from the scene
+	for child in players_container.get_children():
+		child.queue_free()
+		
+	# 4. Clear grid structures
+	if "world_grid" in GridManager:
+		GridManager.world_grid.clear()
+	var parent_node = self
+	if has_node("Environment"):
+		parent_node = get_node("Environment")
+	for child in parent_node.get_children():
+		if child.name.begins_with("structure_"):
+			child.queue_free()
+			
+	# 5. Hide all active game UIs
+	if inventory_ui:
+		inventory_ui.close_inventory()
+	if crafting_ui:
+		crafting_ui.close_crafting()
+	inventory_visible = false
+	crafting_visible = false
+	chat_visible = false
+	if multiplayer_chat:
+		multiplayer_chat.hide()
+
 func _on_host_pressed(nickname: String, skin: String):
+	teardown_multiplayer()
 	main_menu.hide_menu()
 	Network.start_host(nickname, skin)
 
 func _on_join_pressed(nickname: String, skin: String, address: String):
+	teardown_multiplayer()
 	main_menu.hide_menu()
 	Network.join_game(nickname, skin, address)
 
@@ -153,7 +194,10 @@ func _setup_interaction_ui():
 
 func set_interaction_prompt(prompt_text: String):
 	if interaction_prompt:
-		interaction_prompt.text = prompt_text
+		if main_menu and main_menu.is_menu_visible():
+			interaction_prompt.text = ""
+		else:
+			interaction_prompt.text = prompt_text
 
 func spawn_resources():
 	# Seed the RNG so all clients spawn them in the exact same positions
