@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cmo08u7vgst8n"]
+
+[ext_resource type="PackedScene" uid="uid://dv1nvxa7v7xnk" path="res://assets/models/environment/Medieval_village/glTF/Prop_ExteriorBorder_Corner.gltf" id="1_5qqg4"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1rosc"]
+points = PackedVector3Array(-0.7, 2.7015695e-08, -7.683411e-09, -0.7, 2.7015695e-08, 0.6999315, -0.7, 0.11961397, -7.683411e-09, 1.1920929e-07, 2.7015695e-08, -7.683411e-09, -0.7, 0.11961397, 0.6999315, 1.1920929e-07, 2.7015695e-08, 0.6999315, -0.6800607, 0.13401802, -7.683411e-09, 1.1920929e-07, 0.13401802, -7.683411e-09, -0.6800607, 0.13401802, 0.6799922, 1.1920929e-07, 0.11961397, 0.6999315, 1.1920929e-07, 0.13401802, 0.6799922)
+
+[node name="Prop_ExteriorBorder_Corner" type="StaticBody3D" unique_id=1429032485]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=997181080 instance=ExtResource("1_5qqg4")]
+
+[node name="Prop_ExteriorBorder_CornerCollision" type="CollisionShape3D" parent="." unique_id=667860409]
+shape = SubResource("ConvexPolygonShape3D_1rosc")

@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://br2syys16s117"]
+
+[ext_resource type="PackedScene" uid="uid://ddbc6auwglrec" path="res://assets/models/environment/fantasy_props/glTF/Book_Simplified_Single.gltf" id="1_7myvu"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_jvp63"]
+points = PackedVector3Array(-0.009874446, 0.26751584, 0.0891149, 0.018717723, 0.26743704, 0.088991575, 0.035720013, 0.26741078, 0.0771324, -0.026813505, 0.26756838, 0.0774407, -0.027964273, -0.00053002744, 0.07795452, -0.0109936, -0.0007664226, 0.0891149, 0.017598571, -0.0007664226, 0.088991575, 0.034594536, -0.0007664226, 0.0771324, 0.033652425, -0.0007664226, -0.120856114, 0.034771577, 0.2671744, -0.120856114, 0.027222028, 0.26720065, -0.12083556, 0.017927362, 0.26722693, -0.12079445, -0.020212393, 0.267332, -0.12058892, -0.027755618, 0.267332, -0.12056837, -0.028874772, -0.0007664226, -0.12056837, -0.02042105, -0.0007664226, 0.069096126, 0.026102876, -0.0007664226, -0.12083556, -0.010898758, 0.26730573, -0.12065058, 0.016808206, -0.0007664226, -0.12079445)
+
+[node name="Book_Simplified_Single" type="StaticBody3D" unique_id=1571480820]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1631101375 instance=ExtResource("1_7myvu")]
+
+[node name="Book_Simplified_SingleCollision" type="CollisionShape3D" parent="." unique_id=1144032233]
+shape = SubResource("ConvexPolygonShape3D_jvp63")

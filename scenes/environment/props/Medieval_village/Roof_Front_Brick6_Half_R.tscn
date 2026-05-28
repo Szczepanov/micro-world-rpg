@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dhdsbgb5w7erv"]
+
+[ext_resource type="PackedScene" uid="uid://dxf216xwjno6g" path="res://assets/models/environment/Medieval_village/glTF/Roof_Front_Brick6_Half_R.gltf" id="1_wonrm"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_83cbx"]
+points = PackedVector3Array(-0.050472144, 2.7117803, -0.055252343, -0.050472144, 2.7117803, 0.048734933, -0.050472144, 4.3835397, -0.055252343, 0.0004508868, -0.1318021, -0.33496368, -0.050472144, 4.3835397, 0.048734933, 0.0004508868, -0.1318021, 0.11759654, 0.050375428, 4.3835397, -0.055252343, -0.00021477416, 4.3769093, -0.2497133, 0.0004508868, 0.13164808, -0.33496368, 3.3497217, -0.1318021, -0.33496368, 0.1994834, 3.331065, 0.15454316, 0.32462758, 3.420797, 0.15454316, 0.050375428, 4.3835397, 0.048734933, 0.0004508868, 0.13164808, 0.11759654, 3.3497217, -0.1318021, 0.11759654, 2.3678725, 0.46272898, 0.15454316, 2.2879932, 0.5471568, 0.15454316, 1.802394, 1.1275429, 0.15454316, 1.7295041, 1.2181591, 0.15454316, 1.2791848, 1.8268352, 0.15454316, 0.7053854, 2.6260264, 0.15454316, 3.1223986, 0.33144587, -0.2497133, 3.1789799, 0.13164808, -0.33496368, 2.4797034, 0.56793225, 0.15459108, 3.1789799, 0.13164808, 0.11759654, 3.1223986, 0.33144587, -1.1920929e-07)
+
+[node name="Roof_Front_Brick6_Half_R" type="StaticBody3D" unique_id=605189911]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1346303014 instance=ExtResource("1_wonrm")]
+
+[node name="Roof_Front_Brick6_Half_RCollision" type="CollisionShape3D" parent="." unique_id=1584821738]
+shape = SubResource("ConvexPolygonShape3D_83cbx")

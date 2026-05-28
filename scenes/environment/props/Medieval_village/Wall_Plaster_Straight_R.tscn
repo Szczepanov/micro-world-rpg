@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://3y5u0mbh5rff"]
+
+[ext_resource type="PackedScene" uid="uid://bghaqskpt5wsk" path="res://assets/models/environment/Medieval_village/glTF/Wall_Plaster_Straight_R.gltf" id="1_haq8c"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_s3f8m"]
+points = PackedVector3Array(-1.0017779, 0.8754288, -0.06249073, -1.0000144, 0, -0.20000072, -1.0017779, 0.8754288, 0.062446, -1.0000144, 3.1165752, -0.31403533, -1.0000144, 2.8830462, -0.31403533, 1, 0, -0.20000072, -1.0000144, 0, -2.2381544e-05, 0.7440953, 2.8772385, -0.31403533, -1.0000144, 0.64954126, 0.09240693, -1.0000144, 0.8830704, 0.092446715, -1.0000144, 3.1165752, 0.09240693, 0.7440953, 3.1226888, -0.31403533, 1, 0, -2.2381544e-05, 0.999804, 2.8830462, -0.31403533, 1, 3.1165752, -0.31403533, 1, 0.64954126, 0.09240693, 1, 3.1165752, 0.09240693, 0.7440953, 3.1226888, -0.1951067)
+
+[node name="Wall_Plaster_Straight_R" type="StaticBody3D" unique_id=351800811]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=703719149 instance=ExtResource("1_haq8c")]
+
+[node name="Wall_Plaster_Straight_RCollision" type="CollisionShape3D" parent="." unique_id=1959665958]
+shape = SubResource("ConvexPolygonShape3D_s3f8m")

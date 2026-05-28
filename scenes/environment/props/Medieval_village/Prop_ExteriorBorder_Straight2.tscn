@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bayiescgi5u7t"]
+
+[ext_resource type="PackedScene" uid="uid://b3kuos7alxbsg" path="res://assets/models/environment/Medieval_village/glTF/Prop_ExteriorBorder_Straight2.gltf" id="1_3ljx8"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_c4meu"]
+points = PackedVector3Array(-1.0000001, 2.7015695e-08, 0, -1.0000001, 0.13401802, 0, 0.9998044, 2.7015695e-08, 0, -1.0000001, 2.7015695e-08, 0.6999315, -1.0000001, 0.13401802, 0.6799922, 0.9998044, 0.13401802, 0, 0.9998044, 2.7015695e-08, 0.6999315, -1.0000001, 0.11961397, 0.6999315, 0.9998044, 0.13401802, 0.6799922, 0.9998044, 0.11961397, 0.6999315)
+
+[node name="Prop_ExteriorBorder_Straight2" type="StaticBody3D" unique_id=1608998489]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1666771980 instance=ExtResource("1_3ljx8")]
+
+[node name="Prop_ExteriorBorder_Straight2Collision" type="CollisionShape3D" parent="." unique_id=1542784164]
+shape = SubResource("ConvexPolygonShape3D_c4meu")

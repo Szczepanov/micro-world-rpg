@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://vfwv8f5jt4v3"]
+
+[ext_resource type="PackedScene" uid="uid://5yss7jqti5kq" path="res://assets/models/environment/Medieval_village/glTF/Stairs_Exterior_Sides45.gltf" id="1_thruw"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qu8bf"]
+points = PackedVector3Array(-0.99999994, -3.8206755e-16, -1.0000002, -0.99999994, -3.8206755e-16, -0.80011773, -0.99999994, 1, -1.0000002, 0.9878623, -3.8206755e-16, -1.0000002, -0.99999994, 1, -0.80011773, 0.7999218, -3.8206755e-16, 0.99999976, 0.9878623, 1, -1.0000002, 1, -3.8206755e-16, -0.9880582, 0.7999218, 1, 0.99999976, 1, -3.8206755e-16, 0.99999976, 1, 1, -0.9880582, 1, 1, 0.99999976)
+
+[node name="Stairs_Exterior_Sides45" type="StaticBody3D" unique_id=820047774]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=172058738 instance=ExtResource("1_thruw")]
+
+[node name="Stairs_Exterior_Sides45Collision" type="CollisionShape3D" parent="." unique_id=198961368]
+shape = SubResource("ConvexPolygonShape3D_qu8bf")

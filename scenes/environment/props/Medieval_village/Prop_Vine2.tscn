@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://crfxs0ac43owx"]
+
+[ext_resource type="PackedScene" uid="uid://dv2becaaca1t7" path="res://assets/models/environment/Medieval_village/glTF/Prop_Vine2.gltf" id="1_4u8vw"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_kqu31"]
+points = PackedVector3Array(-0.49405247, -1.1756454, 0.16913654, 0.30510652, -1.2311814, 0.16901095, 0.29560888, -0.44883657, 0.16361041, 0.42124915, 0.028314829, 0.15469325, -0.15607199, 0.48202896, 0.040779598, -0.34195447, 0.14015102, 0.023991883, -0.45863983, -0.45928144, -0.04470797, -0.4491422, -1.2416263, -0.03930743, 0.053283274, -2.037473, 0.01049054, 0.13034987, -2.1205223, 0.02026593, 0.23468828, -2.0586174, 0.06524947, 0.6514992, -1.4275956, 0.09382208, 0.8672314, -0.83223903, 0.11571728, 0.807939, 0.48202896, 0.040779598, 0.70889217, -0.07001972, 0.0032479614, 0.89206105, -0.83071053, 0.004482966, 0.6369814, -1.5401962, -0.008934647, -0.052140594, -1.7320248, -0.034283675, 0.29764408, -1.9753133, 0.06524947)
+
+[node name="Prop_Vine2" type="StaticBody3D" unique_id=1821146115]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1146395193 instance=ExtResource("1_4u8vw")]
+
+[node name="Prop_Vine2Collision" type="CollisionShape3D" parent="." unique_id=1108531]
+shape = SubResource("ConvexPolygonShape3D_kqu31")

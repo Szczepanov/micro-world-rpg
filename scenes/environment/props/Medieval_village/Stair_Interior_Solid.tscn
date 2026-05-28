@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dpuhjdc8g0icr"]
+
+[ext_resource type="PackedScene" uid="uid://bjf6411kqo7lc" path="res://assets/models/environment/Medieval_village/glTF/Stair_Interior_Solid.gltf" id="1_a447u"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_508cb"]
+points = PackedVector3Array(-0.81237304, -0.018151555, -0.027103424, 0.8026773, -0.018151555, -0.027103424, -0.8843993, -0.0038400171, 0.35737848, -0.8762617, -0.0002621319, -4.3264775, 0.8842262, -0.0038400171, 0.35737848, 0.8760886, -0.0002621319, -4.3264775, -0.8843993, 3.0278208, -3.8885183, -0.8843993, -0.0023492314, -0.076892376, -0.8843993, 2.804203, -4.351833, 0.8842262, -0.0023492314, -0.076892376, 0.8842262, 3.0278208, -3.8885183, 0.8842262, 2.804203, -4.351833, -0.8843993, 3.0278208, -4.351833, 0.8842262, 3.0278208, -4.351833)
+
+[node name="Stair_Interior_Solid" type="StaticBody3D" unique_id=1127421671]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1537693975 instance=ExtResource("1_a447u")]
+
+[node name="Stair_Interior_SolidCollision" type="CollisionShape3D" parent="." unique_id=1536236175]
+shape = SubResource("ConvexPolygonShape3D_508cb")

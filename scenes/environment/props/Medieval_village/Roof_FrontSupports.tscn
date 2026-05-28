@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bdmvhxroexviy"]
+
+[ext_resource type="PackedScene" uid="uid://b4ws5sqj8b5fn" path="res://assets/models/environment/Medieval_village/glTF/Roof_FrontSupports.gltf" id="1_v7pxl"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_fcfxe"]
+points = PackedVector3Array(-2.7431302, -0.11826205, -0.027265048, -2.7431302, -0.11826205, 0.627198, -2.7431302, 0.11292797, -0.027265048, 2.7431283, -0.11826205, -0.027265048, -2.7431302, 0.11290535, 0.627198, 2.7425914, -0.11826205, 0.627262, 2.7425914, 0.11290535, 0.627262, 2.7431283, 0.11292797, -0.027265048)
+
+[node name="Roof_FrontSupports" type="StaticBody3D" unique_id=686479772]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1145520030 instance=ExtResource("1_v7pxl")]
+
+[node name="Roof_FrontSupportsCollision" type="CollisionShape3D" parent="." unique_id=230114904]
+shape = SubResource("ConvexPolygonShape3D_fcfxe")

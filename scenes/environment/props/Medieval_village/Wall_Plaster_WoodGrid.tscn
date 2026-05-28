@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dymvtq0fkgu3g"]
+
+[ext_resource type="PackedScene" uid="uid://oslo2qqvvpdv" path="res://assets/models/environment/Medieval_village/glTF/Wall_Plaster_WoodGrid.gltf" id="1_dnucy"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_jemku"]
+points = PackedVector3Array(-1.0000002, 0, -0.20000072, -1.0000002, 0, -2.2381544e-05, -1.0000002, 0.64954126, -0.23398033, 0.9998045, 0, -0.20000072, 0.9998045, 0, -2.2381544e-05, -1.0000002, 0.64954126, 0.09240693, 0.9998045, 0.64954126, -0.23398033, -1.0000002, 2.8830462, -0.31403533, 0.7439313, 2.8772385, -0.31403533, 1.0000002, 2.9897237, -0.21118137, 0.9998045, 0.64954126, 0.09240693, -1.0000002, 0.8830704, 0.092446715, 0.9998045, 2.8830462, -0.31403533, -1.0000002, 3.1165752, -0.31403533, 0.9998045, 3.1165752, -0.31403533, 0.9998045, 3.1165752, 0.09240693, -1.0000002, 3.1165752, 0.09240693, 0.7439313, 3.1226888, -0.31403533, 0.7439313, 3.1226888, -0.1951067)
+
+[node name="Wall_Plaster_WoodGrid" type="StaticBody3D" unique_id=1043752297]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=921642649 instance=ExtResource("1_dnucy")]
+
+[node name="Wall_Plaster_WoodGridCollision" type="CollisionShape3D" parent="." unique_id=1595945784]
+shape = SubResource("ConvexPolygonShape3D_jemku")

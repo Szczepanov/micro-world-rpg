@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dei17bhtf6npt"]
+
+[ext_resource type="PackedScene" uid="uid://beb645lfswkg" path="res://assets/models/environment/Medieval_village/glTF/DoorFrame_Flat_WoodDark.gltf" id="1_gujwy"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_sjy88"]
+points = PackedVector3Array(-0.7862095, 2.1423364, 0.13048513, -0.7862095, 2.1556902, 0.14516236, -0.7862095, 2.3037145, 0.13048513, -0.7846688, 2.1407518, -0.24328981, -0.71965075, -0.00017035753, -0.22602697, -0.71965075, -0.00017035753, 0.1126139, 0.7860878, 2.1556902, 0.14512433, 0.7860878, 2.2903607, 0.14512433, -0.7862095, 2.2903607, 0.14512433, 0.719529, -0.00017035753, 0.1126139, 0.7860878, 2.3034883, 0.13048513, 0.7877826, 2.301904, -0.24328981, -0.7846688, 2.301904, -0.24328981, 0.7877826, 2.1407518, -0.24328981, -0.6654177, -0.008544829, -0.22827037, -0.6654177, -0.008544829, 0.08998968, 0.7860878, 2.1423364, 0.13048513, 0.719529, -0.00017035753, -0.22602697, 0.6651419, -0.008544829, 0.08998968, 0.6651419, -0.008544829, -0.22827037)
+
+[node name="DoorFrame_Flat_WoodDark" type="StaticBody3D" unique_id=1932702627]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=123250753 instance=ExtResource("1_gujwy")]
+
+[node name="DoorFrame_Flat_WoodDarkCollision" type="CollisionShape3D" parent="." unique_id=1405018094]
+shape = SubResource("ConvexPolygonShape3D_sjy88")

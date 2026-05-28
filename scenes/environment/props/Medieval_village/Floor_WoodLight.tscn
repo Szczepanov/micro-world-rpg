@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dcwyhafo5hn3p"]
+
+[ext_resource type="PackedScene" uid="uid://bmmcmtycupmyr" path="res://assets/models/environment/Medieval_village/glTF/Floor_WoodLight.gltf" id="1_j2vs1"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i0r2b"]
+points = PackedVector3Array(-1, -0.010000384, -1, -1, 0.009999991, -1, 1, -0.010000384, -1, -1, -0.010000384, 1, -1, 0.009999991, 1, 1, 0.009999991, -1, 1, -0.010000384, 1, 1, 0.009999991, 1)
+
+[node name="Floor_WoodLight" type="StaticBody3D" unique_id=805607800]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1774206522 instance=ExtResource("1_j2vs1")]
+
+[node name="Floor_WoodLightCollision" type="CollisionShape3D" parent="." unique_id=263864483]
+shape = SubResource("ConvexPolygonShape3D_i0r2b")

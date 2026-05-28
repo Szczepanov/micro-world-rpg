@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dw124ygku2mbo"]
+
+[ext_resource type="PackedScene" uid="uid://cp4j56vr1i26m" path="res://assets/models/environment/Medieval_village/glTF/Wall_UnevenBrick_Door_Round.gltf" id="1_rdrd8"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ll1nk"]
+points = PackedVector3Array(-1.0000001, 0, -0.2000008, 0.74393094, 2.8772385, -0.31403533, 0.9999999, 0, -0.2000008, -1.0000001, 0, -2.2619963e-05, -1.0000001, 2.8830462, -0.31403533, 0.9999999, 2.8830462, -0.31403533, 0.9999999, 0, -2.2619963e-05, -1.0000001, 2.8830462, 0.09244642, -1.0000001, 3.1165752, -0.31403533, 0.9999999, 3.1165752, -0.31403533, 0.9999999, 2.8830462, 0.09244642, -1.0000001, 3.1165752, 0.09244642, 0.74393094, 3.1226888, -0.31403533, 0.9999999, 3.1165752, 0.09244642, 0.74393094, 3.1226888, -0.19510679)
+
+[node name="Wall_UnevenBrick_Door_Round" type="StaticBody3D" unique_id=1314842635]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1549937574 instance=ExtResource("1_rdrd8")]
+
+[node name="Wall_UnevenBrick_Door_RoundCollision" type="CollisionShape3D" parent="." unique_id=856802392]
+shape = SubResource("ConvexPolygonShape3D_ll1nk")

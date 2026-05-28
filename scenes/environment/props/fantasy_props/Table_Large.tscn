@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bkrfr5t0etlq4"]
+
+[ext_resource type="PackedScene" uid="uid://be1fryngjr6rl" path="res://assets/models/environment/fantasy_props/glTF/Table_Large.gltf" id="1_exlsc"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_sctu5"]
+points = PackedVector3Array(-1.2909673, 0.001262866, -0.5419856, -1.2909673, 0.001262866, 0.5419025, -1.4242464, 0.76534206, -0.5302847, -1.4242464, 0.81279844, -0.5302847, -1.0885391, 0.8146298, -0.53951657, 1.2906884, 0.001262866, -0.5419856, -1.0885391, 0.7673327, 0.55456954, -1.4242464, 0.76534206, 0.546089, 1.2906884, 0.001262866, 0.5419025, -1.4242464, 0.81279844, 0.546089, -1.0885391, 0.8147094, 0.55435485, 1.0882603, 0.8146298, -0.53951657, 1.4242464, 0.81279844, -0.5302847, 1.4242464, 0.76534206, -0.5302847, 1.0882603, 0.7673327, 0.55456954, 1.4242464, 0.76534206, 0.546089, 1.0882603, 0.8147094, 0.55435485, 1.4242464, 0.81279844, 0.546089)
+
+[node name="Table_Large" type="StaticBody3D" unique_id=933098546]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1238676145 instance=ExtResource("1_exlsc")]
+
+[node name="Table_LargeCollision" type="CollisionShape3D" parent="." unique_id=1318348747]
+shape = SubResource("ConvexPolygonShape3D_sctu5")

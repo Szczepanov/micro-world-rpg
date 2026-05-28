@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dyessfuqmcxxk"]
+
+[ext_resource type="PackedScene" uid="uid://cibm1fkxtio7l" path="res://assets/models/environment/fantasy_props/glTF/Bookcase_2.gltf" id="1_3yh85"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_5vm5d"]
+points = PackedVector3Array(-0.7306193, -0.017383013, -0.20638618, 0.7304764, -0.017383013, -0.20638618, -0.7306193, -0.017383013, 0.20823294, -0.7306193, 0.031939704, -0.20638618, -0.7018694, 2.3672955, -0.21449044, 0.7304764, -0.017383013, 0.20823294, 0.70172644, 2.3672955, -0.21449044, 0.7304764, 0.031939704, -0.20638618, -0.7018694, 2.3672955, 0.21448961, -0.7306193, 0.031939704, 0.20823294, -0.7018694, 2.5274699, -0.21449044, 0.7304764, 0.031939704, 0.20823294, 0.70172644, 2.3672955, 0.21448961, 0.70172644, 2.5274699, -0.21449044, -0.7018694, 2.5274699, 0.21448961, 0.70172644, 2.5274699, 0.21448961)
+
+[node name="Bookcase_2" type="StaticBody3D" unique_id=1302300911]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=919069082 instance=ExtResource("1_3yh85")]
+
+[node name="Bookcase_2Collision" type="CollisionShape3D" parent="." unique_id=1466996937]
+shape = SubResource("ConvexPolygonShape3D_5vm5d")

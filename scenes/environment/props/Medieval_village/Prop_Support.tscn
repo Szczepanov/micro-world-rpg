@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://b4dsr5pv41qta"]
+
+[ext_resource type="PackedScene" uid="uid://ii4o3k4q4s2t" path="res://assets/models/environment/Medieval_village/glTF/Prop_Support.gltf" id="1_oiwnq"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_3ofkd"]
+points = PackedVector3Array(-0.09930183, 1.2113893, -0.118122995, -0.09930183, 1.506922, -0.118122995, 0.099282265, 1.2113893, -0.118122995, -0.09930183, 2.919859, 1.91815, -0.09032035, 2.9200263, 0.042331174, 0.099282265, 1.506922, -0.118122995, -0.09930183, 2.919859, 1.5657489, 0.09930171, 2.919859, 1.91815, -0.09032035, 2.9200263, 0.36264154, 0.09028134, 2.9200263, 0.042331174, 0.099282265, 2.919859, 1.5657489, 0.09028134, 2.9200263, 0.36264154)
+
+[node name="Prop_Support" type="StaticBody3D" unique_id=169752814]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1732978591 instance=ExtResource("1_oiwnq")]
+
+[node name="Prop_SupportCollision" type="CollisionShape3D" parent="." unique_id=1548948556]
+shape = SubResource("ConvexPolygonShape3D_3ofkd")

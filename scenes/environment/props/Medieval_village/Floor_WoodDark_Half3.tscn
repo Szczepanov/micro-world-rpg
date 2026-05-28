@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://be7ub01qucwuk"]
+
+[ext_resource type="PackedScene" uid="uid://8nq6ssjnqneq" path="res://assets/models/environment/Medieval_village/glTF/Floor_WoodDark_Half3.gltf" id="1_skwqn"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_jn5ij"]
+points = PackedVector3Array(-1, -0.010000384, -1, -1, 0.009999991, -1, 1, -0.010000384, -1, -1, -0.010000384, 0, -1, 0.009999991, 0, 1, 0.009999991, -1, 1, -0.010000384, 0, 1, 0.009999991, 0)
+
+[node name="Floor_WoodDark_Half3" type="StaticBody3D" unique_id=982363943]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1689254869 instance=ExtResource("1_skwqn")]
+
+[node name="Floor_WoodDark_Half3Collision" type="CollisionShape3D" parent="." unique_id=1245227640]
+shape = SubResource("ConvexPolygonShape3D_jn5ij")

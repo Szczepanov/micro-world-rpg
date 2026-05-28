@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bi7l1daqh388u"]
+
+[ext_resource type="PackedScene" uid="uid://b828tilfl5hg5" path="res://assets/models/environment/Medieval_village/glTF/Floor_RedBrick.gltf" id="1_hbc24"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xhiap"]
+points = PackedVector3Array(-1, -0.010000384, -1, -1, 0.009999991, -1, 1, -0.010000384, -1, -1, -0.010000384, 1, -1, 0.009999991, 1, 1, 0.009999991, -1, 1, -0.010000384, 1, 1, 0.009999991, 1)
+
+[node name="Floor_RedBrick" type="StaticBody3D" unique_id=1017452105]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=845354608 instance=ExtResource("1_hbc24")]
+
+[node name="Floor_RedBrickCollision" type="CollisionShape3D" parent="." unique_id=411025417]
+shape = SubResource("ConvexPolygonShape3D_xhiap")

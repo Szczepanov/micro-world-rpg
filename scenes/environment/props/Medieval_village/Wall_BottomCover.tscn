@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cuv6qt25p0v0r"]
+
+[ext_resource type="PackedScene" uid="uid://dyis7bpei0rrb" path="res://assets/models/environment/Medieval_village/glTF/Wall_BottomCover.gltf" id="1_ovknc"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xvv5b"]
+points = PackedVector3Array(-1.0000001, -1.5422702e-06, -0.31403536, -1.0000001, -0.116764545, -0.0014002621, -1.0000001, 0.11676146, -0.31403536, 0.9999999, -2.4795532e-05, -0.31403536, -1.0000001, -0.116764545, 0.11752781, 0.9999999, -0.116764545, -0.0014002621, -1.0000001, 0.11676146, -0.19510728, 0.735317, 0.120760515, -0.19510728, 0.735317, 0.120737255, -0.31403536, 0.9999999, 0.1167382, -0.31403536, -1.0000001, 0.1167382, 0.11757007, 0.9999999, -0.116764545, 0.11752781, 0.9999999, 0.11676146, 0.11752781, 0.9999999, 0.11676146, -0.0014002621)
+
+[node name="Wall_BottomCover" type="StaticBody3D" unique_id=1777018476]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=64249153 instance=ExtResource("1_ovknc")]
+
+[node name="Wall_BottomCoverCollision" type="CollisionShape3D" parent="." unique_id=1229502144]
+shape = SubResource("ConvexPolygonShape3D_xvv5b")
