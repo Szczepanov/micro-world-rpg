@@ -16,9 +16,9 @@ This document tracks the high-level milestones for our automated, AI-driven mult
 - [x] **1.4 Static Crafting Station:** Build an interaction zone verifying item inventory requirements to unlock basic gear/weapon crafting.
 
 ## Phase 2: Grid Management & Defense Structures
-- [ ] **2.1 Grid Placement Manager:** Create a global server script tracking world state via a coordinate matrix layout (`Grid[x, y, z] = structure_id`).
-- [ ] **2.2 Real-time Placement Preview:** Implement a client-side raycast system that projects a semi-transparent ghost mesh of a wall or turret, snapping cleanly to integer grid lines when "Build Mode" is active.
-- [ ] **2.3 Structure Deployment Validation:** Build server-side RPC logic that consumes deployment items from a player's inventory (e.g., `spiked_wall_item`) before spawning a physical building mesh across all connected peers.
+- [x] **2.1 Grid Placement Manager:** Create a global server script tracking world state via a coordinate matrix layout (`Grid[x, y, z] = structure_id`).
+- [x] **2.2 Real-time Placement Preview:** Implement a client-side raycast system that projects a semi-transparent ghost mesh of a wall or turret, snapping cleanly to integer grid lines when "Build Mode" is active.
+- [x] **2.3 Structure Deployment Validation:** Build server-side RPC logic that consumes deployment items from a player's inventory (e.g., `spiked_wall_item`) before spawning a physical building mesh across all connected peers.
 
 ## Phase 3: The Threat Matrix & Wave Loops
 - [ ] **3.1 Reusable Decoupled Health Component:** Create a modular `HealthComponent` node that tracks HP, handles network damage replication, and broadcasts death states. It will be attached to players, walls, turrets, and enemies.

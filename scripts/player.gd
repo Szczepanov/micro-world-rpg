@@ -10,6 +10,7 @@ enum SkinColor { BLUE, YELLOW, GREEN, RED }
 @onready var nickname: Label3D = $PlayerNick/Nickname
 
 var player_inventory: PlayerInventory
+var is_building: bool = false
 
 # RPG Mechanics & Combat States
 @export var max_health: int = 100
@@ -72,6 +73,15 @@ func _ready():
 	if is_local_player:
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
+		
+		# Dynamically add the player placement controller for local authority player
+		var controller_script = load("res://scripts/player_placement_controller.gd")
+		if controller_script:
+			var controller = Node.new()
+			controller.set_script(controller_script)
+			controller.name = "PlayerPlacementController"
+			add_child(controller)
+			print("Debug: PlayerPlacementController attached to local player")
 	elif multiplayer.is_server():
 		player_inventory = PlayerInventory.new()
 		_add_starting_items()
@@ -106,7 +116,7 @@ func _physics_process(delta):
 			return
 
 	# Handle Attack & Interaction
-	if not is_attacking:
+	if not is_attacking and not is_building:
 		if Input.is_action_just_pressed("attack"):
 			_perform_melee_attack(false)
 		elif Input.is_action_just_pressed("interact"):
@@ -449,11 +459,14 @@ func _add_starting_items():
 
 	var sword = ItemDatabase.get_item("iron_sword")
 	var potion = ItemDatabase.get_item("health_potion")
+	var wall = ItemDatabase.get_item("spiked_wall_item")
 
 	if sword:
 		player_inventory.add_item(sword, 1)
 	if potion:
 		player_inventory.add_item(potion, 3)
+	if wall:
+		player_inventory.add_item(wall, 5)
 
 func _setup_input_actions():
 	if not InputMap.has_action("attack"):

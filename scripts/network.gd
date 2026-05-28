@@ -13,10 +13,6 @@ var player_info = {
 signal player_connected(peer_id, player_info)
 signal server_disconnected
 
-func _process(_delta):
-	if Input.is_action_just_pressed("quit"):
-		get_tree().quit(0)
-
 func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_connection_failed)
 	multiplayer.connection_failed.connect(_on_server_disconnected)

@@ -236,6 +236,31 @@ func _input(event):
 		if crafting_visible:
 			toggle_crafting()
 		toggle_inventory()
+	elif event.is_action_pressed("quit"):
+		var handled = false
+		if is_chat_visible():
+			toggle_chat()
+			handled = true
+		elif is_crafting_visible():
+			toggle_crafting()
+			handled = true
+		elif is_inventory_visible():
+			toggle_inventory()
+			handled = true
+		else:
+			var local_player = _get_local_player()
+			if local_player and local_player.is_building:
+				var controller = local_player.get_node_or_null("PlayerPlacementController")
+				if controller and controller.has_method("toggle_build_mode"):
+					controller.toggle_build_mode()
+					handled = true
+					
+		if not handled:
+			if main_menu.is_menu_visible():
+				main_menu.hide_menu()
+			else:
+				main_menu.show_menu()
+		get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F1:
 		_debug_add_item()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F2:

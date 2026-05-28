@@ -18,6 +18,10 @@ var recipes: Dictionary = {
 	"iron_pickaxe": {
 		"wood": 2,
 		"iron_ore": 3
+	},
+	"spiked_wall_item": {
+		"wood": 3,
+		"iron_ore": 1
 	}
 }
 
@@ -126,6 +130,19 @@ func _create_sample_items():
 	iron_ore.value = 10
 	iron_ore.icon = placeholder_icon
 	items[iron_ore.id] = iron_ore
+
+	# Spiked Wall item
+	var spiked_wall_item = Item.new()
+	spiked_wall_item.id = "spiked_wall_item"
+	spiked_wall_item.name = "Spiked Wall"
+	spiked_wall_item.description = "A defensive wall with sharp spikes on top."
+	spiked_wall_item.item_type = Item.ItemType.MISC
+	spiked_wall_item.rarity = Item.ItemRarity.COMMON
+	spiked_wall_item.stackable = true
+	spiked_wall_item.max_stack = 20
+	spiked_wall_item.value = 15
+	spiked_wall_item.icon = placeholder_icon
+	items[spiked_wall_item.id] = spiked_wall_item
 
 
 func add_item_to_database(item: Item) -> bool:
