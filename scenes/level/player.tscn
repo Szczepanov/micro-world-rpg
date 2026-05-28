@@ -59,6 +59,11 @@ spring_length = 5.0
 [node name="Camera3D" type="Camera3D" parent="SpringArmOffset/SpringArm3D" unique_id=1868121086]
 current = true
 
+[node name="InteractionRayCast" type="RayCast3D" parent="SpringArmOffset/SpringArm3D/Camera3D" unique_id=873648291]
+unique_name_in_owner = true
+target_position = Vector3(0, 0, -5)
+collision_mask = 6
+
 [node name="PlayerNick" type="Node3D" parent="." unique_id=489258043]
 
 [node name="Nickname" type="Label3D" parent="PlayerNick" unique_id=1245990301]

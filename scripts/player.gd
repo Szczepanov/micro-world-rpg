@@ -21,6 +21,7 @@ var player_inventory: PlayerInventory
 var is_attacking: bool = false
 var current_nick: String = "Player"
 var interaction_area: Area3D = null
+@onready var interaction_raycast: RayCast3D = %InteractionRayCast if has_node("%InteractionRayCast") else null
 
 @export_category("Objects")
 @export var _body: Node3D = null
@@ -77,6 +78,13 @@ func _ready():
 		if get_multiplayer_authority() == local_client_id:
 			request_inventory_sync.rpc_id(1)
 
+	# Dynamically load the character model (e.g. Male_ranger) for testing/customization
+	set_character_model("res://assets/Modular character outfits - fantasy/Exports/glTF/Outfits/Male_ranger.gltf")
+
+	# Offset body Y position to align feet perfectly with the collision shape bottom (ground)
+	if _body:
+		_body.position.y = -0.12
+
 func _physics_process(delta):
 	if not is_multiplayer_authority(): return
 
@@ -101,7 +109,7 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("attack"):
 			_perform_melee_attack(false)
 		elif Input.is_action_just_pressed("interact"):
-			_perform_melee_attack(true)
+			_perform_interaction()
 
 	if is_on_floor():
 		can_double_jump = true
@@ -457,6 +465,32 @@ func _perform_melee_attack(is_interact: bool):
 		elif target is Character and target != self:
 			request_combat_hit.rpc_id(1, target.get_path())
 
+func _perform_interaction() -> void:
+	var target = null
+	
+	# Detect via RayCast3D first
+	if interaction_raycast and interaction_raycast.is_colliding():
+		target = interaction_raycast.get_collider()
+		
+	# Fallback to Area3D closest target
+	if not target:
+		target = _find_closest_target()
+		
+	if target:
+		if target.has_method("interact"):
+			# Local visual feedback swing
+			is_attacking = true
+			_play_anim("Attack1")
+			get_tree().create_timer(1.3).timeout.connect(func():
+				is_attacking = false
+			)
+			
+			# Call interact
+			target.interact(multiplayer.get_unique_id())
+		elif target is HarvestableNode:
+			# Legacy fallback
+			_perform_melee_attack(true)
+
 func _find_closest_target() -> Node3D:
 	if not interaction_area:
 		return null
@@ -469,6 +503,8 @@ func _find_closest_target() -> Node3D:
 		if body == self:
 			continue
 		if body is HarvestableNode and body.is_depleted:
+			continue
+		if "is_depleted" in body and body.is_depleted:
 			continue
 		if body is Character and body.is_dead:
 			continue
@@ -493,9 +529,28 @@ func _update_interaction_ui():
 		level.set_interaction_prompt("")
 		return
 		
-	var target = _find_closest_target()
+	var target = null
+	if interaction_raycast and interaction_raycast.is_colliding():
+		target = interaction_raycast.get_collider()
+	if not target:
+		target = _find_closest_target()
+		
 	if target:
-		if target is HarvestableNode:
+		if target.has_method("interact"):
+			var node_name_to_use = target.name
+			if "resource_id" in target:
+				node_name_to_use = target.resource_id.capitalize()
+			elif "node_name" in target:
+				node_name_to_use = target.node_name
+				
+			var health_str = ""
+			if "resource_health" in target:
+				health_str = " (HP: " + str(target.resource_health) + ")"
+			elif "current_health" in target:
+				health_str = " (HP: " + str(target.current_health) + ")"
+				
+			level.set_interaction_prompt("[E] Interact with " + node_name_to_use + health_str)
+		elif target is HarvestableNode:
 			level.set_interaction_prompt("[E] Harvest " + target.node_name + " (HP: " + str(target.current_health) + ")")
 		elif target is Character:
 			level.set_interaction_prompt("[Left-Click] Attack " + target.current_nick)
@@ -923,21 +978,18 @@ func set_character_model(gltf_path: String) -> void:
 		push_error("Failed to instantiate character model: " + resolved_path)
 		return
 		
-	# Find any original skin resource to share
-	var base_skin: Skin = null
-	for child in main_skeleton.get_children():
-		if child is MeshInstance3D and child.skin:
-			base_skin = child.skin
-			break
 
-	# 6. Hide default placeholder meshes
+
+	# 6. Hide default placeholder meshes (keep Mannequin visible for head/face but cut body)
 	for child in main_skeleton.get_children():
 		if child is MeshInstance3D:
-			# Hide existing meshes (e.g. default robot parts or ual1 default mesh)
-			child.visible = false
-			# Hide from name check
-			if child.name.begins_with("Part_"):
-				child.queue_free()
+			if child.name == "Mannequin":
+				child.visible = true
+				_apply_body_cut_shader(child)
+			else:
+				child.visible = false
+				if child.name.begins_with("Part_"):
+					child.queue_free()
 
 	# 3. Locate MeshInstance3D nodes in the loaded asset
 	var new_meshes: Array[MeshInstance3D] = []
@@ -954,14 +1006,59 @@ func set_character_model(gltf_path: String) -> void:
 		mesh_instance.get_parent().remove_child(mesh_instance)
 		main_skeleton.add_child(mesh_instance)
 		
-		# 5. Set skeleton path and share skin resource
+		# 5. Set skeleton path
 		mesh_instance.skeleton = NodePath("..")
 		mesh_instance.transform = Transform3D.IDENTITY
 		mesh_instance.owner = main_skeleton.owner
 		mesh_instance.visible = true
-		
-		if base_skin:
-			mesh_instance.skin = base_skin
 			
 	temp_instance.queue_free()
 	print("Successfully set character model to: ", resolved_path)
+
+func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
+	var shader = Shader.new()
+	shader.code = "shader_type spatial;\n" \
+		+ "render_mode depth_draw_always;\n" \
+		+ "uniform sampler2D albedo_texture : source_color, filter_linear_mipmap, repeat_enable;\n" \
+		+ "uniform vec4 albedo_color : source_color = vec4(1.0);\n" \
+		+ "uniform float metallic : hint_range(0.0, 1.0) = 0.0;\n" \
+		+ "uniform float roughness : hint_range(0.0, 1.0) = 1.0;\n" \
+		+ "uniform float cut_height = 1.43;\n" \
+		+ "varying float local_y;\n" \
+		+ "void vertex() {\n" \
+		+ "    local_y = VERTEX.y;\n" \
+		+ "}\n" \
+		+ "void fragment() {\n" \
+		+ "    if (local_y < cut_height) {\n" \
+		+ "        discard;\n" \
+		+ "    }\n" \
+		+ "    vec4 tex = texture(albedo_texture, UV);\n" \
+		+ "    ALBEDO = tex.rgb * albedo_color.rgb;\n" \
+		+ "    METALLIC = metallic;\n" \
+		+ "    ROUGHNESS = roughness;\n" \
+		+ "}"
+
+	for s in range(mannequin.mesh.get_surface_count() if mannequin.mesh else 0):
+		var orig_mat = mannequin.get_surface_override_material(s)
+		if not orig_mat:
+			orig_mat = mannequin.mesh.surface_get_material(s)
+		
+		var orig_texture = null
+		var orig_color = Color(1, 1, 1, 1)
+		var orig_metallic = 0.0
+		var orig_roughness = 1.0
+		if orig_mat and orig_mat is StandardMaterial3D:
+			orig_texture = orig_mat.albedo_texture
+			orig_color = orig_mat.albedo_color
+			orig_metallic = orig_mat.metallic
+			orig_roughness = orig_mat.roughness
+			
+		var mat = ShaderMaterial.new()
+		mat.shader = shader
+		if orig_texture:
+			mat.set_shader_parameter("albedo_texture", orig_texture)
+		mat.set_shader_parameter("albedo_color", orig_color)
+		mat.set_shader_parameter("metallic", orig_metallic)
+		mat.set_shader_parameter("roughness", orig_roughness)
+		mat.set_shader_parameter("cut_height", 1.43)
+		mannequin.set_surface_override_material(s, mat)
