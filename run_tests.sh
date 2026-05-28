@@ -49,12 +49,13 @@ echo "Project: ${PROJECT_DIR}"
 echo "============================================"
 
 echo "Running import warm-up..."
-"${GODOT_BIN}" --headless --path "${PROJECT_DIR}" --import >/dev/null 2>&1 || true
+"${GODOT_BIN}" --headless --display-driver headless --path "${PROJECT_DIR}" --import >/dev/null 2>&1 || true
 
 LOG_FILE="$(mktemp)"
 set +e
 "${GODOT_BIN}" \
 	--headless \
+	--display-driver headless \
 	--path "${PROJECT_DIR}" \
 	-s "${GUT_SCRIPT}" \
 	-gdir=res://test/unit/ \

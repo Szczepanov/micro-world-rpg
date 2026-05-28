@@ -18,6 +18,10 @@ func is_chat_visible() -> bool:
 func toggle_inventory() -> void:
 	inventory_visible = !inventory_visible
 
+## NEW: satisfies player._unhandled_input() crafting branch (player.gd:202-206)
+func toggle_crafting() -> void:
+	crafting_visible = !crafting_visible
+
 func set_interaction_prompt(text: String) -> void:
 	_last_prompt = text
 

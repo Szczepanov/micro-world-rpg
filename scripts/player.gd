@@ -1230,8 +1230,7 @@ func set_character_model(gltf_path: String) -> void:
 	for child in main_skeleton.get_children():
 		if child is MeshInstance3D:
 			if child.name == "Mannequin":
-				child.visible = true
-				_apply_body_cut_shader(child)
+				child.visible = false
 			else:
 				child.visible = false
 				if child.name.begins_with("Part_"):
@@ -1262,7 +1261,6 @@ func set_character_model(gltf_path: String) -> void:
 		_sanitize_mesh_materials(mesh_instance)
 			
 	temp_instance.queue_free()
-	_sanitize_mesh_materials(main_skeleton.get_node_or_null("Mannequin") as MeshInstance3D)
 	print("Successfully set character model to: ", resolved_path)
 
 func _sanitize_player_mesh_materials() -> void:
