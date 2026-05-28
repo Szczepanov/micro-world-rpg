@@ -74,8 +74,53 @@ func _add_player(id: int, player_info : Dictionary):
 	player.set_player_skin(skin_enum)
 
 func get_spawn_point() -> Vector3:
-	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
-	return Vector3(spawn_point.x, 0.5, spawn_point.y) # Spawn slightly above floor
+	randomize() # Randomize seed so multiple client instances don't generate identical coordinates
+
+	var space_state = get_world_3d().direct_space_state
+	if not space_state:
+		# Fallback if physics state is not ready yet
+		var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10
+		return Vector3(spawn_point.x, 0.5, spawn_point.y)
+
+	var shape = CapsuleShape3D.new()
+	shape.radius = 0.36
+	shape.height = 1.73
+
+	var query = PhysicsShapeQueryParameters3D.new()
+	query.shape = shape
+	# Check layer 1 (players) and layer 3 (interactables like trees/ores). 
+	# Exclude layer 2 (floor) to prevent the query from always colliding with the ground.
+	query.collision_mask = 5
+
+	var attempts = 0
+	var max_attempts = 100
+	var current_radius = 5.0
+
+	while attempts < max_attempts:
+		var angle = randf() * 2 * PI
+		var distance = randf_range(0.0, current_radius)
+		# Calculate spawn coordinates. Capsule center is at Y = 0.90 (capsule bottom Y = 0.035, above floor Y = 0.025)
+		var target_pos = Vector3(
+			cos(angle) * distance,
+			0.90,
+			sin(angle) * distance
+		)
+		
+		query.transform = Transform3D(Basis.IDENTITY, target_pos)
+		
+		# Check for intersections
+		var result = space_state.intersect_shape(query, 1)
+		if result.is_empty():
+			return target_pos
+			
+		attempts += 1
+		# Expand the search circle dynamically as we fail to find a spot
+		if attempts % 10 == 0:
+			current_radius += 5.0
+
+	# Fallback if no safe point found. Set Y = 0.90 to match target height.
+	var spawn_point_fallback = Vector2.from_angle(randf() * 2 * PI) * 15.0
+	return Vector3(spawn_point_fallback.x, 0.90, spawn_point_fallback.y)
 
 func _remove_player(id):
 	if not players_container.has_node(str(id)):

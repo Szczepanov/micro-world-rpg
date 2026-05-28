@@ -38,10 +38,10 @@ var interaction_area: Area3D = null
 @export var green_texture : CompressedTexture2D
 @export var red_texture : CompressedTexture2D
 
-@onready var _bottom_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom")
-@onready var _chest_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
-@onready var _face_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Face")
-@onready var _limbs_head_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head")
+@onready var _bottom_mesh: MeshInstance3D = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/Bottom")
+@onready var _chest_mesh: MeshInstance3D = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
+@onready var _face_mesh: MeshInstance3D = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/Face")
+@onready var _limbs_head_mesh: MeshInstance3D = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head")
 @onready var animation_player: AnimationPlayer = _get_animation_player()
 
 var _current_speed: float
@@ -81,9 +81,7 @@ func _ready():
 	# Dynamically load the character model (e.g. Male_ranger) for testing/customization
 	set_character_model("res://assets/Modular character outfits - fantasy/Exports/glTF/Outfits/Male_ranger.gltf")
 
-	# Offset body Y position to align feet perfectly with the collision shape bottom (ground)
-	if _body:
-		_body.position.y = -0.12
+
 
 func _physics_process(delta):
 	if not is_multiplayer_authority(): return
@@ -963,6 +961,9 @@ func set_character_model(gltf_path: String) -> void:
 		push_error("Cannot find main skeleton to attach model!")
 		return
 
+	# Reset skeleton Y position so feet stand correctly on the ground
+	main_skeleton.position.y = 0.0
+
 	# Resolve path (handles folder casing/naming mismatch)
 	var resolved_path = _resolve_actual_path(gltf_path)
 
@@ -1003,6 +1004,8 @@ func set_character_model(gltf_path: String) -> void:
 	# 4. Parent meshes directly to our active Skeleton3D node
 	for i in range(new_meshes.size()):
 		var mesh_instance = new_meshes[i]
+		# Unset the owner of the instanced mesh first to avoid Godot scene tree consistency warnings
+		mesh_instance.owner = null
 		mesh_instance.get_parent().remove_child(mesh_instance)
 		main_skeleton.add_child(mesh_instance)
 		
@@ -1023,7 +1026,7 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		+ "uniform vec4 albedo_color : source_color = vec4(1.0);\n" \
 		+ "uniform float metallic : hint_range(0.0, 1.0) = 0.0;\n" \
 		+ "uniform float roughness : hint_range(0.0, 1.0) = 1.0;\n" \
-		+ "uniform float cut_height = 1.43;\n" \
+		+ "uniform float cut_height = 1.48;\n" \
 		+ "varying float local_y;\n" \
 		+ "void vertex() {\n" \
 		+ "    local_y = VERTEX.y;\n" \
@@ -1038,18 +1041,35 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		+ "    ROUGHNESS = roughness;\n" \
 		+ "}"
 
+	# Load the base character skin texture to apply to the head
+	var path_to_load = textures_dir.path_join("Base/T_Regular_Male_Dark_BaseColor.png") if textures_dir else ""
+	if path_to_load == "" or not FileAccess.file_exists(path_to_load):
+		path_to_load = "res://assets/Modular Character Outfits - Fantasy[Standard]/Textures/Base/T_Regular_Male_Dark_BaseColor.png"
+		
+	var skin_texture = load(path_to_load)
+
 	for s in range(mannequin.mesh.get_surface_count() if mannequin.mesh else 0):
+		# Surface 1 is the skeleton joints. Hide it completely to remove purple neck joints.
+		if s == 1:
+			var invisible_mat = StandardMaterial3D.new()
+			invisible_mat.transparency = StandardMaterial3D.TRANSPARENCY_ALPHA
+			invisible_mat.albedo_color = Color(0, 0, 0, 0)
+			mannequin.set_surface_override_material(s, invisible_mat)
+			continue
+
 		var orig_mat = mannequin.get_surface_override_material(s)
 		if not orig_mat:
 			orig_mat = mannequin.mesh.surface_get_material(s)
 		
-		var orig_texture = null
-		var orig_color = Color(1, 1, 1, 1)
+		# Apply the proper male skin texture (untinted with white albedo color)
+		var orig_texture = skin_texture
+		var orig_color = Color(1, 1, 1, 1) # Keep white if skin_texture is loaded
 		var orig_metallic = 0.0
 		var orig_roughness = 1.0
 		if orig_mat and orig_mat is StandardMaterial3D:
-			orig_texture = orig_mat.albedo_texture
-			orig_color = orig_mat.albedo_color
+			if not orig_texture:
+				orig_texture = orig_mat.albedo_texture
+				orig_color = orig_mat.albedo_color
 			orig_metallic = orig_mat.metallic
 			orig_roughness = orig_mat.roughness
 			
@@ -1060,5 +1080,5 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		mat.set_shader_parameter("albedo_color", orig_color)
 		mat.set_shader_parameter("metallic", orig_metallic)
 		mat.set_shader_parameter("roughness", orig_roughness)
-		mat.set_shader_parameter("cut_height", 1.43)
+		mat.set_shader_parameter("cut_height", 1.48) # Cut higher up to completely slice off neck joints
 		mannequin.set_surface_override_material(s, mat)
