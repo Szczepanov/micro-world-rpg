@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bqx58dywl1lmv"]
+
+[ext_resource type="PackedScene" uid="uid://k6k1tm60gmyw" path="res://assets/models/environment/fantasy_props/glTF/Nightstand_Shelf.gltf" id="1_plf3n"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_btglp"]
+points = PackedVector3Array(-0.34666187, -0.00081762206, -0.19316483, 0.34659398, -0.00081762206, -0.19316483, -0.28490338, -0.0061722994, -0.19316483, -0.34666187, -0.00081762206, 0.20032316, -0.328813, 1.2094585, -0.1727509, 0.34666187, -0.00081762206, 0.10191265, 0.28483552, -0.0061722994, -0.19316483, 0.32874513, 1.2094585, -0.1727509, -0.28490338, -0.0061722994, 0.20032316, 0.34666187, -0.00081762206, 0.20032316, -0.328813, 1.2093395, 0.17413172, 0.28483552, -0.0061722994, 0.20032316, 0.32874513, 1.2093395, 0.17413172)
+
+[node name="Nightstand_Shelf" type="StaticBody3D" unique_id=1377989486]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=2080660040 instance=ExtResource("1_plf3n")]
+
+[node name="Nightstand_ShelfCollision" type="CollisionShape3D" parent="." unique_id=1083438927]
+shape = SubResource("ConvexPolygonShape3D_btglp")

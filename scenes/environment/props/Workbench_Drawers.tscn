@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dv4d8am6fspyb"]
+
+[ext_resource type="PackedScene" uid="uid://dsjkf0r5l4am6" path="res://assets/models/environment/fantasy_props/glTF/Workbench_Drawers.gltf" id="1_c77i3"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_kl6ns"]
+points = PackedVector3Array(0.30440408, 0.88416135, -0.4950211, 0.30440408, 0.88416135, -0.22017089, 0.30440408, 1.1265012, -0.4950211, 0.7275102, 0.88416135, -0.4950211, 0.43821928, 0.9321264, -0.19599342, 0.30440408, 1.1265012, -0.22017089, 0.7275102, 0.88416135, -0.22017089, 0.7275102, 1.1265012, -0.4950211, 0.43821928, 1.071728, -0.19599342, 0.5935708, 0.9321264, -0.19599342, 0.7275102, 1.1265012, -0.22017089, 0.5935708, 1.071728, -0.19599342)
+
+[node name="Workbench_Drawers" type="StaticBody3D" unique_id=1942846578]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1181055517 instance=ExtResource("1_c77i3")]
+
+[node name="Workbench_DrawersCollision" type="CollisionShape3D" parent="." unique_id=411363350]
+shape = SubResource("ConvexPolygonShape3D_kl6ns")
