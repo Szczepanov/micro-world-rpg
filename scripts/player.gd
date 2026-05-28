@@ -154,11 +154,7 @@ func _physics_process(delta):
 	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		return
 	
-	if not is_attacking and not is_building:
-		if Input.is_action_just_pressed("attack"):
-			_perform_melee_attack(false)
-		elif Input.is_action_just_pressed("interact"):
-			_perform_interaction()
+	# Attack and interact are now handled in _unhandled_input to prevent input leakage
 
 	if is_on_floor():
 		can_double_jump = true
@@ -199,9 +195,30 @@ func _process(_delta):
 
 ## Central ESC / ui_cancel conditional state stack.
 ## Priority (high → low): Crafting → Inventory → Chat → Build Mode → Pause Overlay
+## Also handles combat actions (attack/interact) to prevent input leakage to UI
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
+	
+	# Block all combat actions if mouse is visible (UI is open)
+	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		return
+	
+	# Handle attack action
+	if event.is_action_pressed("attack"):
+		if not is_attacking and not is_building:
+			_perform_melee_attack(false)
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Handle interact action
+	if event.is_action_pressed("interact"):
+		if not is_attacking and not is_building:
+			_perform_interaction()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Handle ESC / ui_cancel state stack
 	if not event.is_action_pressed("ui_cancel"):
 		return
 

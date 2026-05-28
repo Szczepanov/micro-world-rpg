@@ -290,6 +290,10 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed("inventory"):
 		if crafting_visible:
 			toggle_crafting()
+		# Prevent opening inventory while in build mode to avoid state confusion
+		var local_player = _get_local_player()
+		if local_player and local_player.is_building:
+			return
 		toggle_inventory()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F1:
 		_debug_add_item()

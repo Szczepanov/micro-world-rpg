@@ -19,11 +19,13 @@ func toggle_chat():
 	chat_visible = !chat_visible
 	if chat_visible:
 		show()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		await get_tree().process_frame
 		message.grab_focus()
 	else:
 		hide()
 		message.text = ""
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		get_viewport().set_input_as_handled()
 
 func is_chat_visible() -> bool:
@@ -54,3 +56,6 @@ func _limit_chat_history():
 
 func clear_chat():
 	chat.text = ""
+
+# ESC handling is centralised in player.gd's _unhandled_input() state stack.
+# Do not add KEY_ESCAPE here to avoid double-consuming the event.
