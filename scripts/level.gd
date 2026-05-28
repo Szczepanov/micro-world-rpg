@@ -20,6 +20,10 @@ func _ready():
 	if DisplayServer.get_name() == "headless":
 		print("Dedicated server starting...")
 		Network.start_host("", "")
+		# Record match start epoch for duration calculation on match end.
+		if has_node("/root/DatabaseManager"):
+			get_node("/root/DatabaseManager").set("_match_start_time_unix",
+				int(Time.get_unix_time_from_system()))
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
@@ -50,6 +54,10 @@ func _ready():
 	Network.server_disconnected.connect(_on_server_disconnected)
 	multiplayer.peer_disconnected.connect(_remove_player)
 
+	# Connect DatabaseManager session_loaded signal for server-side inventory restoration
+	if has_node("/root/DatabaseManager"):
+		get_node("/root/DatabaseManager").session_loaded.connect(_on_player_session_loaded)
+
 	# Setup the screen interaction UI prompt
 	_setup_interaction_ui()
 
@@ -61,6 +69,47 @@ func _ready():
 
 func _on_player_connected(peer_id, player_info):
 	_add_player(peer_id, player_info)
+
+func _on_player_session_loaded(peer_id: int, player_id: String, inv_dict: Dictionary) -> void:
+	# Called when DatabaseManager finishes loading a player's session from the DB.
+	# Locate the player node in PlayersContainer and restore their inventory.
+	var player_node = players_container.get_node_or_null(str(peer_id))
+	
+	# If player node doesn't exist yet, wait for it to be added to the container
+	if not player_node:
+		print("Level: Player node %d not yet in PlayersContainer, waiting for child_entered_tree signal..." % peer_id)
+		await players_container.child_entered_tree
+		player_node = players_container.get_node_or_null(str(peer_id))
+		
+		# Double-check after the await in case a different child was added
+		if not player_node:
+			push_error("Level: Player node %d still not found after child_entered_tree signal." % peer_id)
+			return
+	
+	if not player_node.has_method("get_inventory"):
+		push_warning("Level: Player node %d has no get_inventory() method." % peer_id)
+		return
+
+	# Wait for the player node to be ready if it's still initializing
+	if not player_node.is_node_ready():
+		await player_node.ready
+
+	var inventory = player_node.get_inventory()
+	if not inventory:
+		push_warning("Level: Player %d has no inventory instance." % peer_id)
+		return
+
+	# Restore inventory from the loaded dictionary
+	inventory.from_dict(inv_dict)
+	print("Level: Restored inventory for player %d (%s) from database." % [peer_id, player_id])
+
+	# Broadcast the restored inventory to the owning client via RPC
+	if peer_id != 1:
+		player_node.sync_inventory_to_owner.rpc_id(peer_id, inventory.to_dict())
+	else:
+		# Server player (peer_id 1) - update local UI directly
+		if has_method("update_local_inventory_display"):
+			update_local_inventory_display()
 
 func _on_server_disconnected() -> void:
 	teardown_multiplayer()
@@ -386,6 +435,17 @@ func _notification(what):
 		print("  B - Toggle inventory")
 		print("  F1 - Add random test item (debug)")
 		print("  F2 - Print inventory contents (debug)")
+	# Intercept the OS close/SIGTERM signal on the server to flush inventories.
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and multiplayer.is_server():
+		if has_node("/root/DatabaseManager"):
+			# Build the peer→inventory map from all spawned player nodes.
+			var inv_map: Dictionary = {}
+			for child in players_container.get_children():
+				var peer_id: int = int(child.name)
+				if child.has_method("get_inventory"):
+					inv_map[peer_id] = child.get_inventory()
+			get_node("/root/DatabaseManager").flush_all_inventories(inv_map)
+		get_tree().quit()
 
 func _on_inventory_closed():
 	inventory_visible = false

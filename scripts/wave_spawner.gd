@@ -61,6 +61,9 @@ func stop_spawning() -> void:
 	if _spawn_timer:
 		_spawn_timer.stop()
 
+func get_wave_number() -> int:
+	return _wave_number
+
 # ---------- Spawn Tick ----------
 
 func _on_spawn_tick() -> void:

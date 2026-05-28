@@ -22,7 +22,29 @@ func _ready() -> void:
 # ---------- Server-Only Logic ----------
 
 func _on_core_died() -> void:
-	# Server detected health == 0. Broadcast the defeat state to every peer.
+	# 1. Persist match result BEFORE broadcasting defeat so the DB write
+	#    is guaranteed even if clients disconnect immediately after.
+	if has_node("/root/DatabaseManager"):
+		var wave_spawners := get_tree().get_nodes_in_group("Spawners")
+		var waves_done: int = 0
+		if not wave_spawners.is_empty() and wave_spawners[0].has_method("get_wave_number"):
+			waves_done = wave_spawners[0].get_wave_number()
+
+		var final_hp: float = health_component.current_health if health_component else 0.0
+
+		# match_duration_seconds requires a start_time tracked in level.gd.
+		# See §4.3 implementation note below.
+		var duration: int = get_node("/root/DatabaseManager") \
+								.get("_match_start_time_unix") if true else 0
+		duration = int(Time.get_unix_time_from_system()) - duration
+
+		get_node("/root/DatabaseManager").save_match_result(
+			waves_done,
+			final_hp,
+			duration
+		)
+
+	# 2. Broadcast defeat to all peers.
 	trigger_defeat.rpc()
 
 # ---------- RPC: Broadcast Defeat ----------

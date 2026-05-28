@@ -7,3 +7,19 @@ Dockerfile
 implementation_plan.md
 task.md
 walkthrough.md
+
+# ADD — exclude raw source from the build context (binary-only pattern):
+assets/
+scenes/
+scripts/
+addons/
+test/
+scratch/
+*.md
+*.sh
+*.png
+*.gd
+*.tscn
+*.tres
+project.godot
+export_presets.cfg

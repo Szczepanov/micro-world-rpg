@@ -69,6 +69,10 @@ func _on_connected_ok():
 
 func _on_player_connected(id):
 	if DisplayServer.get_name() == "headless":
+		# Server received a new peer — load their session from the DB.
+		var username: String = players.get(id, {}).get("nick", "Player_%d" % id)
+		if has_node("/root/DatabaseManager"):
+			get_node("/root/DatabaseManager").load_player_session(id, username)
 		return
 	_register_player.rpc_id(id, player_info)
 

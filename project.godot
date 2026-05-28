@@ -26,6 +26,7 @@ config/icon="res://icon.png"
 Network="*res://scripts/network.gd"
 ItemDatabase="*res://scripts/item_database.gd"
 GridManager="*res://scripts/grid_manager.gd"
+DatabaseManager="*res://scripts/database_manager.gd"
 
 [editor_plugins]
 
