@@ -9,7 +9,7 @@ extends PlacedStructure
 # Node references
 @onready var detection_area: Area3D = $DetectionArea
 @onready var attack_timer: Timer = $AttackTimer
-@onready var turret_head: Node3D = %TurretHead
+@onready var turret_head: Node3D = get_node_or_null("%TurretHead")
 
 # Network-replicated target path (used by clients for visual rotation)
 var target_node_path: NodePath = NodePath()
@@ -17,6 +17,12 @@ var current_target: Node3D = null
 
 func _ready() -> void:
 	super._ready()
+	
+	if not turret_head:
+		# Fallback to direct path search if unique name flag was stripped
+		turret_head = get_node_or_null("TurretHead") or get_node_or_null("MeshInstance3D")
+		if not turret_head:
+			push_error("AutomatedTurret: Rotating head assembly node could not be resolved!")
 	
 	if multiplayer.is_server():
 		# Setup detection radius shape on the server
