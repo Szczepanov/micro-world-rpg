@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c2turret0022"]
+[gd_scene format=3 uid="uid://c2turret0022"]
 
 [ext_resource type="Script" path="res://scripts/automated_turret.gd" id="1_turret"]
 [ext_resource type="Script" path="res://scripts/health_component.gd" id="2_health"]

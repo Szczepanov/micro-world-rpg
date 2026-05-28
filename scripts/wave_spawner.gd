@@ -14,6 +14,10 @@ var _spawned_count: int = 0
 var _wave_active: bool = false
 var _wave_number: int = 0
 
+# Cached packed scene — loaded once per wave start, reused every spawn tick.
+# Avoids repeated disk I/O and resource deserialization during active gameplay.
+var _cached_enemy_scene: PackedScene = null
+
 # Used to generate unique node names across multiple spawners.
 static var _global_enemy_counter: int = 0
 
@@ -38,20 +42,22 @@ func start_next_wave() -> void:
 		push_warning("WaveSpawner: Wave already in progress on '%s'." % name)
 		return
 
-	var packed := load(enemy_scene_path) as PackedScene
-	if not packed:
+	# Load the scene ONCE here instead of on every spawn tick.
+	_cached_enemy_scene = load(enemy_scene_path) as PackedScene
+	if not _cached_enemy_scene:
 		push_error("WaveSpawner: Could not load enemy scene at '%s'." % enemy_scene_path)
 		return
 
-	_wave_number += 1
-	_spawned_count = 0
-	_wave_active = true
+	_wave_number    += 1
+	_spawned_count   = 0
+	_wave_active     = true
 
 	print("WaveSpawner [%s]: Starting wave %d (size: %d)" % [name, _wave_number, wave_size])
 	_spawn_timer.start()
 
 func stop_spawning() -> void:
 	_wave_active = false
+	_cached_enemy_scene = null   # Release reference; let GC reclaim memory.
 	if _spawn_timer:
 		_spawn_timer.stop()
 
@@ -71,13 +77,11 @@ func _on_spawn_tick() -> void:
 	_spawn_enemy()
 
 func _spawn_enemy() -> void:
-	var packed := load(enemy_scene_path) as PackedScene
-	if not packed:
-		push_error("WaveSpawner: Enemy scene not found — '%s'." % enemy_scene_path)
+	if not _cached_enemy_scene:
+		push_error("WaveSpawner: _cached_enemy_scene is null during active wave — call start_next_wave() first.")
 		return
 
-	# Instantiate on the server
-	var enemy: Node = packed.instantiate()
+	var enemy: Node = _cached_enemy_scene.instantiate()
 
 	# Assign a globally unique name so MultiplayerSpawner can track it properly
 	_global_enemy_counter += 1

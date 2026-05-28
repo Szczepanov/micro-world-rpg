@@ -151,9 +151,11 @@ func open_inventory(player: Character = null):
 		current_player = player
 		update_inventory_display()
 	visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func close_inventory():
 	visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func refresh_display():
 	print("Debug: InventoryUI refresh_display called")

@@ -18,6 +18,10 @@ extends CharacterBody3D
 
 var _target_node: Node3D = null
 var _is_dead: bool = false
+# Double-fire guard: HealthComponent's property setter can re-emit `died` if
+# something reads current_health after it hits 0.  This flag makes _on_died
+# strictly idempotent.
+var _death_triggered: bool = false
 
 const GRAVITY: float = 9.8
 
@@ -115,12 +119,42 @@ func _on_attack_timer_timeout() -> void:
 func _on_died() -> void:
 	if not multiplayer.is_server():
 		return
+	# Idempotency guard — prevents double-fire from the HealthComponent setter.
+	if _death_triggered:
+		return
+	_death_triggered = true
 	_is_dead = true
+
+	# 1. Halt all server-side processing immediately.
 	set_physics_process(false)
+	set_process(false)
+
 	if attack_timer:
 		attack_timer.stop()
 
-	# Brief visual delay then remove from tree
-	get_tree().create_timer(0.5).timeout.connect(func() -> void:
-		queue_free()
-	)
+	# 2. Remove from physics layers so turrets cannot re-acquire this corpse
+	#    as a target and HealthComponent won't re-trigger the died signal.
+	collision_layer = 0
+	collision_mask  = 0
+
+	# 3. Cancel the active NavigationServer path query so the RVO agent
+	#    is de-registered cleanly before the node leaves the tree.
+	if nav_agent and is_instance_valid(nav_agent):
+		nav_agent.target_position = global_position  # Cancel in-flight path request.
+
+	# 4. Use a child Timer (owned by self) for the death delay.
+	#    This is automatically freed if the node is externally freed first,
+	#    preventing the dangling-lambda crash that SceneTreeTimer causes.
+	var death_timer := Timer.new()
+	death_timer.name      = "DeathCleanupTimer"
+	death_timer.wait_time = 0.5
+	death_timer.one_shot  = true
+	add_child(death_timer)
+	death_timer.timeout.connect(_deferred_free)
+	death_timer.start()
+
+func _deferred_free() -> void:
+	# Final safety check in case something freed us before the timer fired.
+	if not is_instance_valid(self):
+		return
+	queue_free()

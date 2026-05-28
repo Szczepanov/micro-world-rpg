@@ -30,47 +30,64 @@ func get_player_node(peer_id: int) -> Character:
 			return players_container.get_node(str(peer_id)) as Character
 	return null
 
+## Sent by the server to a specific peer when their placement request is
+## rejected. The client should wire this signal to the HUD notification system.
+@rpc("authority", "call_local", "reliable")
+func notify_placement_failed(reason: String) -> void:
+	push_warning("GridManager [client]: Placement rejected — " + reason)
+	# TODO: connect this to your HUD toast system, e.g.:
+	# emit_signal("placement_rejected", reason)
+
 @rpc("any_peer", "reliable")
 func request_place_structure(grid_coords: Vector3i, structure_id: String) -> void:
 	if not multiplayer.is_server():
 		return
-		
-	var peer_id = multiplayer.get_remote_sender_id()
-	var player = get_player_node(peer_id)
+	
+	var peer_id := multiplayer.get_remote_sender_id()
+	var player := get_player_node(peer_id)
 	if not player:
-		push_warning("GridManager: Player node not found for peer ", peer_id)
+		push_warning("GridManager: Player node not found for peer %d" % peer_id)
 		return
 		
-	# a) Distance-spoofing check
-	var target_world_pos = grid_to_world(grid_coords)
-	var distance = player.global_position.distance_to(target_world_pos)
+	# a) Distance-spoofing check.
+	var target_world_pos := grid_to_world(grid_coords)
+	var distance := player.global_position.distance_to(target_world_pos)
 	if distance > 10.0:
-		push_warning("GridManager: Distance check failed for peer %d (distance: %f)" % [peer_id, distance])
+		push_warning("GridManager: Distance check failed for peer %d (%.1fm)" % [peer_id, distance])
+		notify_placement_failed.rpc_id(peer_id, "Too far from target tile.")
 		return
 		
-	# b) Verify target coordinate is not already occupied
+	# b) Atomically RESERVE the cell before any inventory transaction.
+	#    Writing a sentinel first ensures a second concurrent RPC in the same
+	#    server tick sees the cell as occupied and is rejected immediately.
 	if world_grid.has(grid_coords):
-		push_warning("GridManager: Target coordinates already occupied at ", grid_coords)
+		push_warning("GridManager: Tile %s already occupied." % str(grid_coords))
+		notify_placement_failed.rpc_id(peer_id, "Tile already occupied.")
 		return
-		
-	# c) Verify required deployment item in inventory
-	var item_id = structure_id + "_item"
+
+	# Write the reservation sentinel so any subsequent in-tick RPC is rejected.
+	world_grid[grid_coords] = {"structure_id": structure_id, "peer_id": peer_id, "_pending": true}
+	
+	# c) Verify required item in inventory.
+	var item_id := structure_id + "_item"
 	if not player.player_inventory or not player.player_inventory.has_item(item_id, 1):
-		push_warning("GridManager: Player %d does not possess item %s" % [peer_id, item_id])
+		push_warning("GridManager: Peer %d lacks item '%s'." % [peer_id, item_id])
+		world_grid.erase(grid_coords)   # Roll back reservation — no item consumed.
+		notify_placement_failed.rpc_id(peer_id, "Insufficient resources.")
 		return
 		
-	# Deduct item from inventory
+	# Deduct item from inventory.
 	player.player_inventory.remove_item(item_id, 1)
 	
-	# Sync inventory back to client
+	# Sync inventory back to client.
 	if peer_id != 1:
 		player.sync_inventory_to_owner.rpc_id(peer_id, player.player_inventory.to_dict())
 	else:
-		var level_scene = get_tree().current_scene
+		var level_scene := get_tree().current_scene
 		if level_scene and level_scene.has_method("update_local_inventory_display"):
 			level_scene.update_local_inventory_display()
 			
-	# Spawn structure globally (calls spawn_grid_structure locally and on all clients)
+	# Spawn structure globally — overwrites the pending sentinel with the real record.
 	spawn_grid_structure.rpc(grid_coords, structure_id, peer_id)
 
 @rpc("call_local", "reliable")

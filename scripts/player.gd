@@ -150,6 +150,10 @@ func _physics_process(delta):
 			return
 
 	# Handle Attack & Interaction
+	# Block combat actions if any menu cursor is free (mouse is visible)
+	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		return
+	
 	if not is_attacking and not is_building:
 		if Input.is_action_just_pressed("attack"):
 			_perform_melee_attack(false)
@@ -802,7 +806,7 @@ func respawn_client(pos: Vector3):
 	if is_multiplayer_authority():
 		is_attacking = false
 		# Re-capture cursor in case it was released while the pause menu was open
-		var in_game_menu := get_node_or_null("HUD/InGameMenu") as InGameMenu
+		var in_game_menu := get_node_or_null("HUD/InGameMenu")
 		if in_game_menu and not in_game_menu.is_open():
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 

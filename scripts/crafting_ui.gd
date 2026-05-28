@@ -26,6 +26,7 @@ func _ready() -> void:
 func open_crafting(player: Character) -> void:
 	current_player = player
 	visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_populate_recipes()
 	
 	# Select first recipe by default if available
@@ -37,6 +38,7 @@ func open_crafting(player: Character) -> void:
 
 func close_crafting() -> void:
 	visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	crafting_closed.emit()
 
 func refresh_display() -> void:
