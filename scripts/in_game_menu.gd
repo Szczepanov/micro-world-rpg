@@ -57,6 +57,11 @@ func _open() -> void:
 func _close() -> void:
 	hide()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	# Release keyboard focus from UI elements to restore player movement
+	var focused_node = get_viewport().gui_get_focus_owner()
+	if focused_node and is_ancestor_of(focused_node):
+		focused_node.release_focus()
 
 # ---------------------------------------------------------------------------
 # Button callbacks

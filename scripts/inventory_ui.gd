@@ -156,6 +156,11 @@ func open_inventory(player: Character = null):
 func close_inventory():
 	visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	# Release keyboard focus from UI elements to restore player movement
+	var focused_node = get_viewport().gui_get_focus_owner()
+	if focused_node and is_ancestor_of(focused_node):
+		focused_node.release_focus()
 
 func refresh_display():
 	print("Debug: InventoryUI refresh_display called")
