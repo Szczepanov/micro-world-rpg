@@ -1,15 +1,19 @@
 extends GutTest
 
 const PLAYER_SCENE_PATH: String = "res://scenes/level/player.tscn"
+const INVENTORY_SCENE_PATH: String = "res://scenes/ui/inventory_ui.tscn"
 
 var _player: CharacterBody3D
 var _inventory: InventoryUI
 var _mock_level: MockLevel
+var _test_hud: CanvasLayer
+var _previous_scene: Node
 
 func before_each() -> void:
+	_previous_scene = get_tree().current_scene
 	_mock_level = MockLevel.new()
 	_mock_level.name = "MockLevel"
-	add_child_autofree(_mock_level)
+	get_tree().root.add_child(_mock_level)
 	get_tree().current_scene = _mock_level
 
 	var player_scene: PackedScene = load(PLAYER_SCENE_PATH)
@@ -20,17 +24,25 @@ func before_each() -> void:
 	_player.name = "1"
 	_mock_level.add_child(_player)
 
-	_inventory = _player.get_node_or_null("HUD/InventoryUI") as InventoryUI
-	if not _inventory:
-		for child in _player.find_children("*", "InventoryUI", true, false):
-			_inventory = child as InventoryUI
-			break
+	_test_hud = CanvasLayer.new()
+	_test_hud.name = "TestHUD"
+	_mock_level.add_child(_test_hud)
+
+	var inventory_scene: PackedScene = load(INVENTORY_SCENE_PATH)
+	assert_not_null(inventory_scene, "inventory_ui.tscn must exist at the expected path")
+	_inventory = inventory_scene.instantiate() as InventoryUI
+	if _inventory:
+		_test_hud.add_child(_inventory)
 	assert_not_null(_inventory, "InventoryUI node should exist under player HUD")
 
 	await get_tree().process_frame
 
 func after_each() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if is_instance_valid(_previous_scene):
+		get_tree().current_scene = _previous_scene
+	if is_instance_valid(_mock_level):
+		_mock_level.queue_free()
 
 func test_inventory_close_releases_focus_and_captures_mouse() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

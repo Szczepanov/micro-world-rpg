@@ -1324,30 +1324,37 @@ func _material_requires_transparency(mesh_name: String, material: StandardMateri
 		return true
 	return false
 
-func _should_apply_body_cut_shader(mesh_name: String, surface_index: int, material: Material) -> bool:
+func _is_mannequin_hidden_surface(material: Material, surface_index: int) -> bool:
+	if surface_index == 1:
+		return true
+	if material is StandardMaterial3D:
+		var mat_name := (material as StandardMaterial3D).resource_name.to_lower()
+		return mat_name.contains("joint") or mat_name.contains("skeleton") or mat_name.contains("helper")
+	return false
+
+func _is_head_or_hair_surface(material: Material) -> bool:
 	if material is StandardMaterial3D:
 		var standard := material as StandardMaterial3D
-		if _material_requires_transparency(mesh_name, standard, surface_index):
-			return false
-
-		var material_name := standard.resource_name.to_lower()
-		var texture_path := ""
+		var mat_name := standard.resource_name.to_lower()
+		if mat_name.contains("hair") or mat_name.contains("head") or mat_name.contains("face") or mat_name.contains("eye") or mat_name.contains("brow") or mat_name.contains("lash") or mat_name.contains("cap") or mat_name.contains("hood"):
+			return true
 		if standard.albedo_texture and standard.albedo_texture.resource_path != "":
-			texture_path = standard.albedo_texture.resource_path.to_lower()
+			var texture_path := standard.albedo_texture.resource_path.to_lower()
+			if texture_path.contains("hair") or texture_path.contains("head") or texture_path.contains("face") or texture_path.contains("eye") or texture_path.contains("cap") or texture_path.contains("hood"):
+				return true
+	return false
 
-		if material_name.contains("hair") or material_name.contains("head") or material_name.contains("face") or material_name.contains("eye") or material_name.contains("brow") or material_name.contains("lash") or material_name.contains("cap") or material_name.contains("hood"):
-			return false
-		if texture_path.contains("hair") or texture_path.contains("head") or texture_path.contains("face") or texture_path.contains("eye") or texture_path.contains("cap") or texture_path.contains("hood"):
-			return false
-
-		# Apply cut shader only to skin/body-like slots; preserve everything else.
-		var looks_like_body := material_name.contains("body") or material_name.contains("skin") or material_name.contains("torso") or material_name.contains("chest") or material_name.contains("arm") or material_name.contains("leg")
-		looks_like_body = looks_like_body or texture_path.contains("base") or texture_path.contains("skin") or texture_path.contains("body")
-		return looks_like_body
-
-	if material is ShaderMaterial:
-		return false
-	return true
+func _preserve_mannequin_surface_material(mannequin: MeshInstance3D, surface_index: int, material: Material) -> void:
+	if material is StandardMaterial3D:
+		var preserved := (material as StandardMaterial3D).duplicate(true) as StandardMaterial3D
+		preserved.resource_local_to_scene = true
+		_configure_player_standard_material(preserved, mannequin.name, surface_index)
+		mannequin.set_surface_override_material(surface_index, preserved)
+	elif material is ShaderMaterial:
+		var preserved_shader := (material as ShaderMaterial).duplicate(true) as ShaderMaterial
+		preserved_shader.resource_local_to_scene = true
+		preserved_shader.render_priority = 0
+		mannequin.set_surface_override_material(surface_index, preserved_shader)
 func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 	var shader = Shader.new()
 	shader.code = "shader_type spatial;\n" \
@@ -1385,17 +1392,18 @@ func _apply_body_cut_shader(mannequin: MeshInstance3D) -> void:
 		if not orig_mat:
 			continue
 
-		if not _should_apply_body_cut_shader(mannequin.name, s, orig_mat):
-			if orig_mat is StandardMaterial3D:
-				var preserved := (orig_mat as StandardMaterial3D).duplicate(true) as StandardMaterial3D
-				preserved.resource_local_to_scene = true
-				_configure_player_standard_material(preserved, mannequin.name, s)
-				mannequin.set_surface_override_material(s, preserved)
-			elif orig_mat is ShaderMaterial:
-				var preserved_shader := (orig_mat as ShaderMaterial).duplicate(true) as ShaderMaterial
-				preserved_shader.resource_local_to_scene = true
-				preserved_shader.render_priority = 0
-				mannequin.set_surface_override_material(s, preserved_shader)
+		if _is_mannequin_hidden_surface(orig_mat, s):
+			var invisible_mat = StandardMaterial3D.new()
+			invisible_mat.transparency = StandardMaterial3D.TRANSPARENCY_ALPHA
+			invisible_mat.no_depth_test = false
+			invisible_mat.render_priority = 0
+			invisible_mat.albedo_color = Color(0, 0, 0, 0)
+			mannequin.set_surface_override_material(s, invisible_mat)
+			continue
+
+		# Keep all non-primary surfaces (and explicit head/hair surfaces) untouched.
+		if s != 0 or _is_head_or_hair_surface(orig_mat):
+			_preserve_mannequin_surface_material(mannequin, s, orig_mat)
 			continue
 		
 		# Apply the proper male skin texture (untinted with white albedo color)
