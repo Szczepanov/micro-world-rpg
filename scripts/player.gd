@@ -195,6 +195,39 @@ func _process(_delta):
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
+
+	var level := get_tree().get_current_scene()
+	if event.is_action_pressed("ui_cancel"):
+		if level and level.has_method("is_crafting_visible") and level.is_crafting_visible():
+			if level.has_method("toggle_crafting"):
+				level.toggle_crafting()
+			get_viewport().set_input_as_handled()
+			return
+
+		if level and level.has_method("is_inventory_visible") and level.is_inventory_visible():
+			if level.has_method("toggle_inventory"):
+				level.toggle_inventory()
+			get_viewport().set_input_as_handled()
+			return
+
+		if level and level.has_method("is_chat_visible") and level.is_chat_visible():
+			if level.has_method("toggle_chat"):
+				level.toggle_chat()
+			get_viewport().set_input_as_handled()
+			return
+
+		if is_building:
+			var controller := get_node_or_null("PlayerPlacementController") as PlayerPlacementController
+			if controller and controller.has_method("toggle_build_mode"):
+				controller.toggle_build_mode()
+			get_viewport().set_input_as_handled()
+			return
+
+		var in_game_menu := get_node_or_null("HUD/InGameMenu") as InGameMenu
+		if in_game_menu:
+			in_game_menu.toggle()
+		get_viewport().set_input_as_handled()
+		return
 	
 	# Block all combat actions if mouse is visible (UI is open)
 	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
@@ -213,47 +246,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			_perform_interaction()
 		get_viewport().set_input_as_handled()
 		return
-	
-	# Handle ESC / ui_cancel state stack
-	if not event.is_action_pressed("ui_cancel"):
-		return
-
-	var level := get_tree().get_current_scene()
-
-	# --- Condition 1: Crafting UI is open ---
-	if level and level.has_method("is_crafting_visible") and level.is_crafting_visible():
-		if level.has_method("toggle_crafting"):
-			level.toggle_crafting()
-		get_viewport().set_input_as_handled()
-		return
-
-	# --- Condition 2: Inventory UI is open ---
-	if level and level.has_method("is_inventory_visible") and level.is_inventory_visible():
-		if level.has_method("toggle_inventory"):
-			level.toggle_inventory()
-		get_viewport().set_input_as_handled()
-		return
-
-	# --- Condition 3: Chat is open ---
-	if level and level.has_method("is_chat_visible") and level.is_chat_visible():
-		if level.has_method("toggle_chat"):
-			level.toggle_chat()
-		get_viewport().set_input_as_handled()
-		return
-
-	# --- Condition 4: Build Mode is active ---
-	if is_building:
-		var controller := get_node_or_null("PlayerPlacementController") as PlayerPlacementController
-		if controller and controller.has_method("toggle_build_mode"):
-			controller.toggle_build_mode()
-		get_viewport().set_input_as_handled()
-		return
-
-	# --- Condition 5: No sub-menus open — toggle the in-game pause overlay ---
-	var in_game_menu := get_node_or_null("HUD/InGameMenu") as InGameMenu
-	if in_game_menu:
-		in_game_menu.toggle()
-	get_viewport().set_input_as_handled()
 
 func freeze():
 	velocity.x = 0
@@ -732,6 +724,11 @@ func _update_interaction_ui():
 		elif target is Character:
 			level.set_interaction_prompt("[Left-Click] Attack " + target.current_nick)
 	else:
+		level.set_interaction_prompt("")
+
+func clear_interaction_prompt() -> void:
+	var level = get_tree().current_scene
+	if level and level.has_method("set_interaction_prompt"):
 		level.set_interaction_prompt("")
 
 @rpc("any_peer", "call_local", "reliable")

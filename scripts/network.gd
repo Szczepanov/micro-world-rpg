@@ -7,7 +7,7 @@ const MAX_PLAYERS : int = 10
 var players = {}
 var player_info = {
 	"nick" : "host",
-	"skin" : Character.SkinColor.BLUE
+	"skin" : 0
 }
 var is_network_active: bool = true
 var pending_error_message: String = ""
@@ -117,8 +117,8 @@ func _get_local_player() -> Node:
 
 func skin_str_to_e(s):
 	match s.to_lower():
-		"blue": return Character.SkinColor.BLUE
-		"yellow": return Character.SkinColor.YELLOW
-		"green": return Character.SkinColor.GREEN
-		"red": return Character.SkinColor.RED
-		_: return Character.SkinColor.BLUE
+		"blue": return 0
+		"yellow": return 1
+		"green": return 2
+		"red": return 3
+		_: return 0

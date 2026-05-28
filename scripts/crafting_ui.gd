@@ -12,7 +12,7 @@ class_name CraftingUI
 @onready var ingredients_container: VBoxContainer = $Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel/IngredientsContainer
 @onready var craft_button: Button = $Panel/MarginContainer/VBoxContainer/ContentSplit/DetailPanel/CraftButton
 
-var current_player: Character = null
+var current_player: Node = null
 var selected_recipe_id: String = ""
 
 signal crafting_closed
@@ -26,7 +26,7 @@ func _ready() -> void:
 	# Explicitly set focus mode to NONE to prevent keyboard focus capture
 	focus_mode = Control.FOCUS_NONE
 
-func open_crafting(player: Character) -> void:
+func open_crafting(player: Node) -> void:
 	current_player = player
 	visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

@@ -48,22 +48,24 @@ func _setup_visuals() -> void:
 					child.collision_mask = 0
 
 func _on_body_entered(body: Node3D) -> void:
-	if body is Character and body.is_multiplayer_authority():
+	if body.has_method("is_multiplayer_authority") and body.is_multiplayer_authority() and "active_crafting_station" in body:
 		print("Player entered crafting zone of type: ", station_type)
 		body.active_crafting_station = self
 
 func _on_body_exited(body: Node3D) -> void:
-	if body is Character and body.is_multiplayer_authority():
+	if body.has_method("is_multiplayer_authority") and body.is_multiplayer_authority() and "active_crafting_station" in body:
+		print("Player exited crafting zone")
 		if body.active_crafting_station == self:
-			print("Player exited crafting zone")
 			body.active_crafting_station = null
-			
-			# Close crafting UI if it was open for this player
-			var level = get_tree().current_scene
-			if level and level.has_method("close_crafting_ui_if_open"):
-				level.close_crafting_ui_if_open()
+		if body.has_method("clear_interaction_prompt"):
+			body.clear_interaction_prompt()
+		
+		# Close crafting UI if it was open for this player
+		var level = get_tree().current_scene
+		if level and level.has_method("close_crafting_ui_if_open"):
+			level.close_crafting_ui_if_open()
 
-func open_crafting_ui(player: Character) -> void:
+func open_crafting_ui(player: Node) -> void:
 	var level = get_tree().current_scene
 	if level and level.has_method("toggle_crafting"):
 		level.toggle_crafting(self)

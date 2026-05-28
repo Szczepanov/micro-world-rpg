@@ -1,7 +1,7 @@
 extends Node
 class_name PlayerPlacementController
 
-var player: Character
+var player: Node
 var camera: Camera3D
 var raycast: RayCast3D
 var ghost_instance: Node3D = null
@@ -14,8 +14,8 @@ var valid_material: StandardMaterial3D
 var invalid_material: StandardMaterial3D
 
 func _ready() -> void:
-	player = get_parent() as Character
-	if not player:
+	player = get_parent()
+	if not player or not player.has_method("is_multiplayer_authority"):
 		push_error("PlayerPlacementController: Parent is not a Character")
 		set_physics_process(false)
 		return
