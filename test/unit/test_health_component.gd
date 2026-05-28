@@ -58,14 +58,10 @@ func test_health_changed_signal_carries_correct_values() -> void:
 	await get_tree().process_frame
 
 	# GUT records emissions as arrays of argument arrays.
-	# assert_signal_emitted_with_parameters checks the last emission.
-	# Note: GUT may compare floats with strict equality; ensure exact values match.
-	assert_signal_emitted_with_parameters(
-		_hc,
-		"health_changed",
-		[70.0, 100.0],
-		"health_changed(new_health, max_health) must carry [70.0, 100.0]"
-	)
+	# Use manual parameter extraction to bypass reflection issues.
+	var signal_args = get_signal_parameters(_hc, "health_changed", 0)
+	assert_eq(signal_args[0], 70.0, "Current health value must match")
+	assert_eq(signal_args[1], 100.0, "Max health value must match")
 
 
 # ── 4.4: Health cannot go below zero ─────────────────────────────────────────
