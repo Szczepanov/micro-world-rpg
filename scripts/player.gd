@@ -41,6 +41,7 @@ var interaction_area: Area3D = null
 @onready var _chest_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
 @onready var _face_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Face")
 @onready var _limbs_head_mesh: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head")
+@onready var animation_player: AnimationPlayer = _get_animation_player()
 
 var _current_speed: float
 var _respawn_point = Vector3(0, 5, 0)
@@ -59,8 +60,8 @@ func _ready():
 
 	print("Debug: Player ", name, " ready - authority: ", get_multiplayer_authority(), ", local client: ", local_client_id, ", is_local: ", is_local_player)
 
-	if _body and _body.animation_player:
-		_body.animation_player.animation_finished.connect(_on_animation_finished)
+	if animation_player:
+		animation_player.animation_finished.connect(_on_animation_finished)
 
 	_setup_input_actions()
 	_setup_interaction_area()
@@ -109,7 +110,10 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("jump") and not is_attacking:
 			velocity.y = JUMP_VELOCITY
 			can_double_jump = true
-			_body.play_jump_animation("Jump")
+			if _body and _body.has_method("play_jump_animation"):
+				_body.play_jump_animation("Jump")
+			else:
+				_play_anim("Jump")
 	else:
 		velocity.y -= gravity * delta
 
@@ -117,14 +121,17 @@ func _physics_process(delta):
 			velocity.y = JUMP_VELOCITY
 			has_double_jumped = true
 			can_double_jump = false
-			_body.play_jump_animation("Jump2")
+			if _body and _body.has_method("play_jump_animation"):
+				_body.play_jump_animation("Jump2")
+			else:
+				_play_anim("Jump2")
 
 	velocity.y -= gravity * delta
 
 	_move()
 	move_and_slide()
 	if not is_attacking:
-		_body.animate(velocity)
+		animate_locomotion(velocity)
 
 func _process(_delta):
 	if not is_multiplayer_authority(): return
@@ -136,7 +143,7 @@ func freeze():
 	velocity.z = 0
 	_current_speed = 0
 	if not is_attacking:
-		_body.animate(Vector3.ZERO)
+		animate_locomotion(Vector3.ZERO)
 
 func _move() -> void:
 	if is_attacking:
@@ -159,7 +166,7 @@ func _move() -> void:
 	if _direction:
 		velocity.x = _direction.x * _current_speed
 		velocity.z = _direction.z * _current_speed
-		_body.apply_rotation(velocity)
+		apply_locomotion_rotation(velocity)
 		return
 
 	velocity.x = move_toward(velocity.x, 0, _current_speed)
@@ -431,13 +438,12 @@ func _setup_health_replication():
 			config.property_set_replication_mode(dead_path, 1) # 1: REPLICATION_MODE_ALWAYS / CONTINUOUS
 
 func _on_animation_finished(anim_name: String):
-	if anim_name == "Attack1":
+	if anim_name == "Attack1" or anim_name == "Sword_Attack":
 		is_attacking = false
 
 func _perform_melee_attack(is_interact: bool):
 	is_attacking = true
-	if _body and _body.animation_player:
-		_body.animation_player.play("Attack1")
+	_play_anim("Attack1")
 		
 	# Fallback timer (1.3s) to prevent getting stuck if animation_finished fails to fire
 	get_tree().create_timer(1.3).timeout.connect(func():
@@ -548,8 +554,7 @@ func take_damage(amount: int, attacker: Character):
 
 @rpc("call_local", "reliable")
 func play_hurt_effect():
-	if _body and _body.animation_player:
-		_body.animation_player.play("Hurt")
+	_play_anim("Hurt")
 
 func die(attacker: Character):
 	if not multiplayer.is_server():
@@ -712,14 +717,10 @@ func find_texture_file(outfit_style: String) -> String:
 	return ""
 
 func load_local_mesh(part_name: String, outfit_style: String) -> void:
+	main_skeleton = _get_main_skeleton()
 	if not main_skeleton:
-		main_skeleton = get_node_or_null("UAL1_Standard/Skeleton3D")
-		if not main_skeleton:
-			main_skeleton = get_node_or_null("3DGodotRobot/RobotArmature/Skeleton3D")
-		
-		if not main_skeleton:
-			push_error("main_skeleton not set and cannot be auto-detected! Please assign it in the Inspector.")
-			return
+		push_error("main_skeleton not set and cannot be auto-detected! Please assign it in the Inspector.")
+		return
 
 	var gltf_path = find_gltf_file(part_name, outfit_style)
 	if gltf_path == "":
@@ -784,3 +785,183 @@ func load_local_mesh(part_name: String, outfit_style: String) -> void:
 					
 	temp_instance.queue_free()
 	print("Loaded modular part: ", part_name, " with style: ", outfit_style, " from: ", gltf_path)
+
+func _get_animation_player() -> AnimationPlayer:
+	if has_node("%AnimationPlayer"):
+		return get_node("%AnimationPlayer") as AnimationPlayer
+	var path_options = [
+		"ual1_standard/AnimationPlayer",
+		"UAL1_Standard/AnimationPlayer",
+		"3DGodotRobot/AnimationPlayer",
+		"3DGodotRobot/RobotArmature/AnimationPlayer"
+	]
+	for path in path_options:
+		var node = get_node_or_null(path)
+		if node and node is AnimationPlayer:
+			return node
+	if _body and "animation_player" in _body and _body.animation_player:
+		return _body.animation_player
+	return null
+
+func animate_locomotion(vel: Vector3) -> void:
+	if _body and _body.has_method("animate"):
+		_body.animate(vel)
+		return
+		
+	var anim_player = _get_animation_player()
+	if not anim_player:
+		return
+		
+	if not is_on_floor():
+		if vel.y < 0:
+			_play_anim("Fall")
+		else:
+			var current_anim = anim_player.current_animation
+			if current_anim != "Jump" and current_anim != "Jump_Start":
+				_play_anim("Jump")
+		return
+
+	if vel:
+		if is_running() and is_on_floor():
+			_play_anim("Sprint")
+			return
+
+		_play_anim("Run")
+		return
+
+	_play_anim("Idle")
+
+func apply_locomotion_rotation(vel: Vector3) -> void:
+	if _body:
+		if _body.has_method("apply_rotation"):
+			_body.apply_rotation(vel)
+		else:
+			var lerp_val = 0.15
+			var new_rotation_y = lerp_angle(_body.rotation.y, atan2(-vel.x, -vel.z), lerp_val)
+			_body.rotation.y = new_rotation_y
+
+func _play_anim(anim_name: String) -> void:
+	var anim_player_node = _get_animation_player()
+	if not anim_player_node:
+		return
+		
+	var target_anim = anim_name
+	
+	# Mapping table from Godot Robot animations to Quaternius UAL1_Standard animations
+	var mapping = {
+		"Run": "Jog_Fwd",
+		"Sprint": "Sprint",
+		"Idle": "Idle",
+		"Jump": "Jump",
+		"Jump2": "Jump",
+		"Fall": "Jump",  # Fallback since UAL1 has no Fall, we use Jump
+		"Attack1": "Sword_Attack",
+		"Hurt": "Hit_Chest"
+	}
+	
+	if mapping.has(anim_name):
+		target_anim = mapping[anim_name]
+		
+	if anim_player_node.has_animation(target_anim):
+		anim_player_node.play(target_anim)
+	elif anim_player_node.has_animation(anim_name):
+		anim_player_node.play(anim_name)
+	else:
+		push_warning("Animation not found: " + anim_name + " (mapped to: " + target_anim + ")")
+
+func _get_main_skeleton() -> Skeleton3D:
+	if main_skeleton:
+		return main_skeleton
+	if has_node("%Skeleton3D"):
+		return get_node("%Skeleton3D") as Skeleton3D
+	var path_options = [
+		"ual1_standard/Skeleton3D",
+		"UAL1_Standard/Skeleton3D",
+		"3DGodotRobot/RobotArmature/Skeleton3D"
+	]
+	for path in path_options:
+		var node = get_node_or_null(path)
+		if node and node is Skeleton3D:
+			return node
+	return null
+
+func _resolve_actual_path(path: String) -> String:
+	if FileAccess.file_exists(path):
+		return path
+		
+	# Try case variations or folder name corrections:
+	var corrected = path.replace(
+		"Modular character outfits - fantasy/Exports/glTF/Outfits/", 
+		"Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Outfits/"
+	)
+	if "Male_ranger.gltf" in corrected:
+		corrected = corrected.replace("Male_ranger.gltf", "Male_Ranger.gltf")
+		
+	if FileAccess.file_exists(corrected):
+		return corrected
+		
+	return path
+
+func set_character_model(gltf_path: String) -> void:
+	main_skeleton = _get_main_skeleton()
+	if not main_skeleton:
+		push_error("Cannot find main skeleton to attach model!")
+		return
+
+	# Resolve path (handles folder casing/naming mismatch)
+	var resolved_path = _resolve_actual_path(gltf_path)
+
+	# 1. Load the glTF scene
+	var scene = load(resolved_path)
+	if not scene:
+		push_error("Failed to load character model: " + resolved_path)
+		return
+		
+	# 2. Instance into memory
+	var temp_instance = scene.instantiate()
+	if not temp_instance:
+		push_error("Failed to instantiate character model: " + resolved_path)
+		return
+		
+	# Find any original skin resource to share
+	var base_skin: Skin = null
+	for child in main_skeleton.get_children():
+		if child is MeshInstance3D and child.skin:
+			base_skin = child.skin
+			break
+
+	# 6. Hide default placeholder meshes
+	for child in main_skeleton.get_children():
+		if child is MeshInstance3D:
+			# Hide existing meshes (e.g. default robot parts or ual1 default mesh)
+			child.visible = false
+			# Hide from name check
+			if child.name.begins_with("Part_"):
+				child.queue_free()
+
+	# 3. Locate MeshInstance3D nodes in the loaded asset
+	var new_meshes: Array[MeshInstance3D] = []
+	_find_meshes_recursive(temp_instance, new_meshes)
+	
+	if new_meshes.is_empty():
+		push_error("No MeshInstance3D found in character model: " + resolved_path)
+		temp_instance.queue_free()
+		return
+		
+	# 4. Parent meshes directly to our active Skeleton3D node
+	for i in range(new_meshes.size()):
+		var mesh_instance = new_meshes[i]
+		mesh_instance.get_parent().remove_child(mesh_instance)
+		main_skeleton.add_child(mesh_instance)
+		
+		# 5. Set skeleton path and share skin resource
+		mesh_instance.skeleton = NodePath("..")
+		mesh_instance.transform = Transform3D.IDENTITY
+		mesh_instance.owner = main_skeleton.owner
+		mesh_instance.visible = true
+		
+		if base_skin:
+			mesh_instance.skin = base_skin
+			
+	temp_instance.queue_free()
+	print("Successfully set character model to: ", resolved_path)

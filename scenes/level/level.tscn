@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" uid="uid://d0dgljwwl463n" path="res://scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://cffjduipbb3s5" path="res://scenes/level/player.tscn" id="1_uvcbi"]
@@ -18,37 +18,37 @@ size = Vector3(90, 0.05, 90)
 [sub_resource type="Environment" id="Environment_qb4jd"]
 fog_enabled = true
 
-[node name="Level" type="Node3D"]
+[node name="Level" type="Node3D" unique_id=994644817]
 script = ExtResource("1_e1sh7")
 player_scene = ExtResource("1_uvcbi")
 
-[node name="Environment" type="Node3D" parent="."]
+[node name="Environment" type="Node3D" parent="." unique_id=1508501438]
 
-[node name="Floor" type="StaticBody3D" parent="Environment"]
+[node name="Floor" type="StaticBody3D" parent="Environment" unique_id=360801157]
 collision_layer = 2
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Floor"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Floor" unique_id=935483736]
 mesh = SubResource("PlaneMesh_r5xs5")
 surface_material_override/0 = SubResource("StandardMaterial3D_o02aj")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Floor"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Floor" unique_id=1148700087]
 shape = SubResource("BoxShape3D_x3h1o")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment" unique_id=775385358]
 environment = SubResource("Environment_qb4jd")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment" unique_id=567134799]
 transform = Transform3D(1, 0, 0, 0, -0.5, 0.866025, 0, -0.866025, -0.5, 0, 4, 0)
 shadow_enabled = true
 shadow_blur = 0.5
 
-[node name="PlayersContainer" type="Node3D" parent="."]
+[node name="PlayersContainer" type="Node3D" parent="." unique_id=369040509]
 
-[node name="MainMenuUI" parent="." instance=ExtResource("6_x9g3h")]
+[node name="MainMenuUI" parent="." unique_id=840342401 instance=ExtResource("6_x9g3h")]
 visible = false
 
-[node name="MultiplayerChatUI" parent="." instance=ExtResource("5_x9g3h")]
+[node name="MultiplayerChatUI" parent="." unique_id=923167765 instance=ExtResource("5_x9g3h")]
 visible = false
 
-[node name="InventoryUI" parent="." instance=ExtResource("4_x8g2h")]
+[node name="InventoryUI" parent="." unique_id=1806843328 instance=ExtResource("4_x8g2h")]
 visible = false
