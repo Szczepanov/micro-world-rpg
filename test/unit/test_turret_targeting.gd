@@ -166,8 +166,8 @@ func test_dead_enemies_are_skipped() -> void:
 # ── 5.5: Entities NOT in Enemies group are ignored ────────────────────────────
 func test_non_enemy_group_nodes_are_ignored() -> void:
 	var prop := Node3D.new()       # No "Enemies" group
+	add_child_autofree(prop)  # Must be in tree BEFORE setting global_position
 	prop.global_position = Vector3(1.0, 0.0, 0.0)
-	_root.add_child(prop)
 	await get_tree().process_frame
 
 	_turret.set_overlapping_bodies([prop])
@@ -177,8 +177,6 @@ func test_non_enemy_group_nodes_are_ignored() -> void:
 		_turret.current_target,
 		"Nodes not in the 'Enemies' group must never be selected as targets"
 	)
-
-	prop.queue_free()
 
 
 # ── 5.6: All enemies dead → no target ────────────────────────────────────────

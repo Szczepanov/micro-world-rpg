@@ -8,6 +8,10 @@ var _hc: HealthComponent
 
 
 func before_each() -> void:
+	# Ensure multiplayer peer is initialized for server-authoritative tests
+	if multiplayer.multiplayer_peer == null:
+		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	
 	# autofree() registers the node for cleanup after each test.
 	_hc = autofree(HealthComponent.new())
 	# max_health defaults to 100.0 — verified in first test.
@@ -55,6 +59,7 @@ func test_health_changed_signal_carries_correct_values() -> void:
 
 	# GUT records emissions as arrays of argument arrays.
 	# assert_signal_emitted_with_parameters checks the last emission.
+	# Note: GUT may compare floats with strict equality; ensure exact values match.
 	assert_signal_emitted_with_parameters(
 		_hc,
 		"health_changed",

@@ -6,7 +6,8 @@ extends GutTest
 const PLAYER_SCENE_PATH: String = "res://scenes/level/player.tscn"
 
 # ── Inner class: lightweight crafting-station stub ───────────────────────────
-class MockCraftingStation extends Node3D:
+## NOTE: Must extend Area3D to match player.gd's active_crafting_station: Area3D type hint
+class MockCraftingStation extends Area3D:
 	var station_type: String = "Workbench"
 	func open_crafting_ui(_caller: Node) -> void:
 		pass
