@@ -48,6 +48,11 @@ echo "Godot: $(${GODOT_BIN} --version 2>/dev/null || echo 'unknown')"
 echo "Project: ${PROJECT_DIR}"
 echo "============================================"
 
+echo "Running import warm-up..."
+"${GODOT_BIN}" --headless --path "${PROJECT_DIR}" --import >/dev/null 2>&1 || true
+
+LOG_FILE="$(mktemp)"
+set +e
 "${GODOT_BIN}" \
 	--headless \
 	--path "${PROJECT_DIR}" \
@@ -56,9 +61,16 @@ echo "============================================"
 	-gprefix=test_ \
 	-gsuffix=.gd \
 	-glog=1 \
-	-gexit
+	-gexit 2>&1 | tee "${LOG_FILE}"
+EXIT_CODE=${PIPESTATUS[0]}
+set -e
 
-EXIT_CODE=$?
+if grep -Fq "Some GUT class_names have not been imported" "${LOG_FILE}"; then
+	echo "GUT import cache is not ready. Re-run after a successful headless import." >&2
+	EXIT_CODE=2
+fi
+
+rm -f "${LOG_FILE}"
 
 if [ "${EXIT_CODE}" -eq 0 ]; then
 	echo "All tests passed."
