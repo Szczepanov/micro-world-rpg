@@ -14,7 +14,7 @@ signal slot_clicked(slot_index: int, button: int)
 signal item_hovered(slot_index: int, item: Item)
 signal item_unhovered
 
-const RARITY_COLORS = {
+var RARITY_COLORS: Dictionary = {
 	Item.ItemRarity.COMMON: Color.WHITE,
 	Item.ItemRarity.UNCOMMON: Color.GREEN,
 	Item.ItemRarity.RARE: Color.BLUE,
