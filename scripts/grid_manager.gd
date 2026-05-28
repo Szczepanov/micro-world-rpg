@@ -87,7 +87,6 @@ func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
 		
 	var instance = scene.instantiate()
 	var target_world_pos = grid_to_world(grid_coords)
-	instance.global_position = target_world_pos
 	
 	# Set unique name so we don't have collisions and can find it easily
 	instance.name = "structure_" + str(grid_coords.x) + "_" + str(grid_coords.y) + "_" + str(grid_coords.z)
@@ -98,6 +97,7 @@ func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
 		parent_node = level_scene.get_node("Environment")
 		
 	parent_node.add_child(instance)
+	instance.global_position = target_world_pos
 	print("GridManager: Spawned structure %s at %s" % [structure_id, target_world_pos])
 
 @rpc("any_peer", "reliable")
