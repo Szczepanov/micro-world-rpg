@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://wave_spawner_001"]
+
+[ext_resource type="Script" path="res://scripts/wave_spawner.gd" id="1_wave"]
+
+[node name="WaveSpawner" type="Node3D"]
+script = ExtResource("1_wave")
+enemy_scene_path = "res://scenes/level/enemy.tscn"
+wave_size = 5
+spawn_cooldown = 1.5

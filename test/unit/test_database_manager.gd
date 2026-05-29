@@ -2,7 +2,7 @@
 ## GUT unit tests for DatabaseManager covering CRUD operations.
 ## Tests database initialization, player upsert/read, inventory flush/reload,
 ## and match_history INSERT with last_insert_rowid validation.
-extends gut_test
+extends GutTest
 
 var DatabaseManager: Node
 var test_db_path: String = "user://test_pocket_realms.db"
@@ -25,6 +25,12 @@ func before_each():
 	# Manually initialize the database (bypass multiplayer.is_server() guard)
 	DatabaseManager.call("_open_database")
 	DatabaseManager.call("_run_migrations")
+	DatabaseManager.set("_is_ready", true)
+	
+	# Register mock players in Network singleton for tests
+	Network.players[999] = {"nick": "TestPlayer123"}
+	Network.players[888] = {"nick": "InventoryTestPlayer"}
+	Network.players[777] = {"nick": "FlushTestPlayer"}
 	
 func after_each():
 	# Clean up the test database file
@@ -32,6 +38,9 @@ func after_each():
 		DatabaseManager.call("_notification", NOTIFICATION_PREDELETE)
 		DatabaseManager.queue_free()
 		await get_tree().process_frame
+		
+	# Clear Network players
+	Network.players.clear()
 	
 	# Delete the test database file
 	var test_db_global_path = ProjectSettings.globalize_path(test_db_path)

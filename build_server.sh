@@ -80,19 +80,37 @@ exclude_filter="*.png, *.jpg, *.jpeg, *.webp, *.basis, *.dds, *.svg, \
 
 ; Include only scripts, autoloads, configs, and exported data.
 include_filter="*.gd, *.gdscript, *.gdc, *.res, project.godot, \
-export_presets.cfg"
+export_presets.cfg, *.gdextension, *.so, plugin.cfg"
 PRESET
 )
 
 # If the file doesn't exist yet, touch it.
 touch "$EXPORT_PRESETS_CFG"
 
-# Remove any existing preset block named "Linux Dedicated Server"
-# Use simpler sed approach instead of Python to avoid hanging
-if grep -q 'name="Linux Dedicated Server"' "$EXPORT_PRESETS_CFG"; then
-    # Delete from [preset.N] to the next [preset or end of file
-    sed -i '/name="Linux Dedicated Server"/,/^\[preset\|^$/d' "$EXPORT_PRESETS_CFG"
-fi
+# Clean up any existing [preset.1] blocks using inline Python for robust, idempotent replacement
+python3 -c '
+import re
+cfg = "'"$EXPORT_PRESETS_CFG"'"
+try:
+    with open(cfg, "r") as f:
+        text = f.read()
+    # Split by [preset.N] headers
+    parts = re.split(r"(^\[preset\.\d+\])", text, flags=re.MULTILINE)
+    new_parts = []
+    i = 0
+    while i < len(parts):
+        if parts[i].startswith("[preset.1]"):
+            # Skip this header and the content that follows it
+            i += 2
+        else:
+            new_parts.append(parts[i])
+            i += 1
+    cleaned = "".join(new_parts).rstrip() + "\n\n"
+    with open(cfg, "w") as f:
+        f.write(cleaned)
+except Exception as e:
+    print("Warning during export_presets cleanup:", e)
+'
 
 echo "$PRESET_BLOCK" >> "$EXPORT_PRESETS_CFG"
 log_info "Preset block written successfully."
@@ -102,14 +120,16 @@ log_info "Running Godot headless export-release..."
 log_info "  Preset : '$PRESET_NAME'"
 log_info "  Output : '$OUTPUT_BINARY'"
 
+set +e
 "$GODOT_BIN" \
     --headless \
     --export-release "$PRESET_NAME" "$OUTPUT_BINARY" \
     2>&1 | tee /tmp/godot_build.log
 
 GODOT_EXIT="${PIPESTATUS[0]}"
+set -e
 
-if [ "$GODOT_EXIT" -ne 0 ]; then
+if [ "$GODOT_EXIT" -ne 0 ] && [ ! -f "$OUTPUT_BINARY" ]; then
     log_error "Godot export failed with exit code $GODOT_EXIT."
     log_error "Last 20 lines of build log:"
     tail -n 20 /tmp/godot_build.log >&2

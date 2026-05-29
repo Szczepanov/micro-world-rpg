@@ -34,8 +34,7 @@ func _on_core_died() -> void:
 
 		# match_duration_seconds requires a start_time tracked in level.gd.
 		# See §4.3 implementation note below.
-		var duration: int = get_node("/root/DatabaseManager") \
-								.get("_match_start_time_unix") if true else 0
+		var duration: int = get_node("/root/DatabaseManager").get("_match_start_time_unix")
 		duration = int(Time.get_unix_time_from_system()) - duration
 
 		get_node("/root/DatabaseManager").save_match_result(

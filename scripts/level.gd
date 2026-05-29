@@ -19,6 +19,7 @@ func _ready():
 
 	if DisplayServer.get_name() == "headless":
 		print("Dedicated server starting...")
+		get_tree().auto_accept_quit = false # CRITICAL: Prevents immediate termination on SIGTERM
 		Network.start_host("", "")
 		# Record match start epoch for duration calculation on match end.
 		if has_node("/root/DatabaseManager"):
@@ -154,7 +155,11 @@ func _on_host_pressed(nickname: String, skin: String):
 	teardown_multiplayer()
 	main_menu.hide_menu()
 	# Cursor will be captured by the spawned player's _ready()
-	Network.start_host(nickname, skin)
+	var error = Network.start_host(nickname, skin)
+	if error:
+		main_menu.show_error("Failed to start host (port " + str(Network.SERVER_PORT) + " may be in use).")
+		main_menu.show_menu()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _on_join_pressed(nickname: String, skin: String, address: String):
 	teardown_multiplayer()
@@ -321,14 +326,20 @@ func spawn_resources():
 func _setup_enemy_spawner() -> void:
 	if not multiplayer.is_server():
 		return
+	print("Debug: _setup_enemy_spawner() running on server")
 	var spawner: MultiplayerSpawner = get_node_or_null("EnemySpawner") as MultiplayerSpawner
 	if not spawner:
 		push_error("Level: EnemySpawner (MultiplayerSpawner) node is missing from level.tscn!")
 		return
-	# Register the enemy scene so the spawner can track it.
+	# Register the enemy scene so the spawner can track children that match it.
+	# Automatic Scene Mode: the spawner watches spawn_path for new children whose
+	# PackedScene matches an entry in spawnable_scenes. When WaveSpawner calls
+	# level.add_child(enemy, true), the spawner detects the match and replicates
+	# the node + its MultiplayerSynchronizer initial state to all clients.
+	# No spawn_function / custom callable is needed or configured.
 	spawner.add_spawnable_scene("res://scenes/level/enemy.tscn")
-	# Set the spawn path to the scene root (where WaveSpawner places enemies).
 	spawner.spawn_path = get_path()
+	print("Debug: EnemySpawner configured — Automatic Scene Mode, spawn_path=", spawner.spawn_path)
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
@@ -364,6 +375,7 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F2:
 		_debug_print_inventory()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F3:
+		print("Debug: F3 key pressed in level.gd _input")
 		_debug_start_wave()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_F4:
 		_debug_damage_base_heart()
@@ -487,17 +499,30 @@ func _debug_print_inventory():
 	else:
 		print("No inventory found for local player")
 
-# ---------- WAVE SPAWNER DEBUG (SERVER ONLY) ----------
+# ---------- WAVE SPAWNER DEBUG ----------
 func _debug_start_wave() -> void:
+	print("Debug: _debug_start_wave() called")
+	if multiplayer.is_server():
+		# Host/server: call directly
+		request_start_wave()
+	else:
+		# Client: send RPC to server
+		request_start_wave.rpc_id(1)
+
+@rpc("any_peer", "reliable")
+func request_start_wave() -> void:
+	print("Debug: request_start_wave() RPC received on server")
 	if not multiplayer.is_server():
-		print("Debug: Only the server can start a wave.")
+		print("Debug: Not server, returning")
 		return
 	var spawners := get_tree().get_nodes_in_group("Spawners")
+	print("Debug: Found ", spawners.size(), " spawners in group")
 	if spawners.is_empty():
 		print("Debug: No WaveSpawner nodes found in the scene. Add one via 'wave_spawner.tscn'.")
 		return
 	print("Debug: Starting next wave on ", spawners.size(), " spawner(s)...")
 	for spawner in spawners:
+		print("Debug: Calling start_next_wave on spawner: ", spawner.name)
 		if spawner.has_method("start_next_wave"):
 			spawner.start_next_wave()
 

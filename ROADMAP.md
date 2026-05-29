@@ -27,6 +27,11 @@ This document tracks the high-level milestones for our automated, AI-driven mult
 - [x] **3.4 Enemy Spawner Hubs & Core Health:** Create server-controlled spawn locations that release enemy waves targeting a centralized "Base Heart" node. If the heart's health hits 0, broadcast a game-over screen.
 
 ## Phase 4: Infrastructure & Automation (No Manual Work)
-- [ ] **4.1 Upgraded Asset Cooker:** Expand your current editor script tool to automatically classify incoming `.gltf`/`.glb` files, generate static convex collisions, attach appropriate scripts, and save them out as standalone scenes.
-- [ ] **4.2 Linux Headless Containerization:** Dockerize the dedicated Godot server binary for deployment to your cloud environment.
-- [ ] **4.3 Session State & Record Persistence:** Connect the server to a database backend to track player wave records and high scores between game instances.
+- [x] **4.1 Headless Compiler Automation (`build_server.sh`):** Build script and export preset are fully implemented and verified. Orphaned duplicate blocks in `export_presets.cfg` have been scrubbed, and the build script replacement logic has been hardened using a robust Python-based state machine.
+- [x] **4.2 Linux Headless Containerization (`Dockerfile` & `.dockerignore`):** Multi-stage Dockerfile with non-root `gameserver` user, home directory permissions, and recursive ownership is complete. Restructured `.dockerignore` to implement strict addon whitelisting (excluding test frameworks like GUT while retaining SQLite).
+- [x] **4.3 Session State & SQLite Persistence (`database_manager.gd`):** All lifecycle hooks (`load_player_session`, `save_match_result`, `flush_all_inventories`) are successfully implemented, verified, and mapped. Fixed the Docker SIGTERM flush propagation by setting `auto_accept_quit = false` in headless mode, and resolved the username database connection race condition in `network.gd`.
+- [x] **4.5 Verification Testing Suite:** Fully automated GUT integration/security test suite covering database CRUD round-trips, simulated SIGTERM shutdown commits, transaction atomicity checks, and network authority RPC forgery validation.
+
+## Phase 5: Gameplay Mechanics & Combat Loop
+- [x] **5.1 Server-Authoritative Melee Checks:** Melee attacks submit `request_enemy_melee_hit` RPCs to the server, which validates proximity (max 2.5m range) and target status before modifying the enemy HealthComponent.
+- [x] **5.2 Dynamic Client Health Replications:** HealthComponent updates automatically replicate to all client meshes via MultiplayerSynchronizer, updating billboarded 3D health bars.

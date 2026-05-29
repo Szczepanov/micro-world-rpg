@@ -19,15 +19,15 @@ height = 1.4
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_enemy"]
 albedo_color = Color(0.80, 0.10, 0.10, 1)
 emission_enabled = true
-emission = Color(0.60, 0.05, 0.05)
+emission = Color(0.60, 0.05, 0.05, 1.0)
 emission_energy_multiplier = 1.2
 roughness = 0.6
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_enemy"]
-properties/0/path = NodePath(".:position")
+properties/0/path = NodePath(".:global_position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
-properties/1/path = NodePath(".:rotation")
+properties/1/path = NodePath(".:global_rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
 
@@ -36,9 +36,9 @@ size = Vector3(0.6, 0.07, 0.01)
 
 [sub_resource type="StandardMaterial3D" id="HealthBarBG"]
 albedo_color = Color(0.15, 0.15, 0.15, 0.85)
-transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+transparency = 1
 no_depth_test = true
-shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+shading_mode = 0
 
 [sub_resource type="BoxMesh" id="BoxMesh_hpfg"]
 size = Vector3(0.6, 0.07, 0.01)
@@ -46,7 +46,7 @@ size = Vector3(0.6, 0.07, 0.01)
 [sub_resource type="StandardMaterial3D" id="HealthBarFG"]
 albedo_color = Color(0.20, 0.85, 0.25, 1.0)
 no_depth_test = true
-shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+shading_mode = 0
 
 [node name="Enemy" type="CharacterBody3D"]
 collision_layer = 8

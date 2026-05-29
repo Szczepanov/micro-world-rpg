@@ -1,25 +1,28 @@
-.git
-.gitignore
-.godot/
-*.log
-Dockerfile
-.dockerignore
-implementation_plan.md
-task.md
-walkthrough.md
+# =============================================================================
+# Pocket Realms — Docker Build Exclusions Configuration
+# =============================================================================
 
-# ADD — exclude raw source from the build context (binary-only pattern):
+# ---- 1. Core Git & Local Cache Cavities ----
+.git
+.godot/
+scratch/
+*.log
+
+# ---- 2. Raw Asset Folders ----
 assets/
 scenes/
 scripts/
-addons/
+
+# ---- 3. Testing Frameworks ----
 test/
-scratch/
-*.md
-*.sh
-*.png
-*.gd
-*.tscn
-*.tres
-project.godot
-export_presets.cfg
+
+# ---- 4. Third-Party Extensions Defaults ----
+addons/
+
+# ---- 5. Surgical Whitelist for Database Drivers ----
+!addons/godot-sqlite/
+!addons/godot-sqlite/godot-sqlite.gd
+!addons/godot-sqlite/plugin.cfg
+!addons/godot-sqlite/gdsqlite.gdextension
+!addons/godot-sqlite/bin/
+!addons/godot-sqlite/bin/*linux*.so

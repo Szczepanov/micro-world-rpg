@@ -69,10 +69,6 @@ func _on_connected_ok():
 
 func _on_player_connected(id):
 	if DisplayServer.get_name() == "headless":
-		# Server received a new peer — load their session from the DB.
-		var username: String = players.get(id, {}).get("nick", "Player_%d" % id)
-		if has_node("/root/DatabaseManager"):
-			get_node("/root/DatabaseManager").load_player_session(id, username)
 		return
 	_register_player.rpc_id(id, player_info)
 
@@ -81,6 +77,11 @@ func _register_player(new_player_info):
 	var new_player_id = multiplayer.get_remote_sender_id()
 	players[new_player_id] = new_player_info
 	player_connected.emit(new_player_id, new_player_info)
+
+	if DisplayServer.get_name() == "headless":
+		var username: String = new_player_info.get("nick", "Player_%d" % new_player_id)
+		if has_node("/root/DatabaseManager"):
+			get_node("/root/DatabaseManager").load_player_session(new_player_id, username)
 
 func _on_player_disconnected(id):
 	players.erase(id)

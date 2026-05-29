@@ -26,17 +26,29 @@ var _death_triggered: bool = false
 const GRAVITY: float = 9.8
 
 func _ready() -> void:
-	# Ensure group membership is set (WaveSpawner also sets this before add_child,
-	# but we add it here as a failsafe for manual scene placement).
+	# Group membership is a failsafe for manual scene placement.
+	# WaveSpawner also calls add_to_group("Enemies") after add_child().
 	add_to_group("Enemies")
 
+	_ensure_health_bar()
+
 	if not multiplayer.is_server():
-		# Clients only need position sync; disable all gameplay logic.
+		# Clients: position/rotation are replicated by MultiplayerSynchronizer.
+		# All gameplay logic is server-authoritative; disable it here.
 		set_physics_process(false)
 		set_process(false)
 		return
 
-	# --- Server-only setup ---
+func _ensure_health_bar() -> void:
+	if not has_node("HealthBar3D"):
+		var builder = load("res://scripts/enemy_health_bar_builder.gd")
+		if builder:
+			builder.build_for(self)
+
+	# --- Server-only initialisation (replaces spawn_data_handler) ---
+	# global_position is already set by WaveSpawner before add_child(),
+	# so no position assignment is needed here.
+
 	if health_component:
 		health_component.died.connect(_on_died)
 
@@ -46,11 +58,10 @@ func _ready() -> void:
 		attack_timer.timeout.connect(_on_attack_timer_timeout)
 		attack_timer.start()
 
-	# Hook up the NavigationAgent path-changed callback (Godot 4.x).
+	# Hook up the NavigationAgent avoidance callback (Godot 4.x).
 	nav_agent.velocity_computed.connect(_on_velocity_computed)
 
-	# Defer the target assignment so NavigationServer has had one frame to
-	# register the agent before we request a path.
+	# Defer so NavigationServer registers the agent before path is requested.
 	call_deferred("_assign_pathfinding_target")
 
 # ---------- Pathfinding Target Hook ----------
@@ -58,7 +69,14 @@ func _ready() -> void:
 func _assign_pathfinding_target() -> void:
 	var objectives := get_tree().get_nodes_in_group("Objective")
 	if objectives.is_empty():
-		push_warning("Enemy: No node found in group 'Objective'. Enemy will not navigate.")
+		push_warning("Enemy: No node found in group 'Objective'. Retrying in 0.5s.")
+		var retry_timer := Timer.new()
+		retry_timer.name = "ObjectiveRetryTimer"
+		retry_timer.wait_time = 0.5
+		retry_timer.one_shot = true
+		add_child(retry_timer)
+		retry_timer.timeout.connect(_assign_pathfinding_target)
+		retry_timer.start()
 		return
 
 	_target_node = objectives[0] as Node3D

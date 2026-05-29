@@ -41,7 +41,11 @@ COPY --from=runtime-deps /etc/ca-certificates/ /etc/ca-certificates/
 
 # Create a non-root service user for security hardening.
 RUN groupadd --system gameserver && \
-    useradd --system --gid gameserver --no-create-home gameserver
+    useradd --system --create-home --home-dir /home/gameserver --gid gameserver gameserver
+
+# Ensure permissions are recursively applied across both app and home areas
+RUN mkdir -p /app /home/gameserver && \
+    chown -R gameserver:gameserver /app /home/gameserver
 
 WORKDIR /app
 
@@ -49,6 +53,10 @@ WORKDIR /app
 # Both files MUST be in the same directory (Godot resolves PCK by proximity).
 COPY build/server/server.x86_64 ./server.x86_64
 COPY build/server/server.pck    ./server.pck
+
+# Copy the GDExtension files for the SQLite database driver.
+# These are referenced from res://addons/godot-sqlite/ and must be available at runtime.
+COPY addons/godot-sqlite/ ./addons/godot-sqlite/
 
 # Ensure the binary is executable (build_server.sh already does this,
 # but Docker COPY strips the setuid bit — re-apply explicitly).

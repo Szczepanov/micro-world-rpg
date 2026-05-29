@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://bx7mq8t8hjn7q" path="res://scenes/ui/main_menu_ui.tscn" id="6_x9g3h"]
 [ext_resource type="PackedScene" path="res://scenes/ui/crafting_ui.tscn" id="7_craft_ui"]
 [ext_resource type="Script" path="res://scripts/navigation_grid_updater.gd" id="8_updater"]
+[ext_resource type="PackedScene" uid="uid://wave_spawner_001" path="res://scenes/level/wave_spawner.tscn" id="9_spawner"]
+[ext_resource type="PackedScene" uid="uid://base_heart_001" path="res://scenes/level/base_heart.tscn" id="10_bheart"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_r5xs5"]
 size = Vector2(90, 90)
@@ -47,8 +49,13 @@ shadow_blur = 0.5
 
 [node name="PlayersContainer" type="Node3D" parent="." unique_id=369040509]
 
+[node name="WaveSpawner" parent="." instance=ExtResource("9_spawner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10)
+
+[node name="BaseHeart" parent="." instance=ExtResource("10_bheart")]
+
 [node name="EnemySpawner" type="MultiplayerSpawner" parent="."]
-spawn_path = NodePath("..")
+spawn_path = NodePath(".")
 auto_spawning = false
 
 [node name="MainMenuUI" parent="." unique_id=840342401 instance=ExtResource("6_x9g3h")]

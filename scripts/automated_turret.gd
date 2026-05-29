@@ -20,7 +20,9 @@ func _ready() -> void:
 	
 	if not turret_head:
 		# Fallback to direct path search if unique name flag was stripped
-		turret_head = get_node_or_null("TurretHead") or get_node_or_null("MeshInstance3D")
+		turret_head = get_node_or_null("TurretHead")
+		if not turret_head:
+			turret_head = get_node_or_null("MeshInstance3D")
 		if not turret_head:
 			push_error("AutomatedTurret: Rotating head assembly node could not be resolved!")
 	

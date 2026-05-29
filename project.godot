@@ -28,14 +28,14 @@ ItemDatabase="*res://scripts/item_database.gd"
 GridManager="*res://scripts/grid_manager.gd"
 DatabaseManager="*res://scripts/database_manager.gd"
 
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/gut/plugin.cfg")
-
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [input]
 

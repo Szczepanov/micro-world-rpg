@@ -19,7 +19,7 @@ extends Node
 
 # ---------- Constants --------------------------------------------------------
 
-const DB_PATH: String = "user://pocket_realms.db"
+var DB_PATH: String = "user://pocket_realms.db"
 const SCHEMA_VERSION: int = 1
 
 # ---------- State ------------------------------------------------------------

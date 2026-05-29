@@ -1,19 +1,17 @@
-# AI Agent Development Guidelines & System Context
+# Pocket Realms — AI Agent Operational Guidelines
 
-You are an expert Godot 4 (GDScript) game development agent for a multiplayer action-RPG.
+## 🛑 1. Core Architectural Constraints & Guardrails
+- **Strict Static Typing:** All GDScript modifications must implement explicit static typing (e.g., `var id: int = 0`, `func _ready() -> void:`). Untyped variables, unmapped functions, or dynamic variant slip-ups are strict failure states.
+- **No Manual Editor Scene Work:** All scene adjustments, node wiring, and reference routing must occur programmatically in `_ready()` using explicit code hooks (`add_child()`, `get_node_or_null()`). Agents must never assume an operator will manually adjust `.tscn` configurations via the Godot editor interface.
+- **RPC Validation Mandate:** No player client-facing RPC handlers can use raw, un-vetted parameters. Every `@rpc("any_peer")` entrypoint must execute an immediate sender identity verification pass check against `get_multiplayer_authority()` and enforce spatial proximity checks or state layer verification before executing changes on the server simulation.
+- **Idempotent Config Intercepts:** Any python or shell utility script designed to edit system configuration variables (like `export_presets.cfg`) must use state-aware pattern matching to overwrite targets cleanly, completely stripping out matching duplicate or orphaned headers.
 
-## 1. Core Architecture Rules
-- **Multiplayer Paradigm:** Server-authoritative with client prediction. Gameplay actions, inventory state mutations, and harvesting checks MUST be validated on the server via secure RPCs.
-- **RPC Syntax:** Use Godot 4.x high-level multiplayer notation (`@rpc("any_peer")`, `@rpc("call_local")`). Never use deprecated Godot 3.x networking syntax.
-- **Scene Referencing:** Prefer Godot 4 Scene Unique Names (`%NodeName`) over fragile hardcoded paths (`$Path/To/Node`) to protect code from breaking when scenes are rearranged.
+## 🛠️ 2. Repository Framework Fingerprints
+- **Core Autoload Singletons:** Registered in `project.godot` exactly as: `Network`, `ItemDatabase`, `GridManager`, `DatabaseManager`.
+- **Exclusion Safeguards:** Banned runtime footprints (`.godot/` cache layers, local testing `.db` binaries, and `build/` files) are strictly isolated via our standardized `.gitignore` and `.dockerignore`. Never attempt to track, stage, or modify these file categories.
+- **Test Framework:** Driven strictly headlessly via the GUT module. All tests are located inside `test/unit/`.
 
-## 2. Directory Structure & Ground Truth
-- **Player Scene:** Located at `res://scenes/level/player.tscn`
-- **Animation Base:** `res://assets/characters/animations/ual1_standard.glb` (Contains the active Skeleton3D and AnimationPlayer).
-- **Modular Outfits:** `res://assets/Modular character outfits - fantasy/Exports/glTF/Outfits/`
-- **Environment Packs:** `res://assets/models/environment/`
-
-## 3. Implementation Conventions
-- **Mesh Swapping:** To change character visuals, do NOT remove the base animation node. Instead, load the target `.gltf` piece dynamically, parent it to `%Skeleton3D`, and map its skin and skeleton paths to share the humanoid animation rig tracks.
-- **Performance:** Avoid embedding heavy binary subresources in text-based `.tscn` files. Save heavy data externally as binary `.res` objects to keep git diffs scannable.
-- **Code Style:** Write clean, typed GDScript (e.g., `func load_mesh(path: String) -> void:`). Avoid monolithic scripts; separate mechanics into isolated, modular component nodes.
+## 📉 3. Token-Saving & Budget Optimization Rules
+- **Surgical Workspace Evaluation:** Read only the files explicitly requested by the operator or tied directly to the current implementation task. Do NOT recursively inspect binary files or scan raw resource asset directories.
+- **Diff-Only Output Mappings:** When presenting structural or logic code modifications, output ONLY the modified code segments, precise functions, or unified diff fragments. Never waste token budget reproducing massive blocks of unchanged source lines.
+- **Local Verification Requirement:** Before declaring any task, script, or bug fix complete, you must locally run `./run_tests.sh` inside the environment and ensure that the full automated test matrix executes completely free of failures.
