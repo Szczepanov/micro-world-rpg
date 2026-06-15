@@ -102,6 +102,16 @@ func _transition_to_day() -> void:
 	phase_changed.emit(false, current_wave)
 
 
+func skip_to_next_phase() -> void:
+	## Debug: Immediately skip to the next phase (server-only).
+	if not multiplayer.is_server():
+		return
+	if is_night:
+		_transition_to_day()
+	else:
+		_transition_to_night()
+
+
 func _trigger_wave_start() -> void:
 	## Calls SpawnerHub.start_wave(current_wave) equivalent via group iteration.
 	var spawners: Array[Node] = get_tree().get_nodes_in_group("Spawners")

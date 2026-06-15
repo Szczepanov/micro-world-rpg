@@ -17,6 +17,7 @@ var connection_status_label: Label
 
 var _phase_banner_panel: Panel
 var _phase_banner_label: Label
+var _phase_timer_label: Label
 var _time_manager: Node
 
 func _ready():
@@ -313,7 +314,7 @@ func _setup_phase_banner_ui() -> void:
 	_phase_banner_panel.name = "PhaseBannerPanel"
 	_phase_banner_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	_phase_banner_panel.offset_top = 10
-	_phase_banner_panel.offset_bottom = 50
+	_phase_banner_panel.offset_bottom = 80  # Extended to fit timer
 	_phase_banner_panel.offset_left = 100
 	_phase_banner_panel.offset_right = -100
 
@@ -325,14 +326,30 @@ func _setup_phase_banner_ui() -> void:
 	_phase_banner_label.name = "PhaseBannerLabel"
 	_phase_banner_label.text = "DAYTIME: PREPARE & BUILD"
 	_phase_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_phase_banner_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_phase_banner_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_phase_banner_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_phase_banner_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_phase_banner_label.offset_top = 5
+	_phase_banner_label.offset_bottom = 30
 	_phase_banner_label.add_theme_font_size_override("font_size", 20)
 	_phase_banner_label.add_theme_color_override("font_color", Color.WHITE)
 	_phase_banner_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_phase_banner_label.add_theme_constant_override("outline_size", 4)
 
+	_phase_timer_label = Label.new()
+	_phase_timer_label.name = "PhaseTimerLabel"
+	_phase_timer_label.text = "03:00"
+	_phase_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_phase_timer_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_phase_timer_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_phase_timer_label.offset_top = 35
+	_phase_timer_label.offset_bottom = 65
+	_phase_timer_label.add_theme_font_size_override("font_size", 24)
+	_phase_timer_label.add_theme_color_override("font_color", Color.YELLOW)
+	_phase_timer_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_phase_timer_label.add_theme_constant_override("outline_size", 6)
+
 	_phase_banner_panel.add_child(_phase_banner_label)
+	_phase_banner_panel.add_child(_phase_timer_label)
 	canvas.add_child(_phase_banner_panel)
 	add_child(canvas)
 
@@ -366,10 +383,19 @@ func _on_phase_changed(is_night_phase: bool, _wave_number: int) -> void:
 
 	_phase_banner_panel.add_theme_stylebox_override("panel", panel_style)
 
-func _on_phase_time_updated(_phase_time: float, _max_time: float, _is_night_phase: bool) -> void:
-	# Optional: Update countdown timer display
-	# Current implementation uses static phase banner text
-	pass
+func _on_phase_time_updated(phase_time: float, max_time: float, _is_night_phase: bool) -> void:
+	if not _phase_timer_label:
+		return
+	var time_remaining: float = max(0.0, max_time - phase_time)
+	var minutes: int = int(time_remaining / 60.0)
+	var seconds: int = int(time_remaining) % 60
+	_phase_timer_label.text = "%02d:%02d" % [minutes, seconds]
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug_skip_phase"):
+		if _time_manager and multiplayer.is_server():
+			print("Debug: Manually skipping to next phase")
+			_time_manager.skip_to_next_phase()
 
 func set_interaction_prompt(prompt_text: String):
 	if interaction_prompt:
