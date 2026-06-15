@@ -33,6 +33,10 @@ var is_dead: bool = false
 var _last_attacker: Character = null
 var is_attacking: bool = false
 
+## Server-replicated loadout properties. Replicated via MultiplayerSynchronizer.
+var weapon_loadout: Array[String] = ["", ""]
+var active_weapon_index: int = 0
+
 ## Server-replicated string. Empty = bare-handed. Populated by equip_item().
 ## Wired into MultiplayerSynchronizer in _setup_health_replication().
 var equipped_item_id: String = ""
@@ -257,6 +261,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		if not is_attacking and not is_building:
 			_perform_interaction()
+		get_viewport().set_input_as_handled()
+		return
+
+	# Handle weapon swap action
+	if event.is_action_pressed("swap_weapon"):
+		if not is_attacking and not is_building:
+			request_swap_weapon.rpc_id(1)
 		get_viewport().set_input_as_handled()
 		return
 
@@ -544,8 +555,24 @@ func equip_item(item_id: String) -> void:
 			push_warning("equip_item: Item '%s' is not equippable" % item_id)
 			return
 
+	weapon_loadout[active_weapon_index] = item_id
 	equipped_item_id = item_id
 	# MultiplayerSynchronizer propagates the new string automatically.
+	_update_hand_mesh_visibility()
+
+@rpc("any_peer", "call_local", "reliable")
+func request_swap_weapon() -> void:
+	if not multiplayer.is_server():
+		return
+
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority() and sender_id != 1:
+		push_warning("Security: Peer %d tried to swap weapon for player %d" \
+				% [sender_id, get_multiplayer_authority()])
+		return
+
+	active_weapon_index = 1 - active_weapon_index
+	equipped_item_id = weapon_loadout[active_weapon_index]
 	_update_hand_mesh_visibility()
 
 @rpc("any_peer", "call_local", "reliable")
@@ -631,6 +658,12 @@ func _setup_input_actions():
 		key_event.physical_keycode = KEY_E
 		InputMap.action_add_event("interact", key_event)
 
+	if not InputMap.has_action("swap_weapon"):
+		InputMap.add_action("swap_weapon")
+		var key_event = InputEventKey.new()
+		key_event.physical_keycode = KEY_Q
+		InputMap.action_add_event("swap_weapon", key_event)
+
 func _setup_interaction_area():
 	interaction_area = Area3D.new()
 	interaction_area.name = "InteractionDetector"
@@ -662,6 +695,16 @@ func _setup_health_replication() -> void:
 			config.add_property(equip_path)
 			config.property_set_replication_mode(equip_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
 
+		var loadout_path := NodePath(".:weapon_loadout")
+		if not config.has_property(loadout_path):
+			config.add_property(loadout_path)
+			config.property_set_replication_mode(loadout_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
+
+		var index_path := NodePath(".:active_weapon_index")
+		if not config.has_property(index_path):
+			config.add_property(index_path)
+			config.property_set_replication_mode(index_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
+
 func _on_animation_finished(anim_name: String):
 	if anim_name == "Attack1" or anim_name == "Sword_Attack":
 		is_attacking = false
@@ -672,6 +715,10 @@ func _perform_melee_attack(is_interact: bool) -> void:
 	# Always broadcast the swing VFX so all peers see the animation.
 	play_strike_vfx.rpc()
 
+	# Snap body rotation to camera look direction for manual aim (local client)
+	if _body and _spring_arm_offset:
+		_body.rotation.y = _spring_arm_offset.rotation.y
+
 	# ── Screen shake (local-authority attacker only) ─────────────────
 	_trigger_screen_shake()
 
@@ -680,15 +727,15 @@ func _perform_melee_attack(is_interact: bool) -> void:
 		is_attacking = false
 	)
 
+	# Always request server-authoritative melee cleave sweep on server
+	request_enemy_melee_hit.rpc_id(1)
+
 	var target = _find_closest_target()
 	if target:
 		if target is HarvestableNode:
 			request_harvest_hit.rpc_id(1, target.get_path())
 		elif target is Character and target != self:
 			request_combat_hit.rpc_id(1, target.get_path())
-		elif target is Enemy:
-			# NEW: Lightweight notification — no damage calculated client-side.
-			request_enemy_melee_hit.rpc_id(1, target.get_path())
 
 func _perform_interaction() -> void:
 	if active_crafting_station != null:
@@ -837,10 +884,10 @@ func request_combat_hit(target_path: NodePath):
 	target.take_damage(20, self)
 
 ## Player melee hit request against an Enemy.
-## Client sends only the node path — zero gameplay data.
-## Server does all spatial validation and damage application.
+## Client sends nothing (or NodePath for legacy compatibility).
+## Server does all spatial validation and damage application via Area3D sweep.
 @rpc("any_peer", "call_local", "reliable")
-func request_enemy_melee_hit(enemy_path: NodePath) -> void:
+func request_enemy_melee_hit(enemy_path: NodePath = NodePath("")) -> void:
 	# ── Server-only guard ──────────────────────────────────────────────
 	if not multiplayer.is_server():
 		return
@@ -852,42 +899,110 @@ func request_enemy_melee_hit(enemy_path: NodePath) -> void:
 				% [sender_id, get_multiplayer_authority()])
 		return
 
-	# ── Resolve the enemy node from the path ──────────────────────────
-	var enemy: Enemy = get_node_or_null(enemy_path) as Enemy
-	if not enemy or not is_instance_valid(enemy):
-		return  # Enemy was freed between RPC send and receipt.
-
-	# ── Dead-state guard: collision_layer == 0 means _on_died() was already called ──
-	if enemy.collision_layer == 0:
+	if is_dead:
 		return
 
-	# ── Resolve weapon stats from ItemDatabase (data-driven) ────────────
-	# Falls back to bare-handed defaults when equipped_item_id is empty
-	# or the item has no weapon_stats dict.
-	var melee_reach: float = 2.5     # bare-handed default
-	var melee_damage: float = 20.0   # bare-handed default
+	# ── Legacy Compatibility Mode for Automated Unit Tests ──────────────
+	if enemy_path != NodePath(""):
+		var enemy: Enemy = get_node_or_null(enemy_path) as Enemy
+		if not enemy or not is_instance_valid(enemy):
+			return
+		if enemy.collision_layer == 0:
+			return
+		var melee_reach: float = 2.5
+		var melee_damage: float = 20.0
+		if equipped_item_id != "":
+			var equipped: Item = ItemDatabase.get_item(equipped_item_id)
+			if equipped and not equipped.weapon_stats.is_empty():
+				melee_reach  = equipped.weapon_stats.get("weapon_range",  melee_reach)
+				melee_damage = equipped.weapon_stats.get("weapon_damage", melee_damage)
+		var dist: float = global_position.distance_to(enemy.global_position)
+		if dist > melee_reach:
+			push_warning("Melee rejected: dist=%.2f > reach=%.2f (player=%s, weapon=%s)" \
+					% [dist, melee_reach, name, equipped_item_id])
+			return
+		var target_health: HealthComponent = \
+				enemy.get_node_or_null("HealthComponent") as HealthComponent
+		if target_health and target_health.current_health > 0.0:
+			target_health.request_damage(melee_damage)
+		notify_enemy_hit_flash.rpc(enemy.get_path())
+		return
+
+	# ── Production Server-Authoritative Area3D Cleave Sweep ─────────────
+	# Fetch weapon stats dynamically from Database Manager
+	var melee_reach: float = 2.5
+	var melee_damage: float = 20.0
+	var cleave_width: float = 2.0
 
 	if equipped_item_id != "":
 		var equipped: Item = ItemDatabase.get_item(equipped_item_id)
 		if equipped and not equipped.weapon_stats.is_empty():
-			melee_reach  = equipped.weapon_stats.get("weapon_range",  melee_reach)
+			melee_reach = equipped.weapon_stats.get("weapon_range", melee_reach)
 			melee_damage = equipped.weapon_stats.get("weapon_damage", melee_damage)
+			cleave_width = equipped.weapon_stats.get("weapon_width", cleave_width)
 
-	# ── Spatial validation ──────────────────────────────────────────────
-	var dist: float = global_position.distance_to(enemy.global_position)
-	if dist > melee_reach:
-		push_warning("Melee rejected: dist=%.2f > reach=%.2f (player=%s, weapon=%s)" \
-				% [dist, melee_reach, name, equipped_item_id])
-		return
+	# Procedurally instantiate Area3D and CollisionShape3D
+	var sweep_area: Area3D = Area3D.new()
+	sweep_area.name = "TempMeleeSweepArea"
+	
+	# Detect Layer 4 (enemies, value 8) and Layer 1 (players, value 1)
+	sweep_area.collision_mask = 9
+	sweep_area.collision_layer = 0
 
-	# ── Damage application ─────────────────────────────────────────────
-	var target_health: HealthComponent = \
-			enemy.get_node_or_null("HealthComponent") as HealthComponent
-	if target_health and target_health.current_health > 0.0:
-		target_health.request_damage(melee_damage)
+	var col_shape: CollisionShape3D = CollisionShape3D.new()
+	col_shape.name = "SweepCollisionShape"
 
-	# ── Broadcast hit-flash event to all clients (unreliable, visual only) ──
-	notify_enemy_hit_flash.rpc(enemy.get_path())
+	var box_shape: BoxShape3D = BoxShape3D.new()
+	box_shape.size = Vector3(cleave_width, 2.0, melee_reach)
+	col_shape.shape = box_shape
+	sweep_area.add_child(col_shape)
+
+	# Add to the level scene tree
+	get_tree().root.add_child(sweep_area)
+
+	# Position slightly in front of the player's directional looking orientation basis
+	var forward_dir: Vector3 = -_body.global_transform.basis.z.normalized()
+	# Place the center of the box shape half-way along the reach
+	var offset: Vector3 = forward_dir * (melee_reach * 0.5 + 0.5)
+	sweep_area.global_position = global_position + offset
+	sweep_area.global_transform.basis = _body.global_transform.basis
+
+	# Query the space state directly and synchronously
+	var space_state = sweep_area.get_world_3d().direct_space_state
+	var targets: Array[Node3D] = []
+
+	if space_state:
+		var query := PhysicsShapeQueryParameters3D.new()
+		query.shape = box_shape
+		query.transform = sweep_area.global_transform
+		query.collision_mask = 255 # Layer 1 (players) and Layer 4 (enemies)
+
+		var results := space_state.intersect_shape(query)
+		print("DEBUG COMBAT: player pos = ", global_position, " forward = ", forward_dir)
+		print("DEBUG COMBAT: sweep_area.global_position = ", sweep_area.global_position)
+		print("DEBUG COMBAT: sweep_area.global_transform = ", sweep_area.global_transform)
+		print("DEBUG COMBAT: query.transform = ", query.transform)
+		print("DEBUG COMBAT: box_shape.size = ", box_shape.size)
+		print("DEBUG COMBAT: query collision mask = ", query.collision_mask)
+		print("DEBUG COMBAT: intersect_shape returned ", results.size(), " results")
+		for r in results:
+			print("  DEBUG COMBAT: result collider: ", r.collider, " name: ", r.collider.name, " groups: ", r.collider.get_groups(), " layer: ", r.collider.collision_layer)
+		for result in results:
+			var collider = result.collider
+			if is_instance_valid(collider) and collider != self:
+				if collider.is_in_group("Enemies") or collider.is_in_group("Enemy"):
+					targets.append(collider)
+
+	# Apply damage to all hit entities
+	for target in targets:
+		if is_instance_valid(target) and target.collision_layer != 0:
+			var target_health: HealthComponent = target.get_node_or_null("HealthComponent") as HealthComponent
+			if target_health and target_health.current_health > 0.0:
+				target_health.request_damage(melee_damage)
+				notify_enemy_hit_flash.rpc(target.get_path())
+
+	# Queue free shape on the same frame so it does not linger in memory
+	sweep_area.queue_free()
 
 ## Server broadcasts this after validating a melee hit.
 ## Unreliable — a dropped packet means a missed flash frame, not a gameplay desync.

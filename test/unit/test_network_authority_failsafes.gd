@@ -178,3 +178,86 @@ func test_weapon_stats_present_on_iron_sword() -> void:
 	assert_true(item.weapon_stats.has("weapon_range"))
 	assert_true(item.weapon_stats.has("weapon_damage"))
 	assert_gt(item.weapon_stats["weapon_damage"], 0.0)
+
+func test_weapon_loadout_swapping() -> void:
+	_player.weapon_loadout = ["iron_sword", "iron_pickaxe"]
+	_player.active_weapon_index = 0
+	_player.equipped_item_id = "iron_sword"
+	
+	# Set player authority to 0 to pass security validation checks
+	_player.set_multiplayer_authority(0)
+	
+	# Trigger swap
+	_player.request_swap_weapon()
+	await get_tree().process_frame
+	
+	assert_eq(_player.active_weapon_index, 1, "Active weapon index must toggle to 1")
+	assert_eq(_player.equipped_item_id, "iron_pickaxe", "Equipped item ID must update to iron_pickaxe")
+
+func test_melee_cleave_sweep_hits_targets_in_aim_vector() -> void:
+	# Place player at origin and enemy in front
+	_player.global_position = Vector3.ZERO
+	# Orient player looking forward (Z = -1)
+	_player._body.rotation.y = 0.0
+	
+	var enemy1: Enemy = _enemy
+	enemy1.global_position = Vector3(0.0, 0.0, 1.5) # directly in front of body forward vector
+	enemy1.collision_layer = 8 # Ensure it matches Enemy collision mask
+	
+	var health_comp: HealthComponent = enemy1.get_node("HealthComponent") as HealthComponent
+	health_comp.current_health = health_comp.max_health # 50.0
+	
+	# Set authority to pass sender validation
+	_player.set_multiplayer_authority(0)
+	
+	print("DEBUG TEST: Player pos = ", _player.global_position, " body rotation.y = ", _player._body.rotation.y)
+	print("DEBUG TEST: Enemy pos = ", enemy1.global_position, " in tree = ", enemy1.is_inside_tree(), " layer = ", enemy1.collision_layer)
+	
+	print("DEBUG TEST: Player pos = ", _player.global_position, " body rotation.y = ", _player._body.rotation.y)
+	print("DEBUG TEST: Enemy pos = ", enemy1.global_position, " in tree = ", enemy1.is_inside_tree(), " layer = ", enemy1.collision_layer)
+	
+	# Force immediate transform updates in Godot node tree
+	_player.force_update_transform()
+	_player._body.force_update_transform()
+	enemy1.force_update_transform()
+	
+	# Wait for a physics frame to synchronize body positions in the physics space
+	await get_tree().physics_frame
+	
+	# Diagnostic query: search 100m box around origin
+	var space_state = _player.get_world_3d().direct_space_state
+	if space_state:
+		# 1. 100m query
+		var diag_query := PhysicsShapeQueryParameters3D.new()
+		var diag_box := BoxShape3D.new()
+		diag_box.size = Vector3(100.0, 100.0, 100.0)
+		diag_query.shape = diag_box
+		diag_query.transform = Transform3D.IDENTITY
+		diag_query.collision_mask = 255 # Check all layers
+		var diag_results := space_state.intersect_shape(diag_query)
+		print("DEBUG TEST: 100m diagnostic query returned ", diag_results.size(), " results")
+		
+		# 2. Targeted queries scanning Z offsets
+		print("DEBUG TEST: Scanning Z offsets for 2.0x2.0x2.5 box:")
+		var sweep_box := BoxShape3D.new()
+		sweep_box.size = Vector3(2.0, 2.0, 2.5)
+		for z_offset in [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0]:
+			var scan_query := PhysicsShapeQueryParameters3D.new()
+			scan_query.shape = sweep_box
+			scan_query.transform = Transform3D(Basis.IDENTITY, Vector3(0.0, 0.0, z_offset))
+			scan_query.collision_mask = 255
+			var scan_results := space_state.intersect_shape(scan_query)
+			var names := []
+			for r in scan_results:
+				names.append(r.collider.name)
+			print("  DEBUG TEST: Box at Z = ", z_offset, " returned ", scan_results.size(), " results: ", names)
+	
+	print("DEBUG TEST AFTER PHYSICS: Player pos = ", _player.global_position, " global_transform = ", _player.global_transform)
+	print("DEBUG TEST AFTER PHYSICS: Enemy pos = ", enemy1.global_position, " global_transform = ", enemy1.global_transform)
+	
+	# Perform hit sweep check
+	_player.request_enemy_melee_hit()
+	await get_tree().process_frame
+	
+	# Assert enemy health decreased (melee damage is 20.0, starting health 50.0 -> final 30.0)
+	assert_eq(health_comp.current_health, 30.0, "Enemy in front must take damage from sweep")
