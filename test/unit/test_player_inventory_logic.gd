@@ -85,3 +85,19 @@ func test_overflow_returns_positive_remainder() -> void:
 
 	var remaining: int = _inv.add_item(sword, 1)
 	assert_gt(remaining, 0, "Adding beyond capacity must return a positive remainder")
+
+func test_type_colors_cover_all_item_types() -> void:
+	# Verify every ItemType enum value has a color entry.
+	var all_types := [
+		Item.ItemType.WEAPON, Item.ItemType.ARMOR, Item.ItemType.CONSUMABLE,
+		Item.ItemType.TOOL, Item.ItemType.MISC
+	]
+	for t in all_types:
+		assert_true(InventorySlotUI.TYPE_COLORS.has(t),
+			"Missing TYPE_COLORS entry for ItemType %d" % t)
+
+func test_item_shorthand_no_overflow() -> void:
+	for key in InventorySlotUI.ITEM_SHORTHAND:
+		var label: String = InventorySlotUI.ITEM_SHORTHAND[key]
+		assert_lte(label.length(), 3, "Shorthand '%s' for item '%s' exceeds 3 chars" % [label, key])
+

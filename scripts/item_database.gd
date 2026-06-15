@@ -57,6 +57,7 @@ func _create_sample_items():
 	iron_sword.stackable = false
 	iron_sword.value = 50
 	iron_sword.icon = placeholder_icon
+	iron_sword.weapon_stats = {"weapon_range": 2.5, "weapon_damage": 35.0}
 	items[iron_sword.id] = iron_sword
 
 	# Health potion

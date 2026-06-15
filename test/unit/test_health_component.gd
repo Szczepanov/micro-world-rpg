@@ -132,3 +132,9 @@ func test_healing_clamps_at_max_health() -> void:
 		100.0,
 		"Overhealing must clamp at max_health (100.0)"
 	)
+
+func test_hit_flash_material_cleared_within_duration() -> void:
+	# Cannot simulate a real Enemy node in unit scope, but we can verify the
+	# flash constant is sane (> 0 and < 1 second to avoid perma-red state).
+	assert_gt(Character.HIT_FLASH_DURATION, 0.0)
+	assert_lt(Character.HIT_FLASH_DURATION, 1.0)

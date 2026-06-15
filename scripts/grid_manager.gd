@@ -39,7 +39,7 @@ func notify_placement_failed(reason: String) -> void:
 	# emit_signal("placement_rejected", reason)
 
 @rpc("any_peer", "reliable")
-func request_place_structure(grid_coords: Vector3i, structure_id: String) -> void:
+func request_place_structure(grid_coords: Vector3i, structure_id: String, rotation_index: int = 0) -> void:
 	if not multiplayer.is_server():
 		return
 	
@@ -57,6 +57,12 @@ func request_place_structure(grid_coords: Vector3i, structure_id: String) -> voi
 		notify_placement_failed.rpc_id(peer_id, "Too far from target tile.")
 		return
 		
+	# Reject any out-of-contract integer.
+	if rotation_index < 0 or rotation_index > 3:
+		push_warning("GridManager: Invalid rotation_index %d from peer %d" % [rotation_index, peer_id])
+		notify_placement_failed.rpc_id(peer_id, "Invalid rotation index.")
+		return
+
 	# b) Atomically RESERVE the cell before any inventory transaction.
 	#    Writing a sentinel first ensures a second concurrent RPC in the same
 	#    server tick sees the cell as occupied and is rejected immediately.
@@ -88,19 +94,20 @@ func request_place_structure(grid_coords: Vector3i, structure_id: String) -> voi
 			level_scene.update_local_inventory_display()
 			
 	# Spawn structure globally — overwrites the pending sentinel with the real record.
-	spawn_grid_structure.rpc(grid_coords, structure_id, peer_id)
+	spawn_grid_structure.rpc(grid_coords, structure_id, peer_id, rotation_index)
 
 @rpc("call_local", "reliable")
-func spawn_grid_structure(grid_coords: Vector3i, structure_id: String, peer_id: int) -> void:
+func spawn_grid_structure(grid_coords: Vector3i, structure_id: String, peer_id: int, rotation_index: int = 0) -> void:
 	world_grid[grid_coords] = {
 		"structure_id": structure_id,
-		"peer_id": peer_id
+		"peer_id": peer_id,
+		"rotation_index": rotation_index
 	}
-	_spawn_visual_node(grid_coords, structure_id)
+	_spawn_visual_node(grid_coords, structure_id, rotation_index)
 	if multiplayer.is_server():
 		structure_placed.emit(grid_coords, structure_id)
 
-func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
+func _spawn_visual_node(grid_coords: Vector3i, structure_id: String, rotation_index: int = 0) -> void:
 	var scene_path = "res://scenes/environment/props/" + structure_id + ".tscn"
 	var scene = load(scene_path) as PackedScene
 	if not scene:
@@ -113,6 +120,11 @@ func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
 	# Set unique name so we don't have collisions and can find it easily
 	instance.name = "structure_" + str(grid_coords.x) + "_" + str(grid_coords.y) + "_" + str(grid_coords.z)
 	
+	# Apply clean orthogonal Y-axis rotation from integer index.
+	# PI/2 * index yields 0°, 90°, 180°, 270° — no floating-point drift.
+	var structure_basis := Basis().rotated(Vector3.UP, rotation_index * (PI / 2.0))
+	instance.transform.basis = structure_basis
+
 	var level_scene = get_tree().current_scene
 	var parent_node = level_scene
 	if level_scene and level_scene.has_node("Environment"):
@@ -122,7 +134,7 @@ func _spawn_visual_node(grid_coords: Vector3i, structure_id: String) -> void:
 	instance.global_position = target_world_pos
 	if "grid_coords" in instance:
 		instance.grid_coords = grid_coords
-	print("GridManager: Spawned structure %s at %s" % [structure_id, target_world_pos])
+	print("GridManager: Spawned structure %s at %s (rot_idx=%d)" % [structure_id, target_world_pos, rotation_index])
 
 @rpc("any_peer", "reliable")
 func request_grid_sync() -> void:
@@ -153,7 +165,8 @@ func sync_entire_grid(server_grid: Dictionary) -> void:
 			parent_node = level_scene.get_node("Environment")
 			
 		if parent_node and not parent_node.has_node(node_name):
-			_spawn_visual_node(grid_coords, server_grid[key]["structure_id"])
+			var rot_idx: int = server_grid[key].get("rotation_index", 0)
+			_spawn_visual_node(grid_coords, server_grid[key]["structure_id"], rot_idx)
 
 @rpc("call_local", "reliable")
 func destroy_grid_structure(grid_coords: Vector3i) -> void:

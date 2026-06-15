@@ -127,7 +127,9 @@ func toggle_windowed():
 func _exit_tree():
 	remove_tool_menu_item("GUT")
 	_menu_mgr = null
-	GutEditorGlobals.user_prefs.save_it()
+	var prefs = GutEditorGlobals.get("user_prefs") if GutEditorGlobals else null
+	if prefs != null:
+		prefs.save_it()
 	
 	if(_bottom_panel != null):
 		_bottom_panel.menu_manager = null
@@ -137,7 +139,8 @@ func _exit_tree():
 		_gut_dock.queue_free()
 	remove_tool_menu_item("GUT") # made by _menu_mgr
 
-	_check_for_update.queue_free()
+	if _check_for_update != null:
+		_check_for_update.queue_free()
 
 
 func show_output_panel():

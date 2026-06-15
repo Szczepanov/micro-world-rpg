@@ -32,6 +32,10 @@ var current_health: float:
 var is_dead: bool = false
 var _last_attacker: Character = null
 var is_attacking: bool = false
+
+## Server-replicated string. Empty = bare-handed. Populated by equip_item().
+## Wired into MultiplayerSynchronizer in _setup_health_replication().
+var equipped_item_id: String = ""
 var current_nick: String = "Player"
 var interaction_area: Area3D = null
 var active_crafting_station: Area3D = null
@@ -183,12 +187,29 @@ func _physics_process(delta):
 	if not is_attacking:
 		animate_locomotion(velocity)
 
-func _process(_delta):
-	if not is_multiplayer_authority(): return
-	if not Network.is_network_active:
+var _last_equipped_item_id: String = ""
+
+func _process(_delta: float) -> void:
+	if is_multiplayer_authority() and Network.is_network_active:
+		_check_fall_and_respawn()
+		_update_interaction_ui()
+
+	# Detect replicated equipment changes (runs on all peers for remote players too).
+	if equipped_item_id != _last_equipped_item_id:
+		_last_equipped_item_id = equipped_item_id
+		_update_hand_mesh_visibility()
+
+## Called whenever equipped_item_id changes (locally or via replication).
+## Walks the hand bone children to show/hide 3D tool models.
+## Naming convention: hand-held mesh nodes must be in group "HandMesh".
+func _update_hand_mesh_visibility() -> void:
+	var skeleton := _get_main_skeleton()
+	if not skeleton:
 		return
-	_check_fall_and_respawn()
-	_update_interaction_ui()
+	for child in skeleton.get_children():
+		if child.is_in_group("HandMesh") and child is MeshInstance3D:
+			# Show the mesh whose name matches the equipped item ID; hide all others.
+			child.visible = (child.name == equipped_item_id)
 
 ## Central ESC / ui_cancel conditional state stack.
 ## Priority (high → low): Crafting → Inventory → Chat → Build Mode → Pause Overlay
@@ -497,6 +518,34 @@ func request_remove_item(item_id: String, quantity: int = 1):
 		if owner_id != 1:
 			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
 
+## Client requests equipping an item from their inventory.
+## Server validates ownership then sets the replicated string.
+@rpc("any_peer", "call_local", "reliable")
+func equip_item(item_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority() and sender_id != 1:
+		push_warning("Security: Peer %d tried to equip item for player %d" \
+				% [sender_id, get_multiplayer_authority()])
+		return
+
+	# Verify the item actually exists and is a weapon/tool (or empty-string to unequip).
+	if item_id != "" and not ItemDatabase.has_item(item_id):
+		push_warning("equip_item: Unknown item_id '%s'" % item_id)
+		return
+
+	if item_id != "":
+		var item: Item = ItemDatabase.get_item(item_id)
+		if item.item_type != Item.ItemType.WEAPON and item.item_type != Item.ItemType.TOOL:
+			push_warning("equip_item: Item '%s' is not equippable" % item_id)
+			return
+
+	equipped_item_id = item_id
+	# MultiplayerSynchronizer propagates the new string automatically.
+	_update_hand_mesh_visibility()
+
 @rpc("any_peer", "call_local", "reliable")
 func request_craft(item_to_craft: String):
 	print("Debug: request_craft called for ", item_to_craft, " on player ", name, " by client ", multiplayer.get_remote_sender_id())
@@ -603,6 +652,13 @@ func _setup_health_replication() -> void:
 		if not config.has_property(dead_path):
 			config.add_property(dead_path)
 			config.property_set_replication_mode(dead_path, 1) # 1: REPLICATION_MODE_ALWAYS / CONTINUOUS
+		
+		# Register equipped_item_id for replication so clients can toggle
+		# weapon mesh visibility without an extra RPC.
+		var equip_path := NodePath(".:equipped_item_id")
+		if not config.has_property(equip_path):
+			config.add_property(equip_path)
+			config.property_set_replication_mode(equip_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
 
 func _on_animation_finished(anim_name: String):
 	if anim_name == "Attack1" or anim_name == "Sword_Attack":
@@ -613,6 +669,9 @@ func _perform_melee_attack(is_interact: bool) -> void:
 	_play_anim("Attack1")
 	# Always broadcast the swing VFX so all peers see the animation.
 	play_strike_vfx.rpc()
+
+	# ── Screen shake (local-authority attacker only) ─────────────────
+	_trigger_screen_shake()
 
 	# Fallback timer (1.3s) to prevent getting stuck if animation_finished fails to fire
 	get_tree().create_timer(1.3).timeout.connect(func():
@@ -800,22 +859,99 @@ func request_enemy_melee_hit(enemy_path: NodePath) -> void:
 	if enemy.collision_layer == 0:
 		return
 
-	# ── Spatial validation: ShapeCast3D (server-side, ephemeral) ──────
-	# Cast a short sphere from the server-authoritative player position
-	# toward the enemy. Accept hit only if within melee range (2.5 m).
-	const MELEE_REACH: float = 2.5
+	# ── Resolve weapon stats from ItemDatabase (data-driven) ────────────
+	# Falls back to bare-handed defaults when equipped_item_id is empty
+	# or the item has no weapon_stats dict.
+	var melee_reach: float = 2.5     # bare-handed default
+	var melee_damage: float = 20.0   # bare-handed default
+
+	if equipped_item_id != "":
+		var equipped: Item = ItemDatabase.get_item(equipped_item_id)
+		if equipped and not equipped.weapon_stats.is_empty():
+			melee_reach  = equipped.weapon_stats.get("weapon_range",  melee_reach)
+			melee_damage = equipped.weapon_stats.get("weapon_damage", melee_damage)
+
+	# ── Spatial validation ──────────────────────────────────────────────
 	var dist: float = global_position.distance_to(enemy.global_position)
-	if dist > MELEE_REACH:
-		push_warning("Melee rejected: dist=%.2f > reach=%.2f (player=%s)" \
-				% [dist, MELEE_REACH, name])
+	if dist > melee_reach:
+		push_warning("Melee rejected: dist=%.2f > reach=%.2f (player=%s, weapon=%s)" \
+				% [dist, melee_reach, name, equipped_item_id])
 		return
 
 	# ── Damage application ─────────────────────────────────────────────
-	const MELEE_DAMAGE: float = 20.0
 	var target_health: HealthComponent = \
 			enemy.get_node_or_null("HealthComponent") as HealthComponent
 	if target_health and target_health.current_health > 0.0:
-		target_health.request_damage(MELEE_DAMAGE)
+		target_health.request_damage(melee_damage)
+
+	# ── Broadcast hit-flash event to all clients (unreliable, visual only) ──
+	notify_enemy_hit_flash.rpc(enemy.get_path())
+
+## Server broadcasts this after validating a melee hit.
+## Unreliable — a dropped packet means a missed flash frame, not a gameplay desync.
+## `enemy_path` is the scene-tree NodePath of the struck enemy.
+@rpc("authority", "call_local", "unreliable")
+func notify_enemy_hit_flash(enemy_path: NodePath) -> void:
+	var enemy := get_node_or_null(enemy_path) as Enemy
+	if not enemy or not is_instance_valid(enemy):
+		return
+	_flash_enemy_hit(enemy)
+
+## Temporarily overrides all MeshInstance3D materials on the enemy with a bright
+## unshaded red material. Clears after HIT_FLASH_DURATION seconds.
+## Pure visual — no gameplay state is written.
+const HIT_FLASH_DURATION: float = 0.1
+
+func _flash_enemy_hit(enemy: Enemy) -> void:
+	var flash_mat := StandardMaterial3D.new()
+	flash_mat.albedo_color = Color(1.0, 0.1, 0.1)
+	flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	# Collect all MeshInstance3D descendants of the enemy.
+	var meshes: Array[MeshInstance3D] = []
+	_find_meshes_recursive(enemy, meshes)
+
+	for mesh in meshes:
+		mesh.material_override = flash_mat
+
+	# Clear after duration using a SceneTreeTimer (no node allocation needed).
+	get_tree().create_timer(HIT_FLASH_DURATION).timeout.connect(func() -> void:
+		for mesh in meshes:
+			if is_instance_valid(mesh):
+				mesh.material_override = null
+	)
+
+## Briefly displaces camera H/V offsets using a damped Tween.
+## Only called on the local authority client — no network traffic generated.
+const SHAKE_MAGNITUDE: float = 0.06
+const SHAKE_DURATION:  float = 0.25
+
+func _trigger_screen_shake() -> void:
+	if not is_multiplayer_authority():
+		return
+	var cam := get_node_or_null("SpringArmOffset/SpringArm3D/Camera3D") as Camera3D
+	if not cam:
+		return
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+
+	# Two-phase shake: quick offset → spring back to zero.
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var h_kick: float = rng.randf_range(-SHAKE_MAGNITUDE, SHAKE_MAGNITUDE)
+	var v_kick: float = rng.randf_range(-SHAKE_MAGNITUDE * 0.5, SHAKE_MAGNITUDE * 0.5)
+
+	tween.tween_property(cam, "h_offset", h_kick, SHAKE_DURATION * 0.15)\
+		 .set_ease(Tween.EASE_OUT)
+	tween.tween_property(cam, "v_offset", v_kick, SHAKE_DURATION * 0.15)\
+		 .set_ease(Tween.EASE_OUT)
+
+	# Return to neutral
+	tween.chain().tween_property(cam, "h_offset", 0.0, SHAKE_DURATION * 0.85)\
+		 .set_ease(Tween.EASE_IN_OUT)
+	tween.chain().tween_property(cam, "v_offset", 0.0, SHAKE_DURATION * 0.85)\
+		 .set_ease(Tween.EASE_IN_OUT)
 
 func take_damage(amount: float, attacker: Character) -> void:
 	if not multiplayer.is_server():

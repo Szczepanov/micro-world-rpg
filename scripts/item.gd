@@ -13,6 +13,10 @@ extends Resource
 @export var rarity: ItemRarity = ItemRarity.COMMON
 @export var value: int = 0
 
+## Optional. Only populated for ItemType.WEAPON entries.
+## Keys: "weapon_range" (float, metres), "weapon_damage" (float, HP).
+var weapon_stats: Dictionary = {}
+
 enum ItemType {
 	WEAPON,
 	ARMOR,

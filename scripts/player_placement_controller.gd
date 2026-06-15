@@ -8,6 +8,7 @@ var ghost_instance: Node3D = null
 
 var selected_structure_id: String = "spiked_wall"
 var is_active: bool = false
+var _rotation_index: int = 0          # 0=0°, 1=90°, 2=180°, 3=270°
 
 # Semi-transparent materials for preview
 var valid_material: StandardMaterial3D
@@ -60,6 +61,12 @@ func _setup_input_actions() -> void:
 		key_event.physical_keycode = KEY_B
 		InputMap.action_add_event("toggle_build_mode", key_event)
 
+	if not InputMap.has_action("rotate_structure"):
+		InputMap.add_action("rotate_structure")
+		var r_event := InputEventKey.new()
+		r_event.physical_keycode = KEY_R
+		InputMap.action_add_event("rotate_structure", r_event)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not player.is_multiplayer_authority() or not Network.is_network_active:
 		return
@@ -69,6 +76,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		
 	if is_active:
+		if event.is_action_pressed("rotate_structure"):
+			_rotation_index = (_rotation_index + 1) % 4
+			_apply_ghost_rotation()
+			_update_interaction_prompt()
+			get_viewport().set_input_as_handled()
+			return
+
 		if event is InputEventKey and event.pressed:
 			if event.keycode == KEY_1:
 				selected_structure_id = "spiked_wall"
@@ -108,8 +122,8 @@ func _update_interaction_prompt() -> void:
 	var level = get_tree().current_scene
 	if level and level.has_method("set_interaction_prompt"):
 		if is_active:
-			var structure_name = "Spiked Wall" if selected_structure_id == "spiked_wall" else "Automated Turret"
-			level.set_interaction_prompt("Build Mode: [1] Spiked Wall | [2] Turret | [LMB] Place %s | [B] Exit" % structure_name)
+			var structure_name = "Wall" if selected_structure_id == "spiked_wall" else "Turret"
+			level.set_interaction_prompt("Build Mode: [1] Wall | [2] Turret | [LMB] Place | [R] Rotate | [B] Exit — (%s, %d°)" % [structure_name, _rotation_index * 90])
 		else:
 			level.set_interaction_prompt("")
 
@@ -155,25 +169,26 @@ func _try_place_structure() -> void:
 	if not raycast or not raycast.is_colliding():
 		return
 		
-	var hit_point = raycast.get_collision_point()
-	var grid_coords = GridManager.world_to_grid(hit_point)
+	var hit_point := raycast.get_collision_point()
+	var grid_coords := GridManager.world_to_grid(hit_point)
 	
 	if _check_placement_validity(grid_coords):
 		print("PlayerPlacementController: Requesting placement at ", grid_coords)
-		GridManager.request_place_structure.rpc_id(1, grid_coords, selected_structure_id)
+		GridManager.request_place_structure.rpc_id(1, grid_coords, selected_structure_id, _rotation_index)
 	else:
 		print("PlayerPlacementController: Placement position invalid")
 
 func _create_ghost_preview() -> void:
 	_destroy_ghost_preview()
 	
-	var scene_path = "res://scenes/environment/props/" + selected_structure_id + ".tscn"
-	var scene = load(scene_path) as PackedScene
+	var scene_path := "res://scenes/environment/props/" + selected_structure_id + ".tscn"
+	var scene := load(scene_path) as PackedScene
 	if scene:
 		ghost_instance = scene.instantiate()
 		_disable_collisions(ghost_instance)
 		get_tree().current_scene.add_child(ghost_instance)
 		ghost_instance.visible = false
+		_apply_ghost_rotation()   # Apply current rotation to freshly created ghost.
 	else:
 		push_error("PlayerPlacementController: Failed to load preview scene: " + scene_path)
 
@@ -193,7 +208,7 @@ func _disable_collisions(node: Node) -> void:
 		_disable_collisions(child)
 
 func _apply_ghost_materials(node: Node, is_valid: bool) -> void:
-	var material = valid_material if is_valid else invalid_material
+	var material := valid_material if is_valid else invalid_material
 	_set_material_override(node, material)
 
 func _set_material_override(node: Node, material: Material) -> void:
@@ -201,3 +216,9 @@ func _set_material_override(node: Node, material: Material) -> void:
 		node.material_override = material
 	for child in node.get_children():
 		_set_material_override(child, material)
+
+func _apply_ghost_rotation() -> void:
+	if not ghost_instance:
+		return
+	var ghost_basis := Basis().rotated(Vector3.UP, _rotation_index * (PI / 2.0))
+	ghost_instance.transform.basis = ghost_basis

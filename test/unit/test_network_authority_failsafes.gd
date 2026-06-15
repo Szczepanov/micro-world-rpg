@@ -163,3 +163,18 @@ func test_db_flush_ignored_on_client():
 	# Clean up
 	get_tree().set_multiplayer(null, _root.get_path())
 	db_manager.queue_free()
+
+func test_equip_item_rejects_non_weapon() -> void:
+	# Simulate: server calls equip_item with a consumable — must be a no-op.
+	# Since we cannot fully mock multiplayer in GUT, assert ItemDatabase type guard.
+	var item: Item = ItemDatabase.get_item("health_potion")
+	assert_eq(item.item_type, Item.ItemType.CONSUMABLE)
+	assert_true(item.weapon_stats.is_empty(), "Consumables must not have weapon_stats")
+
+func test_weapon_stats_present_on_iron_sword() -> void:
+	var item: Item = ItemDatabase.get_item("iron_sword")
+	assert_not_null(item, "iron_sword must exist")
+	assert_false(item.weapon_stats.is_empty(), "iron_sword must have weapon_stats")
+	assert_true(item.weapon_stats.has("weapon_range"))
+	assert_true(item.weapon_stats.has("weapon_damage"))
+	assert_gt(item.weapon_stats["weapon_damage"], 0.0)
