@@ -12,8 +12,14 @@ var player_info = {
 var is_network_active: bool = true
 var pending_error_message: String = ""
 
+var _connection_attempts: int = 0
+var _join_nickname: String = ""
+var _join_skin: String = ""
+var _join_address: String = ""
+
 signal player_connected(peer_id, player_info)
 signal server_disconnected
+signal connection_status_changed(message: String)
 
 func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
@@ -28,6 +34,7 @@ func start_host(nickname: String, skin_color_str: String):
 	var error = peer.create_server(SERVER_PORT, MAX_PLAYERS)
 	if error:
 		return error
+
 	multiplayer.multiplayer_peer = peer
 
 	if !nickname or nickname.strip_edges() == "":
@@ -42,11 +49,16 @@ func start_host(nickname: String, skin_color_str: String):
 	players[1] = player_info
 	player_connected.emit(1, player_info)
 
-func join_game(nickname: String, skin_color_str: String, address: String = SERVER_ADDRESS):
+func join_game(nickname: String, skin_color_str: String, address: String = SERVER_ADDRESS) -> Error:
 	is_network_active = true
-	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_client(address, SERVER_PORT)
-	if error:
+	_join_nickname = nickname
+	_join_skin = skin_color_str
+	_join_address = address
+	_connection_attempts = 1
+
+	var peer := ENetMultiplayerPeer.new()
+	var error := peer.create_client(address, SERVER_PORT)
+	if error != OK:
 		return error
 
 	multiplayer.multiplayer_peer = peer
@@ -62,10 +74,58 @@ func join_game(nickname: String, skin_color_str: String, address: String = SERVE
 	player_info["nick"] = nickname
 	player_info["skin"] = skin_enum
 
+	connection_status_changed.emit("Connecting to %s..." % address)
+	_start_connection_timeout(_connection_attempts)
+	return OK
+
+func _start_connection_timeout(attempt_num: int) -> void:
+	get_tree().create_timer(3.0).timeout.connect(func() -> void:
+		_check_connection_timeout(attempt_num)
+	)
+
+func _check_connection_timeout(attempt_num: int) -> void:
+	if not multiplayer.multiplayer_peer:
+		return
+	if multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTING:
+		push_warning("Network: Connection attempt %d timed out." % attempt_num)
+		if attempt_num < 2:
+			# Retry once after 1s delay
+			if multiplayer.multiplayer_peer:
+				multiplayer.multiplayer_peer.close()
+			multiplayer.multiplayer_peer = null
+			
+			connection_status_changed.emit("Connection timed out. Retrying (Attempt 2/2)...")
+			get_tree().create_timer(1.0).timeout.connect(func() -> void:
+				push_warning("Network: Retrying connection to %s..." % _join_address)
+				_connection_attempts += 1
+				var peer := ENetMultiplayerPeer.new()
+				var error := peer.create_client(_join_address, SERVER_PORT)
+				if error != OK:
+					_handle_connection_failure("Server unavailable.")
+					return
+				multiplayer.multiplayer_peer = peer
+				_start_connection_timeout(_connection_attempts)
+			)
+		else:
+			_handle_connection_failure("Server unavailable. Connection timed out.")
+
+func _handle_connection_failure(reason: String) -> void:
+	is_network_active = false
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+	players.clear()
+	pending_error_message = reason
+	connection_status_changed.emit("")
+	
+	# Go back to level.tscn (login screen)
+	get_tree().change_scene_to_file("res://scenes/level/level.tscn")
+
 func _on_connected_ok():
 	var peer_id = multiplayer.get_unique_id()
 	players[peer_id] = player_info
 	player_connected.emit(peer_id, player_info)
+	connection_status_changed.emit("")
 
 func _on_player_connected(id):
 	if DisplayServer.get_name() == "headless":
@@ -86,8 +146,8 @@ func _register_player(new_player_info):
 func _on_player_disconnected(id):
 	players.erase(id)
 
-func _on_connection_failed():
-	multiplayer.multiplayer_peer = null
+func _on_connection_failed() -> void:
+	_handle_connection_failure("Server unavailable. Connection failed.")
 
 func _on_server_disconnected():
 	is_network_active = false

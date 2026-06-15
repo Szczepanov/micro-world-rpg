@@ -13,6 +13,7 @@ var inventory_visible = false
 var crafting_visible = false
 
 var interaction_prompt: Label
+var connection_status_label: Label
 
 func _ready():
 	get_tree().paused = false
@@ -61,6 +62,8 @@ func _ready():
 
 	# Setup the screen interaction UI prompt
 	_setup_interaction_ui()
+	_setup_connection_status_ui()
+	Network.connection_status_changed.connect(_on_connection_status_changed)
 
 	# Spawn resource nodes in the world
 	spawn_resources()
@@ -259,6 +262,30 @@ func _setup_interaction_ui():
 	
 	canvas.add_child(interaction_prompt)
 	add_child(canvas)
+
+func _setup_connection_status_ui() -> void:
+	var canvas := CanvasLayer.new()
+	connection_status_label = Label.new()
+	connection_status_label.text = ""
+	connection_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	connection_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	
+	connection_status_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	
+	connection_status_label.add_theme_font_size_override("font_size", 24)
+	connection_status_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	connection_status_label.add_theme_constant_override("outline_size", 8)
+	
+	var custom_font := load("res://assets/fonts/Kurland.ttf")
+	if custom_font:
+		connection_status_label.add_theme_font_override("font", custom_font)
+		
+	canvas.add_child(connection_status_label)
+	add_child(canvas)
+
+func _on_connection_status_changed(message: String) -> void:
+	if connection_status_label:
+		connection_status_label.text = message
 
 func set_interaction_prompt(prompt_text: String):
 	if interaction_prompt:
