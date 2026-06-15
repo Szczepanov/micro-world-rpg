@@ -10,6 +10,7 @@ class_name InventoryUI
 var current_player: Node
 var slot_ui_scene: PackedScene
 var slot_uis: Array[InventorySlotUI] = []
+var equipment_slots: Dictionary = {}
 
 signal inventory_closed
 
@@ -18,10 +19,120 @@ func _ready():
 	grid_container.columns = 4
 	close_button.pressed.connect(_on_close_pressed)
 	tooltip.visible = false
-	_create_slot_uis()
 	
 	# Explicitly set focus mode to NONE to prevent keyboard focus capture
 	focus_mode = Control.FOCUS_NONE
+	
+	_reconstruct_layout()
+	_create_slot_uis()
+
+func _reconstruct_layout() -> void:
+	# 1. Expand Panel size
+	var panel: Panel = $Panel as Panel
+	if panel:
+		panel.offset_left = -240.0
+		panel.offset_right = 240.0
+		
+	# 2. Get the VBoxContainer parent of grid_container
+	var vbox: VBoxContainer = grid_container.get_parent() as VBoxContainer
+	
+	# 3. Create HBoxContainer for side-by-side layout
+	var h_split: HBoxContainer = HBoxContainer.new()
+	h_split.name = "HSplitLayout"
+	h_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	h_split.add_theme_constant_override("separation", 15)
+	
+	# 4. Remove grid_container from vbox
+	vbox.remove_child(grid_container)
+	vbox.add_child(h_split)
+	
+	# 5. Create Equipment panel VBox
+	var eq_vbox: VBoxContainer = VBoxContainer.new()
+	eq_vbox.name = "EquipmentPanel"
+	eq_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	eq_vbox.size_flags_stretch_ratio = 0.8
+	
+	# Add title
+	var eq_title: Label = Label.new()
+	eq_title.text = "Equipment"
+	eq_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	eq_title.add_theme_color_override("font_color", Color(0.9, 0.7, 0.1)) # gold
+	eq_title.add_theme_font_size_override("font_size", 14)
+	eq_vbox.add_child(eq_title)
+	
+	var eq_title_sep: HSeparator = HSeparator.new()
+	eq_vbox.add_child(eq_title_sep)
+	
+	# Create GridContainer for equipment slots
+	var eq_grid: GridContainer = GridContainer.new()
+	eq_grid.name = "EquipmentGrid"
+	eq_grid.columns = 1
+	eq_grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	eq_grid.add_theme_constant_override("v_separation", 10)
+	eq_vbox.add_child(eq_grid)
+	
+	h_split.add_child(eq_vbox)
+	
+	# Add VSeparator
+	var v_sep: VSeparator = VSeparator.new()
+	h_split.add_child(v_sep)
+	
+	# 6. Create Backpack panel VBox
+	var bp_vbox: VBoxContainer = VBoxContainer.new()
+	bp_vbox.name = "BackpackPanel"
+	bp_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bp_vbox.size_flags_stretch_ratio = 1.2
+	
+	# Add title
+	var bp_title: Label = Label.new()
+	bp_title.text = "Backpack"
+	bp_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bp_title.add_theme_color_override("font_color", Color(0.1, 0.7, 0.9)) # cyan
+	bp_title.add_theme_font_size_override("font_size", 14)
+	bp_vbox.add_child(bp_title)
+	
+	var bp_title_sep: HSeparator = HSeparator.new()
+	bp_vbox.add_child(bp_title_sep)
+	
+	# Add grid_container to Backpack column
+	grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bp_vbox.add_child(grid_container)
+	
+	h_split.add_child(bp_vbox)
+	
+	# 7. Instantiate the equipment slots
+	var slots_to_create: Array = [
+		{"key": "weapon_0", "label": "Primary Weapon"},
+		{"key": "weapon_1", "label": "Secondary Weapon"},
+		{"key": "armor", "label": "Body Armor"}
+	]
+	
+	for slot_info in slots_to_create:
+		var slot_hbox: HBoxContainer = HBoxContainer.new()
+		slot_hbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+		slot_hbox.add_theme_constant_override("separation", 8)
+		
+		var slot_ui: InventorySlotUI = slot_ui_scene.instantiate() as InventorySlotUI
+		slot_ui.custom_minimum_size = Vector2(56, 56)
+		slot_ui.parent_inventory = self
+		slot_ui.set_meta("is_equipment", true)
+		slot_ui.set_meta("equipment_type", slot_info["key"])
+		
+		# Connect equipment slot signals
+		slot_ui.slot_clicked.connect(_on_equipment_slot_clicked.bind(slot_info["key"]))
+		slot_ui.item_hovered.connect(_on_equipment_item_hovered.bind(slot_info["key"]))
+		slot_ui.item_unhovered.connect(_on_item_unhovered)
+		
+		slot_hbox.add_child(slot_ui)
+		equipment_slots[slot_info["key"]] = slot_ui
+		
+		var label: Label = Label.new()
+		label.text = slot_info["label"]
+		label.add_theme_font_size_override("font_size", 12)
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slot_hbox.add_child(label)
+		
+		eq_grid.add_child(slot_hbox)
 
 func _create_slot_uis():
 	for child in grid_container.get_children():
@@ -52,6 +163,32 @@ func update_inventory_display():
 		if i < PlayerInventory.INVENTORY_SIZE:
 			slot_uis[i].set_slot_data(player_inventory.get_slot(i), i)
 
+	# Update Weapon 0 Slot
+	var w0_id: String = current_player.weapon_loadout[0] if "weapon_loadout" in current_player else ""
+	var w0_data: InventorySlot = InventorySlot.new()
+	w0_data.item_id = w0_id
+	w0_data.quantity = 1 if w0_id != "" else 0
+	if equipment_slots.has("weapon_0"):
+		equipment_slots["weapon_0"].set_slot_data(w0_data, 0)
+		_update_equipment_highlight("weapon_0", current_player.active_weapon_index == 0 if "active_weapon_index" in current_player else false)
+
+	# Update Weapon 1 Slot
+	var w1_id: String = current_player.weapon_loadout[1] if "weapon_loadout" in current_player else ""
+	var w1_data: InventorySlot = InventorySlot.new()
+	w1_data.item_id = w1_id
+	w1_data.quantity = 1 if w1_id != "" else 0
+	if equipment_slots.has("weapon_1"):
+		equipment_slots["weapon_1"].set_slot_data(w1_data, 1)
+		_update_equipment_highlight("weapon_1", current_player.active_weapon_index == 1 if "active_weapon_index" in current_player else false)
+
+	# Update Armor Slot
+	var arm_id: String = current_player.equipped_armor if "equipped_armor" in current_player else ""
+	var arm_data: InventorySlot = InventorySlot.new()
+	arm_data.item_id = arm_id
+	arm_data.quantity = 1 if arm_id != "" else 0
+	if equipment_slots.has("armor"):
+		equipment_slots["armor"].set_slot_data(arm_data, 2)
+
 func _on_slot_clicked(slot_index: int, button: int):
 	print("Slot ", slot_index, " clicked with button ", button)
 
@@ -71,7 +208,105 @@ func _handle_right_click(slot_index: int):
 		var item = ItemDatabase.get_item(slot.item_id)
 		if item:
 			print("Right clicked on: ", item.name)
-			# TODO: Show context menu or perform quick action
+			if item.item_type == Item.ItemType.WEAPON or item.item_type == Item.ItemType.TOOL:
+				# Equip weapon: prioritize the active slot, but if slot 0 is empty equip there, or if slot 1 is empty equip there.
+				var target_slot: int = current_player.active_weapon_index if "active_weapon_index" in current_player else 0
+				if "weapon_loadout" in current_player:
+					if current_player.weapon_loadout[0] == "":
+						target_slot = 0
+					elif current_player.weapon_loadout[1] == "" and current_player.weapon_loadout[0] != "":
+						target_slot = 1
+				
+				if current_player.has_method("request_equip_to_slot"):
+					current_player.request_equip_to_slot.rpc_id(1, item.id, "weapon", target_slot)
+			elif item.item_type == Item.ItemType.ARMOR:
+				if current_player.has_method("request_equip_to_slot"):
+					current_player.request_equip_to_slot.rpc_id(1, item.id, "armor", 0)
+
+func _update_equipment_highlight(slot_key: String, is_active: bool) -> void:
+	var slot_ui = equipment_slots.get(slot_key)
+	if slot_ui and slot_ui.background:
+		if is_active:
+			slot_ui.background.modulate = Color(1.5, 1.3, 0.5) # Gold highlight
+		else:
+			slot_ui.background.modulate = Color.WHITE
+
+func _on_equipment_slot_clicked(slot_index: int, button: int, slot_key: String) -> void:
+	if button == MOUSE_BUTTON_RIGHT and current_player:
+		# Unequip on right click
+		if slot_key == "weapon_0" or slot_key == "weapon_1":
+			var idx: int = 0 if slot_key == "weapon_0" else 1
+			if current_player.has_method("request_equip_to_slot"):
+				current_player.request_equip_to_slot.rpc_id(1, "", "weapon", idx)
+		elif slot_key == "armor":
+			if current_player.has_method("request_equip_to_slot"):
+				current_player.request_equip_to_slot.rpc_id(1, "", "armor", 0)
+
+func _on_equipment_item_hovered(slot_index: int, item: Item, slot_key: String) -> void:
+	_show_tooltip(item)
+
+func handle_item_drop_v2(drag_data: Dictionary, target_slot_ui: InventorySlotUI) -> void:
+	if not current_player:
+		return
+
+	var from_is_equipment: bool = drag_data.get("inventory_type") == "equipment"
+	var target_is_equipment: bool = target_slot_ui.has_meta("is_equipment")
+
+	# Case 1: Backpack Slot -> Backpack Slot (Normal moving/swapping)
+	if not from_is_equipment and not target_is_equipment:
+		var from_slot: int = int(drag_data.get("slot_index"))
+		var to_slot: int = target_slot_ui.slot_index
+		current_player.request_move_item.rpc_id(1, from_slot, to_slot)
+		return
+
+	# Case 2: Backpack Slot -> Equipment Slot (Equipping)
+	if not from_is_equipment and target_is_equipment:
+		var target_eq_type: String = str(target_slot_ui.get_meta("equipment_type"))
+		var item_id: String = str(drag_data.get("item_id"))
+		
+		var item: Item = ItemDatabase.get_item(item_id)
+		if not item:
+			return
+			
+		if target_eq_type == "weapon_0" or target_eq_type == "weapon_1":
+			if item.item_type == Item.ItemType.WEAPON or item.item_type == Item.ItemType.TOOL:
+				var slot_index: int = 0 if target_eq_type == "weapon_0" else 1
+				if current_player.has_method("request_equip_to_slot"):
+					current_player.request_equip_to_slot.rpc_id(1, item_id, "weapon", slot_index)
+		elif target_eq_type == "armor":
+			if item.item_type == Item.ItemType.ARMOR:
+				if current_player.has_method("request_equip_to_slot"):
+					current_player.request_equip_to_slot.rpc_id(1, item_id, "armor", 0)
+		return
+
+	# Case 3: Equipment Slot -> Backpack Slot (Unequipping)
+	if from_is_equipment and not target_is_equipment:
+		var from_eq_type: String = str(drag_data.get("equipment_type"))
+		if from_eq_type == "weapon_0" or from_eq_type == "weapon_1":
+			var slot_index: int = 0 if from_eq_type == "weapon_0" else 1
+			if current_player.has_method("request_equip_to_slot"):
+				current_player.request_equip_to_slot.rpc_id(1, "", "weapon", slot_index)
+		elif from_eq_type == "armor":
+			if current_player.has_method("request_equip_to_slot"):
+				current_player.request_equip_to_slot.rpc_id(1, "", "armor", 0)
+		return
+
+	# Case 4: Equipment Slot -> Equipment Slot (Swapping or moving between weapon slots)
+	if from_is_equipment and target_is_equipment:
+		var from_eq_type: String = str(drag_data.get("equipment_type"))
+		var target_eq_type: String = str(target_slot_ui.get_meta("equipment_type"))
+		
+		if (from_eq_type == "weapon_0" or from_eq_type == "weapon_1") and (target_eq_type == "weapon_0" or target_eq_type == "weapon_1"):
+			var from_slot_idx: int = 0 if from_eq_type == "weapon_0" else 1
+			var target_slot_idx: int = 0 if target_eq_type == "weapon_0" else 1
+			
+			var from_val: String = current_player.weapon_loadout[from_slot_idx] if "weapon_loadout" in current_player else ""
+			var target_val: String = current_player.weapon_loadout[target_slot_idx] if "weapon_loadout" in current_player else ""
+			
+			if current_player.has_method("request_equip_to_slot"):
+				current_player.request_equip_to_slot.rpc_id(1, target_val, "weapon", from_slot_idx)
+				current_player.request_equip_to_slot.rpc_id(1, from_val, "weapon", target_slot_idx)
+		return
 
 func _on_item_hovered(_slot_index: int, item: Item):
 	_show_tooltip(item)

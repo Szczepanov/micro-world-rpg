@@ -83,8 +83,20 @@ func _show_empty_slot() -> void:
 
 	var proto_bg := get_node_or_null("PrototypeBG") as ColorRect
 	var proto_lbl := get_node_or_null("PrototypeLabel") as Label
-	if proto_bg:  proto_bg.visible  = false
-	if proto_lbl: proto_lbl.visible = false
+	
+	if has_meta("is_equipment") and has_meta("equipment_type"):
+		var eq_type: String = str(get_meta("equipment_type"))
+		var shorthand: String = "W1" if eq_type == "weapon_0" else "W2" if eq_type == "weapon_1" else "ARM"
+		if proto_bg:
+			proto_bg.color = Color(0.15, 0.15, 0.15, 0.5)
+			proto_bg.visible = true
+		if proto_lbl:
+			proto_lbl.text = shorthand
+			proto_lbl.visible = true
+			proto_lbl.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.3))
+	else:
+		if proto_bg:  proto_bg.visible  = false
+		if proto_lbl: proto_lbl.visible = false
 
 func _show_item_slot() -> void:
 	var item: Item = ItemDatabase.get_item(inventory_data.item_id)
@@ -180,8 +192,11 @@ func _can_drop_data(_position: Vector2, data) -> bool:
 	return data is Dictionary and data.has("slot_index") and data.has("inventory_type")
 
 func _drop_data(_position: Vector2, data):
-	if parent_inventory and parent_inventory.has_method("handle_item_drop"):
-		parent_inventory.handle_item_drop(data.slot_index, slot_index, data.inventory_type)
+	if parent_inventory:
+		if parent_inventory.has_method("handle_item_drop_v2"):
+			parent_inventory.handle_item_drop_v2(data, self)
+		elif parent_inventory.has_method("handle_item_drop"):
+			parent_inventory.handle_item_drop(data.slot_index, slot_index, data.inventory_type)
 
 func _get_drag_data(_position: Vector2):
 	if not inventory_data or inventory_data.is_empty():
@@ -203,11 +218,15 @@ func _get_drag_data(_position: Vector2):
 
 	item_icon.modulate = Color(0.5, 0.5, 0.5)
 
+	var is_eq: bool = has_meta("is_equipment")
+	var eq_type: String = str(get_meta("equipment_type")) if is_eq else ""
+
 	return {
 		"slot_index": slot_index,
 		"item_id": inventory_data.item_id,
 		"quantity": inventory_data.quantity,
-		"inventory_type": "player"  # Can be extended for different inventory types
+		"inventory_type": "equipment" if is_eq else "player",
+		"equipment_type": eq_type
 	}
 
 func _notification(what):

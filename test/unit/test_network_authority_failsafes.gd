@@ -178,3 +178,50 @@ func test_weapon_stats_present_on_iron_sword() -> void:
 	assert_true(item.weapon_stats.has("weapon_range"))
 	assert_true(item.weapon_stats.has("weapon_damage"))
 	assert_gt(item.weapon_stats["weapon_damage"], 0.0)
+
+func test_weapon_loadout_swapping() -> void:
+	_player.weapon_loadout = ["iron_sword", "iron_pickaxe"]
+	_player.active_weapon_index = 0
+	_player.equipped_item_id = "iron_sword"
+	
+	# Set player authority to 0 to pass security validation checks
+	_player.set_multiplayer_authority(0)
+	
+	# Trigger swap
+	_player.request_swap_weapon()
+	await get_tree().process_frame
+	
+	assert_eq(_player.active_weapon_index, 1, "Active weapon index must toggle to 1")
+	assert_eq(_player.equipped_item_id, "iron_pickaxe", "Equipped item ID must update to iron_pickaxe")
+
+func test_melee_cleave_sweep_hits_targets_in_aim_vector() -> void:
+	# Place player at origin and orient looking forward (Z = -1, which means visual body forward is +Z due to root rotation)
+	_player.global_position = Vector3.ZERO
+	_player._body.rotation.y = 0.0
+	
+	# Instantiate enemy directly
+	var enemy_scene := load("res://scenes/level/enemy.tscn")
+	var enemy1 := enemy_scene.instantiate() as Enemy
+	enemy1.collision_layer = 8 # Ensure it matches Enemy collision mask
+	_root.add_child(enemy1)
+	enemy1.global_position = Vector3(0.0, 0.0, 1.5) # directly in front of body forward vector
+	
+	var health_comp: HealthComponent = enemy1.get_node("HealthComponent") as HealthComponent
+	health_comp.current_health = health_comp.max_health # 50.0
+	
+	# Set authority to pass sender validation
+	_player.set_multiplayer_authority(0)
+	
+	# Force transform updates and wait for physics and process frames to fully synchronize
+	_player.force_update_transform()
+	_player._body.force_update_transform()
+	enemy1.force_update_transform()
+	await get_tree().physics_frame
+	await get_tree().process_frame
+	
+	# Perform hit sweep check
+	_player.request_enemy_melee_hit()
+	await get_tree().process_frame
+	
+	# Assert enemy health decreased (melee damage is 20.0, starting health 50.0 -> final 30.0)
+	assert_eq(health_comp.current_health, 30.0, "Enemy in front must take damage from sweep")
