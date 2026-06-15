@@ -42,6 +42,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# Only process if a multiplayer peer is active
+	if multiplayer.multiplayer_peer == null:
+		return
+
 	# Only the server accumulates time and drives state transitions
 	if not multiplayer.is_server():
 		_client_process()
@@ -59,6 +63,13 @@ func _server_process(delta: float) -> void:
 		_server_process_day_phase()
 	else:
 		_server_process_night_phase()
+
+	# Emit time update for HUD countdown display (listen server host only)
+	if DisplayServer.get_name() != "headless":
+		var max_time: float = NIGHT_DURATION if is_night else DAY_DURATION
+		if abs(current_phase_time - _previous_phase_time) >= 0.1:  # Throttle updates
+			_previous_phase_time = current_phase_time
+			phase_time_updated.emit(current_phase_time, max_time, is_night)
 
 
 func _server_process_day_phase() -> void:

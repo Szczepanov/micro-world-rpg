@@ -32,13 +32,13 @@ func _ready():
 			get_node("/root/DatabaseManager").set("_match_start_time_unix",
 				int(Time.get_unix_time_from_system()))
 
-		# Instantiate TimeManager for server-authoritative day/night cycle
-		var time_manager_script: GDScript = load("res://scripts/time_manager.gd") as GDScript
-		if time_manager_script:
-			var time_manager: Node = time_manager_script.new()
-			time_manager.name = "TimeManager"
-			add_child(time_manager)
-			print("LevelManager: TimeManager successfully attached to active server scene graph.")
+	# Instantiate TimeManager for server-authoritative day/night cycle
+	var time_manager_script: GDScript = load("res://scripts/time_manager.gd") as GDScript
+	if time_manager_script:
+		var time_manager: Node = time_manager_script.new()
+		time_manager.name = "TimeManager"
+		add_child(time_manager)
+		print("LevelManager: TimeManager successfully attached to active scene graph.")
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
@@ -80,7 +80,7 @@ func _ready():
 	Network.connection_status_changed.connect(_on_connection_status_changed)
 
 	# Connect to TimeManager for day/night cycle HUD updates
-	_time_manager = get_node_or_null("/root/Level/TimeManager")
+	_time_manager = get_node_or_null("TimeManager")
 	if _time_manager:
 		_time_manager.phase_changed.connect(_on_phase_changed)
 		_time_manager.phase_time_updated.connect(_on_phase_time_updated)
@@ -144,6 +144,11 @@ func _on_server_disconnected() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func teardown_multiplayer() -> void:
+	# Reset TimeManager cycle state if present
+	var time_mgr: Node = get_node_or_null("TimeManager")
+	if time_mgr and time_mgr.has_method("reset_cycle"):
+		time_mgr.reset_cycle()
+
 	# 1. Close current connection
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
@@ -393,9 +398,26 @@ func _on_phase_time_updated(phase_time: float, max_time: float, _is_night_phase:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("debug_skip_phase"):
-		if _time_manager and multiplayer.is_server():
-			print("Debug: Manually skipping to next phase")
-			_time_manager.skip_to_next_phase()
+		_debug_skip_phase()
+	elif event.is_action_pressed("toggle_chat"):
+		toggle_chat()
+	elif event.is_action_pressed("inventory"):
+		if crafting_visible:
+			toggle_crafting()
+		# Prevent opening inventory while in build mode to avoid state confusion
+		var local_player: Node = _get_local_player()
+		if local_player and local_player.is_building:
+			return
+		toggle_inventory()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_F1:
+		_debug_add_item()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_F2:
+		_debug_print_inventory()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_F3:
+		print("Debug: F3 key pressed in level.gd _input")
+		_debug_start_wave()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_F4:
+		_debug_damage_base_heart()
 
 func set_interaction_prompt(prompt_text: String):
 	if interaction_prompt:
@@ -491,26 +513,7 @@ func toggle_chat():
 func is_chat_visible() -> bool:
 	return multiplayer_chat.is_chat_visible() if multiplayer_chat else false
 
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("toggle_chat"):
-		toggle_chat()
-	elif event.is_action_pressed("inventory"):
-		if crafting_visible:
-			toggle_crafting()
-		# Prevent opening inventory while in build mode to avoid state confusion
-		var local_player = _get_local_player()
-		if local_player and local_player.is_building:
-			return
-		toggle_inventory()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_F1:
-		_debug_add_item()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_F2:
-		_debug_print_inventory()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_F3:
-		print("Debug: F3 key pressed in level.gd _input")
-		_debug_start_wave()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_F4:
-		_debug_damage_base_heart()
+
 
 func _on_chat_message_sent(message_text: String) -> void:
 	var trimmed_message = message_text.strip_edges()
@@ -670,3 +673,20 @@ func _debug_damage_base_heart() -> void:
 	if heart_health:
 		heart_health.request_damage(100.0)
 		print("Debug: Dealt 100 damage to Base Heart (current HP: ", heart_health.current_health, ")")
+
+# ---------- DEBUG SKIP PHASE ----------
+func _debug_skip_phase() -> void:
+	print("Debug: _debug_skip_phase() called")
+	if multiplayer.is_server():
+		request_skip_phase()
+	else:
+		request_skip_phase.rpc_id(1)
+
+@rpc("any_peer", "reliable")
+func request_skip_phase() -> void:
+	print("Debug: request_skip_phase() RPC received on server")
+	if not multiplayer.is_server():
+		print("Debug: Not server, returning")
+		return
+	if _time_manager:
+		_time_manager.skip_to_next_phase()

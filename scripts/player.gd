@@ -36,6 +36,7 @@ var is_attacking: bool = false
 ## Server-replicated loadout properties. Replicated via MultiplayerSynchronizer.
 var weapon_loadout: Array[String] = ["", ""]
 var active_weapon_index: int = 0
+var equipped_armor: String = ""
 
 ## Server-replicated string. Empty = bare-handed. Populated by equip_item().
 ## Wired into MultiplayerSynchronizer in _setup_health_replication().
@@ -576,6 +577,57 @@ func request_swap_weapon() -> void:
 	_update_hand_mesh_visibility()
 
 @rpc("any_peer", "call_local", "reliable")
+func request_equip_to_slot(item_id: String, slot_type: String, slot_index: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if sender_id != get_multiplayer_authority() and sender_id != 1:
+		push_warning("Security: Peer %d tried to equip item to slot for player %d" \
+				% [sender_id, get_multiplayer_authority()])
+		return
+
+	# Verify the item actually exists (or empty-string to unequip).
+	if item_id != "" and not ItemDatabase.has_item(item_id):
+		push_warning("request_equip_to_slot: Unknown item_id '%s'" % item_id)
+		return
+
+	if item_id != "":
+		var item: Item = ItemDatabase.get_item(item_id)
+		if slot_type == "weapon":
+			if item.item_type != Item.ItemType.WEAPON and item.item_type != Item.ItemType.TOOL:
+				push_warning("request_equip_to_slot: Item '%s' is not a weapon/tool" % item_id)
+				return
+		elif slot_type == "armor":
+			if item.item_type != Item.ItemType.ARMOR:
+				push_warning("request_equip_to_slot: Item '%s' is not armor" % item_id)
+				return
+		else:
+			push_warning("request_equip_to_slot: Unknown slot_type '%s'" % slot_type)
+			return
+
+	if slot_type == "weapon":
+		if slot_index < 0 or slot_index >= weapon_loadout.size():
+			push_warning("request_equip_to_slot: Invalid weapon slot index %d" % slot_index)
+			return
+		weapon_loadout[slot_index] = item_id
+		if active_weapon_index == slot_index:
+			equipped_item_id = item_id
+			_update_hand_mesh_visibility()
+	elif slot_type == "armor":
+		equipped_armor = item_id
+
+	# Trigger sync of inventory/UI to client
+	var owner_id: int = get_multiplayer_authority()
+	if owner_id != 1:
+		if player_inventory:
+			sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
+	else:
+		var level_scene: Node = get_tree().get_current_scene()
+		if level_scene and level_scene.has_method("update_local_inventory_display"):
+			level_scene.update_local_inventory_display()
+
+@rpc("any_peer", "call_local", "reliable")
 func request_craft(item_to_craft: String):
 	print("Debug: request_craft called for ", item_to_craft, " on player ", name, " by client ", multiplayer.get_remote_sender_id())
 	
@@ -704,6 +756,11 @@ func _setup_health_replication() -> void:
 		if not config.has_property(index_path):
 			config.add_property(index_path)
 			config.property_set_replication_mode(index_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
+
+		var armor_path := NodePath(".:equipped_armor")
+		if not config.has_property(armor_path):
+			config.add_property(armor_path)
+			config.property_set_replication_mode(armor_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
 
 func _on_animation_finished(anim_name: String):
 	if anim_name == "Attack1" or anim_name == "Sword_Attack":
@@ -1076,9 +1133,14 @@ func take_damage(amount: float, attacker: Character) -> void:
 	if is_dead:
 		return
 		
+	# Apply armor damage reduction
+	var final_damage: float = amount
+	if equipped_armor == "leather_armor":
+		final_damage = amount * 0.75
+		
 	_last_attacker = attacker
 	play_hurt_effect.rpc()
-	health_component.request_damage(amount)
+	health_component.request_damage(final_damage)
 
 @rpc("call_local", "reliable")
 func play_hurt_effect() -> void:
