@@ -15,6 +15,10 @@ var crafting_visible = false
 var interaction_prompt: Label
 var connection_status_label: Label
 
+var _phase_banner_panel: Panel
+var _phase_banner_label: Label
+var _time_manager: Node
+
 func _ready():
 	get_tree().paused = false
 
@@ -26,6 +30,14 @@ func _ready():
 		if has_node("/root/DatabaseManager"):
 			get_node("/root/DatabaseManager").set("_match_start_time_unix",
 				int(Time.get_unix_time_from_system()))
+
+		# Instantiate TimeManager for server-authoritative day/night cycle
+		var time_manager_script: GDScript = load("res://scripts/time_manager.gd") as GDScript
+		if time_manager_script:
+			var time_manager: Node = time_manager_script.new()
+			time_manager.name = "TimeManager"
+			add_child(time_manager)
+			print("LevelManager: TimeManager successfully attached to active server scene graph.")
 
 	multiplayer_chat.hide()
 	main_menu.show_menu()
@@ -63,7 +75,14 @@ func _ready():
 	# Setup the screen interaction UI prompt
 	_setup_interaction_ui()
 	_setup_connection_status_ui()
+	_setup_phase_banner_ui()
 	Network.connection_status_changed.connect(_on_connection_status_changed)
+
+	# Connect to TimeManager for day/night cycle HUD updates
+	_time_manager = get_node_or_null("/root/Level/TimeManager")
+	if _time_manager:
+		_time_manager.phase_changed.connect(_on_phase_changed)
+		_time_manager.phase_time_updated.connect(_on_phase_time_updated)
 
 	# Spawn resource nodes in the world
 	spawn_resources()
@@ -286,9 +305,71 @@ func _setup_connection_status_ui() -> void:
 	canvas.add_child(connection_status_label)
 	add_child(canvas)
 
+func _setup_phase_banner_ui() -> void:
+	var canvas := CanvasLayer.new()
+	canvas.name = "PhaseBannerCanvas"
+
+	_phase_banner_panel = Panel.new()
+	_phase_banner_panel.name = "PhaseBannerPanel"
+	_phase_banner_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_phase_banner_panel.offset_top = 10
+	_phase_banner_panel.offset_bottom = 50
+	_phase_banner_panel.offset_left = 100
+	_phase_banner_panel.offset_right = -100
+
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.0, 0.4, 0.0, 0.7)  # Dark green, alpha-transparent
+	_phase_banner_panel.add_theme_stylebox_override("panel", panel_style)
+
+	_phase_banner_label = Label.new()
+	_phase_banner_label.name = "PhaseBannerLabel"
+	_phase_banner_label.text = "DAYTIME: PREPARE & BUILD"
+	_phase_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_phase_banner_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_phase_banner_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_phase_banner_label.add_theme_font_size_override("font_size", 20)
+	_phase_banner_label.add_theme_color_override("font_color", Color.WHITE)
+	_phase_banner_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_phase_banner_label.add_theme_constant_override("outline_size", 4)
+
+	_phase_banner_panel.add_child(_phase_banner_label)
+	canvas.add_child(_phase_banner_panel)
+	add_child(canvas)
+
 func _on_connection_status_changed(message: String) -> void:
 	if connection_status_label:
 		connection_status_label.text = message
+
+func _on_phase_changed(is_night_phase: bool, _wave_number: int) -> void:
+	if not _phase_banner_label or not _phase_banner_panel:
+		return
+
+	var panel_style: StyleBoxFlat = _phase_banner_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if not panel_style:
+		panel_style = StyleBoxFlat.new()
+
+	if is_night_phase:
+		_phase_banner_label.text = "NIGHTFALL: DEFEND THE CORE!"
+		panel_style.bg_color = Color(0.8, 0.1, 0.1, 0.85)  # Warning crimson
+
+		# Lock building capability during night
+		var local_player: Node = _get_local_player()
+		if local_player:
+			var placement_controller: Node = local_player.get_node_or_null("PlayerPlacementController")
+			if placement_controller and "is_active" in placement_controller:
+				placement_controller.is_active = false
+			if "is_building" in local_player:
+				local_player.is_building = false
+	else:
+		_phase_banner_label.text = "DAYTIME: PREPARE & BUILD"
+		panel_style.bg_color = Color(0.0, 0.4, 0.0, 0.7)  # Alpha-transparent dark green
+
+	_phase_banner_panel.add_theme_stylebox_override("panel", panel_style)
+
+func _on_phase_time_updated(_phase_time: float, _max_time: float, _is_night_phase: bool) -> void:
+	# Optional: Update countdown timer display
+	# Current implementation uses static phase banner text
+	pass
 
 func set_interaction_prompt(prompt_text: String):
 	if interaction_prompt:

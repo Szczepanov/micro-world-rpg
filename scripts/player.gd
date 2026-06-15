@@ -40,9 +40,6 @@ var active_weapon_index: int = 0
 ## Server-replicated string. Empty = bare-handed. Populated by equip_item().
 ## Wired into MultiplayerSynchronizer in _setup_health_replication().
 var equipped_item_id: String = ""
-
-## Server-replicated armor property. Replicated via MultiplayerSynchronizer.
-var equipped_armor: String = ""
 var current_nick: String = "Player"
 var interaction_area: Area3D = null
 var active_crafting_station: Area3D = null
@@ -564,57 +561,6 @@ func equip_item(item_id: String) -> void:
 	_update_hand_mesh_visibility()
 
 @rpc("any_peer", "call_local", "reliable")
-func request_equip_to_slot(item_id: String, slot_type: String, slot_index: int = 0) -> void:
-	if not multiplayer.is_server():
-		return
-
-	var sender_id: int = multiplayer.get_remote_sender_id()
-	if sender_id != get_multiplayer_authority() and sender_id != 1:
-		push_warning("Security: Peer %d tried to equip to slot for player %d" \
-				% [sender_id, get_multiplayer_authority()])
-		return
-
-	# Verify the item actually exists (or empty-string to unequip).
-	if item_id != "" and not ItemDatabase.has_item(item_id):
-		push_warning("request_equip_to_slot: Unknown item_id '%s'" % item_id)
-		return
-
-	# Perform validation based on slot_type
-	if item_id != "":
-		var item: Item = ItemDatabase.get_item(item_id)
-		if slot_type == "weapon":
-			if item.item_type != Item.ItemType.WEAPON and item.item_type != Item.ItemType.TOOL:
-				push_warning("request_equip_to_slot: Item '%s' is not a weapon/tool" % item_id)
-				return
-		elif slot_type == "armor":
-			if item.item_type != Item.ItemType.ARMOR:
-				push_warning("request_equip_to_slot: Item '%s' is not armor" % item_id)
-				return
-		else:
-			push_warning("request_equip_to_slot: Unknown slot_type '%s'" % slot_type)
-			return
-
-	# Now perform the equipment
-	if slot_type == "weapon":
-		if slot_index >= 0 and slot_index < weapon_loadout.size():
-			weapon_loadout[slot_index] = item_id
-			# If this is the active slot, update equipped_item_id as well
-			if slot_index == active_weapon_index:
-				equipped_item_id = item_id
-			_update_hand_mesh_visibility()
-	elif slot_type == "armor":
-		equipped_armor = item_id
-
-	# Update client inventory and equipment
-	var owner_id = get_multiplayer_authority()
-	if owner_id != 1:
-		sync_inventory_to_owner.rpc_id(owner_id, player_inventory.to_dict())
-	else:
-		var level_scene = get_tree().get_current_scene()
-		if level_scene and level_scene.has_method("update_local_inventory_display"):
-			level_scene.update_local_inventory_display()
-
-@rpc("any_peer", "call_local", "reliable")
 func request_swap_weapon() -> void:
 	if not multiplayer.is_server():
 		return
@@ -758,11 +704,6 @@ func _setup_health_replication() -> void:
 		if not config.has_property(index_path):
 			config.add_property(index_path)
 			config.property_set_replication_mode(index_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
-
-		var armor_path := NodePath(".:equipped_armor")
-		if not config.has_property(armor_path):
-			config.add_property(armor_path)
-			config.property_set_replication_mode(armor_path, SceneReplicationConfig.REPLICATION_MODE_ALWAYS)
 
 func _on_animation_finished(anim_name: String):
 	if anim_name == "Attack1" or anim_name == "Sword_Attack":
@@ -1034,9 +975,18 @@ func request_enemy_melee_hit(enemy_path: NodePath = NodePath("")) -> void:
 		var query := PhysicsShapeQueryParameters3D.new()
 		query.shape = box_shape
 		query.transform = sweep_area.global_transform
-		query.collision_mask = 9 # Layer 1 (players) and Layer 4 (enemies)
+		query.collision_mask = 255 # Layer 1 (players) and Layer 4 (enemies)
 
 		var results := space_state.intersect_shape(query)
+		print("DEBUG COMBAT: player pos = ", global_position, " forward = ", forward_dir)
+		print("DEBUG COMBAT: sweep_area.global_position = ", sweep_area.global_position)
+		print("DEBUG COMBAT: sweep_area.global_transform = ", sweep_area.global_transform)
+		print("DEBUG COMBAT: query.transform = ", query.transform)
+		print("DEBUG COMBAT: box_shape.size = ", box_shape.size)
+		print("DEBUG COMBAT: query collision mask = ", query.collision_mask)
+		print("DEBUG COMBAT: intersect_shape returned ", results.size(), " results")
+		for r in results:
+			print("  DEBUG COMBAT: result collider: ", r.collider, " name: ", r.collider.name, " groups: ", r.collider.get_groups(), " layer: ", r.collider.collision_layer)
 		for result in results:
 			var collider = result.collider
 			if is_instance_valid(collider) and collider != self:
@@ -1126,13 +1076,9 @@ func take_damage(amount: float, attacker: Character) -> void:
 	if is_dead:
 		return
 		
-	var final_damage: float = amount
-	if equipped_armor == "leather_armor":
-		final_damage = final_damage * 0.75 # 25% reduction
-		
 	_last_attacker = attacker
 	play_hurt_effect.rpc()
-	health_component.request_damage(final_damage)
+	health_component.request_damage(amount)
 
 @rpc("call_local", "reliable")
 func play_hurt_effect() -> void:
