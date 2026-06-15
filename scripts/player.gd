@@ -139,29 +139,20 @@ func _physics_process(delta):
 	if is_dead:
 		freeze()
 		return
-
-	var current_scene = get_tree().get_current_scene()
-	# Check menu visibility regardless of floor state
-	if current_scene:
-		var should_freeze = false
-		if current_scene.has_method("is_chat_visible") and current_scene.is_chat_visible():
-			should_freeze = true
-		elif current_scene.has_method("is_inventory_visible") and current_scene.is_inventory_visible():
-			should_freeze = true
-		elif current_scene.has_method("is_crafting_visible") and current_scene.is_crafting_visible():
-			should_freeze = true
-
-		if should_freeze:
-			freeze()
-			return
+		
+	var ui_open: bool = is_ui_open()
 	
+	# Check menu visibility regardless of floor state
+	if ui_open:
+		freeze()
+
 	# Attack and interact are now handled in _unhandled_input to prevent input leakage
 
 	if is_on_floor():
 		can_double_jump = true
 		has_double_jumped = false
 
-		if Input.is_action_just_pressed("jump") and not is_attacking:
+		if Input.is_action_just_pressed("jump") and not is_attacking and not ui_open:
 			velocity.y = JUMP_VELOCITY
 			can_double_jump = true
 			if _body and _body.has_method("play_jump_animation"):
@@ -171,7 +162,7 @@ func _physics_process(delta):
 	else:
 		velocity.y -= gravity * delta
 
-		if can_double_jump and not has_double_jumped and Input.is_action_just_pressed("jump") and not is_attacking:
+		if can_double_jump and not has_double_jumped and Input.is_action_just_pressed("jump") and not is_attacking and not ui_open:
 			velocity.y = JUMP_VELOCITY
 			has_double_jumped = true
 			can_double_jump = false
@@ -277,7 +268,7 @@ func freeze():
 		animate_locomotion(Vector3.ZERO)
 
 func _move() -> void:
-	if is_attacking:
+	if is_attacking or is_ui_open():
 		velocity.x = 0
 		velocity.z = 0
 		return
@@ -310,6 +301,17 @@ func is_running() -> bool:
 	else:
 		_current_speed = NORMAL_SPEED
 		return false
+
+func is_ui_open() -> bool:
+	var current_scene := get_tree().get_current_scene()
+	if current_scene:
+		if current_scene.has_method("is_chat_visible") and current_scene.is_chat_visible():
+			return true
+		if current_scene.has_method("is_inventory_visible") and current_scene.is_inventory_visible():
+			return true
+		if current_scene.has_method("is_crafting_visible") and current_scene.is_crafting_visible():
+			return true
+	return false
 
 func _check_fall_and_respawn():
 	if global_transform.origin.y < -15.0:

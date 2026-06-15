@@ -73,6 +73,9 @@ func _ready():
 
 func _on_player_connected(peer_id, player_info):
 	_add_player(peer_id, player_info)
+	if peer_id == multiplayer.get_unique_id():
+		if multiplayer_chat:
+			multiplayer_chat.show()
 
 func _on_player_session_loaded(peer_id: int, player_id: String, inv_dict: Dictionary) -> void:
 	# Called when DatabaseManager finishes loading a player's session from the DB.
@@ -377,18 +380,13 @@ func toggle_chat():
 		return
 
 	multiplayer_chat.toggle_chat()
-	chat_visible = multiplayer_chat.is_chat_visible()
 
 func is_chat_visible() -> bool:
-	return multiplayer_chat.is_chat_visible()
+	return multiplayer_chat.is_chat_visible() if multiplayer_chat else false
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_chat"):
 		toggle_chat()
-	elif chat_visible and multiplayer_chat.message.has_focus():
-		if event is InputEventKey and event.keycode == KEY_ENTER and event.pressed:
-			multiplayer_chat._on_send_pressed()
-			get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("inventory"):
 		if crafting_visible:
 			toggle_crafting()
